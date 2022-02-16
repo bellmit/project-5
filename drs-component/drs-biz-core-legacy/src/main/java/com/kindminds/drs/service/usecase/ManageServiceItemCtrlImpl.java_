@@ -1,0 +1,50 @@
+package com.kindminds.drs.service.usecase;
+
+import com.kindminds.drs.api.usecase.ManageServiceItemController;
+import com.kindminds.drs.api.v1.model.accounting.ServiceItem;
+import com.kindminds.drs.api.data.access.usecase.ManageServiceItemDao;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service("manageService")
+public class ManageServiceItemCtrlImpl implements ManageServiceItemController{
+
+	private ManageServiceItemDao serviceItemDao;
+	
+	public void setServiceItemDao(ManageServiceItemDao serviceItemDao){		
+		 this.serviceItemDao = serviceItemDao;		
+	}
+	
+	@Override
+    @Transactional("transactionManager")
+	public void addServiceItem(ServiceItem serviceItem){
+		this.serviceItemDao.addServiceItem(serviceItem);		
+	}
+	
+	@Override
+    @Transactional("transactionManager")
+    public void updateServiceItem(ServiceItem serviceItem) {
+        this.serviceItemDao.updateServiceItem(serviceItem);
+    }
+	
+	@Override
+    @Transactional("transactionManager")
+    public List<ServiceItem> listServiceItems() {
+        return this.serviceItemDao.listServiceItems();
+    }
+	
+	@Override
+    @Transactional("transactionManager")
+    public ServiceItem getServiceItemById(int id) {
+        return this.serviceItemDao.getServiceItemById(id);
+    }
+	
+	@Override
+    @Transactional("transactionManager")
+    public void removeServiceItem(int id) {
+        this.serviceItemDao.removeServiceItem(id);
+    }
+		
+}

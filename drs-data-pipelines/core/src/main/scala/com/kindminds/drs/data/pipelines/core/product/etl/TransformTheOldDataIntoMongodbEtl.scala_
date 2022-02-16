@@ -1,0 +1,120 @@
+package com.kindminds.drs.data.pipelines.core.product.etl
+
+import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
+import akka.actor.ActorSystem
+import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
+import akka.stream.alpakka.mongodb.scaladsl.MongoSource
+import akka.stream.alpakka.slick.javadsl.SlickSession
+import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.{ActorMaterializer, IOResult, Materializer}
+import akka.util.ByteString
+import com.kindminds.drs.{Country, Currency}
+import com.kindminds.drs.core.biz.repo.product.ProductRepoImpl
+import com.kindminds.drs.api.data.access.nosql.mongo.ProductDao
+import com.kindminds.drs.api.data.access.rdb.CompanyDao
+import com.kindminds.drs.api.data.cqrs.store.read.queries.{ProductViewQueries, QuoteRequestViewQueries}
+import com.kindminds.drs.data.pipelines.core.BizCoreCtx
+import com.kindminds.drs.api.data.transfer.productV2.ProductDto
+import com.kindminds.drs.persist.cqrs.store.read.queries.QuoteRequestViewQueriesImpl
+import com.kindminds.drs.persist.data.access.rdb.CompanyDaoImpl
+import com.kindminds.drs.api.usecase.report.amazon.ImportAmazonSponsoredProductsAdvertisedProductReportUco
+import com.kindminds.drs.api.v2.biz.domain.model.product.Product
+import com.mongodb.reactivestreams.client.MongoClients
+//import org.mongodb.scala.bson.{BsonString, Document}
+import org.springframework.beans.factory.annotation.Autowired
+
+import java.{lang, util}
+import java.util.{List, Map, Optional}
+//import org.mongodb.scala.bson.{BsonDocument, BsonString, Document}
+import scala.collection.immutable
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+
+object TransformTheOldDataIntoMongodbEtl  {
+
+  val springCtx = BizCoreCtx.get
+
+  val productDao = springCtx.getBean(classOf[ProductDao])
+    .asInstanceOf[ProductDao]
+
+  val companyDao = springCtx.getBean(classOf[CompanyDao])
+    .asInstanceOf[CompanyDao]
+
+  val productViewQueries = springCtx.getBean(classOf[ProductViewQueries])
+    .asInstanceOf[ProductViewQueries]
+
+  val pd = springCtx.getBean(classOf[com.kindminds.drs.api.data.cqrs.store.event.dao.productV2.ProductDao])
+    .asInstanceOf[com.kindminds.drs.api.data.cqrs.store.event.dao.productV2.ProductDao]
+
+  //@Autowired
+  //val quoteRequestViewQueries = new QuoteRequestViewQueriesImpl
+
+  def main(args: Array[String]): Unit = {
+
+
+    val repo = new ProductRepoImpl
+
+    var currentIndex = 1
+
+    val allCompanyKcodeList = companyDao.queryAllCompanyKcodeList
+
+
+    allCompanyKcodeList.forEach(kcode => {
+
+      val getallbaseproducts = productViewQueries.getBaseProductOnboardingList(1, 1000, kcode)
+
+      System.out.println("------------------------" + kcode + "------------------------")
+
+      System.out.println("---------Total number of baseproducts = " + getallbaseproducts.size + "---------")
+
+      getallbaseproducts.forEach(k => {
+
+        System.out.println(k.getProductBaseCode)
+
+        val result = pd.getId(k.getProductBaseCode, Country.CORE)
+
+        val product_Id = result.get
+
+        val p = repo.findById(product_Id).get
+
+        var data = p.getData.substring(1, p.getData.length - 1)
+
+        val kcode = p.getSupplierKcode
+
+        val productorsku = data.split("\"products\":\"")
+
+        val originalPlace = "\",\"originalPlace\":"
+
+        var allskudatas = ""
+
+
+        if(productorsku(1).indexOf(originalPlace)>0){
+          val allskudata = productorsku(1).split("\",\"originalPlace\":")
+
+          allskudatas = allskudata(0).substring(2, allskudata(0).length - 2)
+        }
+        else{
+          val allskudata = productorsku(1).split("\",\"medical\":")
+
+          allskudatas = allskudata(0).substring(2, allskudata(0).length - 2)
+        }
+
+        val skudata = allskudatas.split("},\\{")
+
+        System.out.println("Total number of SKUs = " + skudata.length)
+
+
+      })
+
+    })
+
+  }
+
+
+
+
+
+
+
+}

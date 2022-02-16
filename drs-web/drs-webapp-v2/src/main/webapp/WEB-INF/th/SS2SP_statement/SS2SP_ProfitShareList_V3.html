@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{ss2spStatement.profitShare}+' - DRS'"></title>
+<link th:href="@{/resources/css/newstyle.css}" type="text/css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">		
+<script>
+	$(document).ready(function() {
+		$('[data-toggle="tooltip"]').tooltip();	
+
+		$('.cost-num').click(function(e){
+            	        e.stopPropagation();
+            	    });	
+	});
+</script>
+<style>
+table.dataTable {    
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+	}
+table.dataTable.no-footer {
+    border-bottom: 0px solid #111;
+}
+table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > td.sorting_asc, table.dataTable thead > tr > td.sorting_desc, table.dataTable thead > tr > td.sorting {
+    padding-right: 15px;
+}
+table.fixedHeader-floating {
+ top:48px !important;
+}
+table.dataTable thead th{
+	border-bottom: 1px solid #eeeded;
+}
+.table > tbody > tr > td.dataTables_empty {
+	border-top:0px;
+}
+.dataTables_wrapper.no-footer .dataTables_scrollBody{
+	border-bottom: 0px solid #111;
+}
+</style>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="row">
+    <div class="col-md-12 max-width" >   
+    <div class="breadcrumb">
+         <a href="/" th:text="#{productVersion.homepage}" ></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div> 
+         <a th:href="@{/{rootUrl}(rootUrl=${rootUrl})}" th:text="#{ss2spStatement.statements}"></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                 
+		 <a th:href="@{/{rootUrl}/{statementName}(rootUrl=${rootUrl},statementName=${statementName})}" th:text="${statementName}"></a> 
+		 <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                          
+         <span><a th:text="#{ss2spStatement.profitShare}"></a></span>  
+    </div>
+    </div>
+</div>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{ss2spStatement.profitShare}"></a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<p class="text-right">
+					<a th:text="#{ss2spStatement.period}" ></a><a th:text="'：'+${report.dateStart}+' ~ '+${report.dateEnd}" ></a> <br>
+					<a th:text="#{ss2spStatement.issuer}" ></a><a th:text="'：'+${companyKcodeToNameMap[report.isurKcode]}" ></a><br>
+					<a th:text="#{ss2spStatement.receiver}" ></a><a th:text="'：'+${companyKcodeToNameMap[report.rcvrKcode]}"></a>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.sourceCountry}" ></a></th>							
+							<th class="text-right"><a th:text="#{ss2spStatement.revenueInUsd}" ></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.retainmentRateTier}" ></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{ss2spStatement.noteForEffectiveRetainmentRate}" ><a th:text="#{ss2spStatement.effectiveRetainmentRate}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.profitShare}" ></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{ss2spStatement.noteForExchangeRate}"><a th:text="#{ss2spStatement.exchangeRate}"></a> </th>
+							<th class="text-right"><a th:text="#{ss2spStatement.amount}" ></a> [<a th:text="#{${report.statementCurrency}}"></a>]</th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${report.lineItems}" >
+							<tr>
+								<td>								  
+								<a th:id="'collapse'+${item.sourceCountry}" class="btn btn-default"
+								 th:text="#{ss2spStatement.expand}"></a> 													    
+								
+								<a class="btn btn-default" target="_blank" th:href="@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/export
+								(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry})}"
+ 									th:text="#{ss2spStatement.reviewExport}" >															    
+ 								</a>
+								<script>								
+									$(document).ready(function() {
+										
+																										
+									$( "#collapse"+'[[${item.sourceCountry}]]').click(function() {
+													
+										if ($("#panel"+'[[${item.sourceCountry}]]').css('display') === "table-row") {											
+											$("#panel"+'[[${item.sourceCountry}]]').css('display','none');											
+											$( "#collapse"+'[[${item.sourceCountry}]]').text('[[#{ss2spStatement.expand}]]');
+										} else {								        	
+								        	$("#panel"+'[[${item.sourceCountry}]]').css('display','table-row');											    
+								        	$( "#collapse"+'[[${item.sourceCountry}]]').text('[[#{ss2spStatement.collapse}]]');
+								        }
+																														
+									});	
+																		
+									$('#report'+'[[${item.sourceCountry}]]').DataTable( {
+										searching: false,
+										ordering: false,
+									    paging: false,
+									    info: false,
+									    scrollY: '50vh',									    
+								        scrollCollapse: true
+									});
+									
+									});									
+								</script>
+								</td>
+								<td class="text-center"><a th:text="#{${item.sourceCountry}}"></a></td>								
+								<td class="text-right"><a th:text="${item.revenueInUsd}"></a></td>																								
+								<td class="text-right"><a th:text="${item.achievedRetainmentRateGrade}"></a></td>
+								<td class="text-right"><a th:text="${item.effectiveRetainmentRate}"></a></td>																								
+								<td class="text-right"><a th:text="${item.sourceAmount}+' '+${item.sourceCurrency}"></a></td>
+								<td class="text-right"><a th:text="${item.exchangeRate}"></a></td>
+								<td class="text-right"><a th:text="${item.statementAmount}"></a></td>								
+							</tr>
+							<tr th:id="'panel'+${item.sourceCountry}">								
+								<td colspan=9>								
+									<table id="report${item.sourceCountry}" class="table success table-hover" >
+										<thead>
+											<tr class="success">
+											<th><a th:text="#{ss2spStatement.relatedSKU}"></a></th>
+											<th class="text-center"><a th:text="#{ss2spStatement.sourceCountry}"></a></th>
+											<th class="text-center"><a th:text="#{ss2spStatement.sourceCurrency}"></a></th>
+											<th><a th:text="#{ss2spStatement.skuName}"></a></th>
+											<th class="text-center"><a th:text="#{ss2spStatement.shippedQty}"></a></th>
+											<th class="text-center"><a th:text="#{ss2spStatement.refundedQty}"></a></th>
+											<th><a th:text="#{ss2spStatement.items}"></a></th>
+											<th class="text-right"><a th:text="#{ss2spStatement.profitShareAmount}"></a></th> 
+											</tr>
+										</thead>
+										<tbody>
+										<th:block th:each="skuItem : ${profitShareDetailReport[item.sourceCountry].skuProfitShareItems}" >
+											<tr id="${skuItem.sku}" class="success clickableRow" 
+											th:onclick="'document.location.href=\''+@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{sku}
+											(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},sku=${skuItem.sku})}+'\''">
+												<td><a th:text="${skuItem.sku}"></a></td>
+												<td class="text-center"><a th:text="#{${item.sourceCountry}}"></a></td>
+												<td class="text-center"><a th:text="#{${item.sourceCurrency}}"></a></td>
+												<td><a th:text="${skuItem.name}"</td>
+												<td class="text-center"><a th:text="${skuItem.shippedQty}"></a></td>
+												<td class="text-center"><a th:text="${skuItem.refundedQty}"></a></td>
+												<td><a th:text="'SKU '+ #{ss2spStatement.profitShare}"></a></td>
+												<td class="text-right">
+													<a th:href="@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{sku}
+													(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},sku=${skuItem.sku})}"
+													th:text="${skuItem.subtotal}"></a></td>												  	
+											</tr>										
+										</th:block>			
+										<th:block th:each="detail : ${profitShareDetailReport[item.sourceCountry].detailListOfProductSku}" >
+											<th:block th:each="itemNameAmount : ${detail.itemNameToAmountMap}" varStatus="status">
+											<tr class="success clickableRow" th:onclick="'document.location.href=\''+@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{productSkuCode}/{key}
+											(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},productSkuCode=${detail.productSkuCode},key=${itemNameAmount.key})}+'\''">
+												<div th:if="${status.count==1}">
+												<td rowspan="${detail.itemNameToAmountMap.size()}"><a th:text="${detail.productSkuCode}"></a></td>
+												<td rowspan="${detail.itemNameToAmountMap.size()}"><a th:text="${detail.productSkuName}"></a></td>
+												</div>
+												<td><a th:text="#{${itemNameAmount.key}}"></a> </td>
+												<td class="text-right">
+													<a th:href="@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{productSkuCode}/{key}
+													(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},productSkuCode=${detail.productSkuCode},key=${itemNameAmount.key})}"
+														th:text="${itemNameAmount.value}"></a></td>
+												<div th:if="${status.count==1}">												
+												<td rowspan="${detail.itemNameToAmountMap.size()}" class="text-right" ><a th:text="${detail.subtotal}"></a></td>											
+												</div>
+											</tr>
+											</th:block>										
+										</th:block>								
+										
+										<!-- total section -->
+										<th:block th:each="itemAmount : ${profitShareDetailReport[item.sourceCountry].otherItemAmounts}">																					
+											<th:block th:switch="${itemAmount.key}">											
+												<!-- customer care case -->
+												<div th:case="'MS2SS_PURCHASE_ALWNC_CUSTOMERCARE'">
+													<tr id="customerCareCase" class="success clickableRow" 
+													th:onclick="'window.open(\''+@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{key}
+													(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},key=${itemAmount.key})}+'\')'" target="_blank">
+												<td></td>											
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+													
+												<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>												
+												<td class="text-right"><a class="cost-num" th:href="@{/{rootUrl}/{statementName}/profitshare/{sourceCountry}/{key}
+													(rootUrl=${rootUrl},statementName=${statementName},sourceCountry=${item.sourceCountry},key=${itemAmount.key})}" 
+													target="_blank" th:text="${itemAmount.value}"></a></td></tr>		
+											</div>
+												
+												<!-- monthly storage fee -->
+												<div th:case="'FBA_MONTHLY_STORAGE'">
+													<tr id="monthlyStorageFee" class="success clickableRow" th:onclick="'window.open(\''+@{/storage-fee/{rcvrKcode}/{sourceCountry}/{info}/{storageFeeMonth}
+													(rcvrKcode=${report.rcvrKcode},sourceCountry=${item.sourceCountry},info=${monthInfoForMonthStorageFee.split('-')[0]},storageFeeMonth=${storageFeeMonth})}+'\')'" target="_blank">
+													<td></td>											
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+														
+													<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>																																							
+													<td class="text-right"><a class="cost-num" th:href="@{/storage-fee/{rcvrKcode}/{sourceCountry}/{info}/{storageFeeMonth}
+														(rcvrKcode=${report.rcvrKcode},sourceCountry=${item.sourceCountry},info=${monthInfoForMonthStorageFee.split('-')[0]},storageFeeMonth=${storageFeeMonth})}" 
+														target="_blank" th:text="${itemAmount.value}"></a></td></tr>
+												</div>
+												
+												<!-- advertising cost -->
+												<div th:case="'MARKET_SIDE_ADVERTISING_COST'">
+													<tr id="advertisingCost" class="success clickableRow" th:onclick="'window.open(\''+@{/statements/{statementName}/profitshare/advertising-cost/{sourceCountry}
+													(statementName=${statementName},sourceCountry=${item.sourceCountry})}+'\')'" target="_blank"> 
+													<td></td>											
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+														
+													<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>																									
+													<td class="text-right"><a class="cost-num" th:href="@{/statements/{statementName}/profitshare/advertising-cost/{sourceCountry}
+														(statementName=${statementName},sourceCountry=${item.sourceCountry})}"
+														target="_blank" th:text="${itemAmount.value}"></a></td></tr>	
+												</div>
+												
+												<!-- other refund and allowance -->
+												<div th:case="'OTHER_REFUND_AND_ALLOWANCE_FROM_MARKET_SIDE_TO_CUSTOMER'">
+													<tr id="otherRefundAndAllowance" class="success clickableRow" th:onclick="'window.open(\''+@{/statements/{statementName}/profitshare/other-refund-and-allowance/{sourceCountry}
+													(statementName=${statementName},sourceCountry=${item.sourceCountry})}+'\')'" target="_blank">
+													<td></td>											
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+														
+													<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>																									
+													<td class="text-right"><a class="cost-num" th:href="@{/statements/{statementName}/profitshare/other-refund-and-allowance/{sourceCountry}
+														(statementName=${statementName},sourceCountry=${item.sourceCountry})}" 
+														target="_blank" th:text="${itemAmount.value}"></a></td>	</tr>
+												</div>
+												
+												<!-- marketing activity expense -->
+												<!-- MARKET_SIDE_MARKETING_ACTIVITY -->
+												<div th:case="'MARKET_SIDE_MARKETING_ACTIVITY'">
+													<tr id="marketingActivityExpense" class="success clickableRow" th:onclick="'window.open(\''+@{/statements/{statementName}/profitshare/marketing-activity-expense/{sourceCountry}
+													(statementName=${statementName},sourceCountry=${item.sourceCountry})}+'\')'" target="_blank">												
+													<td></td>											
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+																
+													<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>													
+													<td class="text-right"><a class="cost-num" th:href="@{/statements/{statementName}/profitshare/marketing-activity-expense/{sourceCountry}
+														(statementName=${statementName},sourceCountry=${item.sourceCountry})}" 
+														target="_blank" th:text="${itemAmount.value}"></a></td></tr>
+												</div>
+
+												<!-- partial refund -->
+												<div th:case="'PARTIAL_REFUND'">
+													<tr id="partialRefund" class="success clickableRow" th:onclick="'window.open(\''+@{/statements/{statementName}/profitshare/partial-refund/{sourceCountry}
+													(statementName=${statementName},sourceCountry=${item.sourceCountry})}+'\')'" target="_blank">												
+													<td></td>											
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+													<td></td>
+																
+													<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>													
+													<td class="text-right"><a class="cost-num" th:href="@{/statements/{statementName}/profitshare/partial-refund/{sourceCountry}
+														(statementName=${statementName},sourceCountry=${item.sourceCountry})}" 
+														target="_blank" th:text="${itemAmount.value}"></a></td></tr>
+												</div>
+
+												
+												<div th:case="*">
+													<tr class="success">
+														<td></td>											
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+															
+														<td><a th:text="#{${itemAmount.key}}"></a>  <span th:if="${itemAmount.key == 'FBA_MONTHLY_STORAGE'}"> (<a th:text="${monthInfoForMonthStorageFee}"></a>)</span></td>														
+														<td class="text-right"><a th:text="${itemAmount.value}"></a></td></tr>	
+													</div>
+												
+												</th:block>	
+																									 
+												
+										</th:block>	
+										<tr class="success">
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+										<th class="text-right"><a th:text="#{ss2spStatement.totalSourceAmount}"></a> <a th:text="#{${profitShareDetailReport[item.sourceCountry].currency.name()}}"></a> </th>
+										<th class="text-right"><a th:text="${profitShareDetailReport[item.sourceCountry].subTotal}"></a></th>
+										</tr>										
+										</tbody>	
+									</table>
+								</td>
+							</tr>
+							<script>	
+								$(document).ready(function() {
+									console.log('read')
+										  
+									 $("#panel"+'[[${item.sourceCountry}]]').css('display','none');
+									
+									function getParameterByName(name, url) {
+										
+									    if (!url) {
+										  url = window.location.href;
+										
+									    }
+									    name = name.replace(/[\[\]]/g, "\\$&");
+									    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+									        results = regex.exec(url);
+									    if (!results) return null;
+									    if (!results[2]) return '';
+									    return decodeURIComponent(results[2].replace(/\+/g, " "));
+									}
+									
+									var country = getParameterByName('country'); 
+									
+									if(country != null){
+										
+										$("#panel"+country).css('display','table-row');	
+										$( "#collapse"+country).text('[[#{ss2spStatement.collapse}]]');
+									}
+								});									
+							</script>
+						</th:block>
+						<tr>
+							<td colspan="6"></td>
+							<td class="text-right"><strong><a th:text="#{ss2spStatement.subtotal}"></a></strong></td>
+							<td class="text-right"><strong><a th:text="${report.amountSubTotal}"></a></strong></td>
+						</tr>
+						<tr>
+							<td colspan="6"></td>
+							<td class="text-right"><strong><a th:text="#{ss2spStatement.tax}"></a></strong></td>
+							<td class="text-right"><strong><a th:text="${report.amountTax}"></a></strong></td>
+						</tr>
+						<tr>
+							<td colspan="6"></td>
+							<td class="text-right"><strong><a th:text="#{ss2spStatement.totalStatementAmount}"></a> <a th:text="#{${report.statementCurrency}}"></a> </strong></td>
+							<td class="text-right"><strong><a th:text="${report.amountTotal}"></a></strong></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+</section>
+</body>
+</html>

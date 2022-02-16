@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title
+        th:text="#{customerSatisfaction.title}+ ' - DRS'">
+    </title>
+    <link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}"></script>
+    <script>
+$(function() {
+
+	$( "#supplierSelector" ).select2({
+	    theme: "bootstrap"
+	});
+	if($(window).width() >= 1024){
+	$('#customerSatisfaction').floatThead({
+		scrollingTop : $("#s5_menu_wrap").height(),
+		zIndex : 100
+	});
+	$('#customerSatisfaction').on("floatThead", function(e, isFloated, $floatContainer) {
+		if (isFloated) {
+			$floatContainer.addClass("table-floated");
+		} else {
+			$floatContainer.removeClass("table-floated");
+		}
+	})};
+});
+</script>
+    <style>
+
+th, td {
+	min-width: 100px;
+}
+.satisfactionGood {
+    background: #1155cc;
+    width: 10px;
+    height: 10px;
+   	border-radius: 50%;
+   	display: inline-block;
+}
+.satisfactionOkay {
+    background: #38761d;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.satisfactionBad {
+    background: #ff9900;
+   	width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.satisfactionUnacceptable {
+    background: #cc0000;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.satisfactionNA {
+    background: #BBBBBB;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+</style>
+</head>
+
+<body>
+    <section layout:fragment="custom-content">
+
+<div class="max-width" >
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-heading"><a th:text="#{customerSatisfaction.title}"></a> </div>
+            </div>
+            <div class="col-md-12"
+                th:utext="#{customerSatisfaction.description}"><br><br>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-inline" method="POST" action="/customer-satisfaction">
+                    <div sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT_FILTER'])}">
+                        <div th:if="${supplierKcodeNameMap != null}">
+                           
+                            <label for="supplierSelector" class="pr-md-2" > </label>
+                            <div><br></div>
+                            <a th:text="#{campaignPerformance.supplier}"></a>
+                            <select id="supplierSelector" class="form-control" name="supplierKcode">
+                                <option value="">--- All ---</option>
+                                <th:block th:each="supplierKcodeName : ${supplierKcodeNameMap}" >
+                                    <option th:value="${supplierKcodeName.key}" th:selected="${supplierKcodeName.key} == ${supplierKcode}"
+                                            th:text="${supplierKcodeName.key}+' '+${supplierKcodeName.value}" >
+                                    </option>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                    <label for="mkid" class="px-md-2 pt-2 pt-md-0"> </label>
+                    <div><br></div>
+                        <a th:text="#{common.marketplace}"></a>
+                    <select id="mkid" class="form-control" name="assignedMarketplaceId">
+                        <option value="">--- Select ---</option>
+                        <th:block th:each="marketplace : ${marketplaces}" >
+                            <option th:value="${marketplace.key}" th:selected="${marketplace.key} == ${assignedMarketplaceId}"
+                                    th:text="${marketplace.name}">
+                            </option>
+                        </th:block>
+                    </select>
+
+                    <input class="btn btn-primary mx-md-2 mt-2 mt-md-0" type="submit" value="View">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="customerSatisfaction" class="table table-floated">
+                        <thead>
+                        <tr>
+                            <th class="th-gray" style="width:15%">SKU</th>
+                            <th class="th-gray" style="width:25%"><a th:text="#{customerSatisfaction.productName}"></a> </th>
+                            <th class="th-gray" style="width:20%"><a th:text="#{customerSatisfaction.last1}"></a><br><a th:text="${report.last1PeriodStart} +' ~ '+ ${report.end}"></a></th>
+                            <th class="th-gray" style="width:20%"><a th:text="#{customerSatisfaction.last2}"></a><br><a th:text="${report.last2PeriodStart} +' ~ '+ ${report.end}"></a></th>
+                            <th class="th-gray" style="width:20%"><a th:text="#{customerSatisfaction.last6}"></a><br><a th:text="${report.last6PeriodStart} +' ~ '+ ${report.end}"></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <div th:if="${report != null}">
+                            <th:block th:each="lineItem : ${report.lineItems}">
+                                <tr>
+                                    <td class="td-gray" th:text="${lineItem.productSku}"></td>
+                                    <td class="td-gray" th:text="${lineItem.productName}"></td>
+                                    <td><div th:class="${statusColorMap[lineItem.lastOnePeriodData.statisticsDescription]}"></div><a th:text="' ' + ${lineItem.lastOnePeriodData.percentage}+' ('+${lineItem.lastOnePeriodData.returnQuantity} +'/'+ ${lineItem.lastOnePeriodData.orderQuantity}+')'"></a><br></td>
+                                    <td><div th:class="${statusColorMap[lineItem.lastTwoPeriodData.statisticsDescription]}"></div><a th:text="' ' + ${lineItem.lastTwoPeriodData.percentage}+' ('+${lineItem.lastTwoPeriodData.returnQuantity} +'/'+ ${lineItem.lastTwoPeriodData.orderQuantity}+')'"></a><br></td>
+                                    <td><div th:class="${statusColorMap[lineItem.lastSixPeriodData.statisticsDescription]}"></div><a th:text="' ' + ${lineItem.lastSixPeriodData.percentage}+' ('+${lineItem.lastSixPeriodData.returnQuantity} +'/'+ ${lineItem.lastSixPeriodData.orderQuantity}+')'"></a><br></td>
+                                </tr>
+                            </th:block>
+                        </div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <b th:text="#{customerSatisfaction.satisfactionScoreFormula}" ></b>
+            </div>
+            <div style="padding-bottom: 10px"></div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th style="width:10%"></th>
+                            <th style="width:40%" th:text="#{customerSatisfaction.satisfaction}"></th>
+                            <th style="width:50%" th:text="#{customerSatisfaction.drsAction}" ></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td></td>
+                            <td><div class="satisfactionGood"></div> 93-100%</td>
+                            <td th:text="#{customerSatisfaction.drsActionForGood}" ></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><div class="satisfactionOkay"></div> 86-92%</td>
+                            <td th:text="#{customerSatisfaction.drsActionForOkay}" ></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><div class="satisfactionBad"></div> 81-85%</td>
+                            <td th:text="#{customerSatisfaction.drsActionForBad}" ></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><div class="satisfactionUnacceptable"></div> 0-80%</td>
+                            <td th:text="#{customerSatisfaction.drsActionForUnacceptable}" ></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <small class="col-md-12 text-muted"
+            th:text="#{customerSatisfaction.hint}" >
+        </small>
+    </div>
+</div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Marketing Report-DRS</title>
+</head>
+
+<body>
+	<section layout:fragment="custom-content">
+
+	
+<div class="container">
+	<div class="row">
+		<div class="col-md-6">
+			<h2>Links</h2>
+		</div>
+	</div>
+	<div class="row">
+	<div class="col-md-6">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Report name</th>
+					<th>Link</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Amazon campaign performance report</td>
+					<td><a href="/AmazonCampaignPerformanceReport">link</a></td>
+				</tr>
+				<tr>
+					<td>Amazon search term report</td>
+					<td><a href="/AmazonSearchTermReport">link</a></td>
+				</tr>
+				<tr>
+					<td>Amazon detail page sales traffic by child item report</td>
+					<td><a href="/AmazonDetailPageSalesTrafficByChildItemReport">link</a></td>
+				</tr>
+				<tr>
+					<td>Amazon daily page sales traffic report</td>
+					<td><a href="/AmazonDailyPageSalesTrafficReport">link</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+</div>
+</section>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+package com.kindminds.drs.persist.cqrs.store.event.dao.productV2;
+
+import com.kindminds.drs.api.data.row.logistics.IvsLineitemRow;
+import com.kindminds.drs.api.data.row.logistics.IvsRow;
+import com.kindminds.drs.api.data.access.rdb.logistics.IvsDao;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:META-INF/spring/base-app-context4Test.xml" })
+public class TestJooq {
+
+
+    @Autowired
+    IvsDao ivsDao;
+
+    @Test
+    public void testDs() {
+
+        List<IvsRow> r = ivsDao.queryByName("IVS-K486-DRAFT8");
+
+        //need to confirm company code and country code
+        IvsRow ivsRow = r.get(0);
+        System.out.println(ivsRow.getId());
+        System.out.println(ivsRow.getName());
+        System.out.println(ivsRow.getExpectedExportDate());
+        System.out.println(ivsRow.getDestinationCountryCode());
+        System.out.println(ivsRow.getSellerCompanyKcode());
+        System.out.println(ivsRow.getBuyerCompanyKcode());
+
+        System.out.println(ivsRow.getStatus());
+
+
+        List<IvsLineitemRow> result = ivsDao.queryLineItems("IVS-K486-DRAFT8");
+
+        result.forEach(x->{
+            System.out.println(x.getId());
+            System.out.println(x.getCodeByDrs());
+            System.out.println(x.getNameBySupplier());
+        });
+
+
+
+        /*
+        BigDecimal total = ivsDao.queryShipmentPaymentTotal("IVS-K486-DRAFT8");
+
+        System.out.println(total);
+        */
+
+        /*
+        List<DailySalesRow> rList = dsDao.getTodayDailySales("K510");
+        System.out.println(rList.size());
+
+        System.out.println(rList.get(0).getId());
+        System.out.println(rList.get(0).getRevenueUsd());
+        */
+    }
+
+
+}

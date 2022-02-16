@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{ss2spStatement.profitShare}+' ('+#{${country}}+') '+#{ss2spStatement.reviewExport}+' - DRS'"></title>
+
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>	
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link th:href="@{/resources/css/awesome-bootstrap-checkbox.css}" type="text/css" rel="stylesheet">		
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css">	
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">	
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js"></script>
+<script>
+$(document).ready(function() {
+	 		
+	 		var report = $('#skuCountryProfitShare').DataTable({			 
+	 		 	searching: false,
+	 		    paging: false,
+	 		    info: false,	    
+	 		    buttons: [{
+	                  extend: 'csv',
+	                  text: '<i class="fas fa-cloud-download-alt"></i> [[#{ss2spStatement.export}]] '
+	         }]
+	 		 			 			 
+	 	 });
+	 			
+	 	report.buttons().container().appendTo($('#btnExport'));
+	 	$('#btnExport > .dt-buttons > a').addClass('btn btn-primary');
+	 		
+	 	});
+
+</script>
+</head>
+
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width" style="max-width:1640px !important;padding-left:20px;padding-right:20px;">
+	<div class="max-width">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-heading">
+						<a th:text="#{ss2spStatement.profitShare}+' '"></a> (<a th:text="#{${country}}"></a> ) <a th:text="' '+#{ss2spStatement.reviewExport}"></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+ 		<div class="col-md-12 text-right">
+ 			<span id="btnExport"></span>
+ 		</div>
+ 	</div>
+ 	<div style="padding-bottom: 10px"></div>	
+		<div class="row">
+			<div class="col-md-12">
+				<table id ="skuCountryProfitShare" class="table">
+					<thead>
+						<tr>
+							<th><a th:text="#{ss2spStatement.statements}"></a></th>
+							<th>Period start</th>
+							<th>Period end</th>
+							<th class="text-center"><a th:text="#{ss2spStatement.sourceCountry}"></a></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.sourceCurrency}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.exchangeRate}"></a></th>
+							<th><a th:text="#{ss2spStatement.relatedSKU}"></a></th>
+							<th><a th:text="#{ss2spStatement.skuName}"></a></th>
+							<th><a th:text="#{ss2spStatement.items}"></a></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.utcTime}"></a></th>
+							<th class="text-center"c><a th:text="#{ss2spStatement.marketplace}"></a></th>
+							<th><a th:text="#{ss2spStatement.orderId}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.quantity}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.pretaxPrice}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.fcaPrice}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.marketplaceFee}"></a> / <a th:text="#{ss2spStatement.marketplaceFeeRefund}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.netLogisticsExpenditure}"></a> / <a th:text="#{ss2spStatement.reverseLogisticsExpenditure}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.drsRetainment}"></a> / <a th:text="#{ss2spStatement.drsRetainmentReversal}"></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.profitShare}"></a></th>					
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${itemList}">
+							<tr>
+								<td><a th:text="${item.statementName}"></a></td>
+								<td><a th:text="${item.dateStart}"></a></td>
+								<td><a th:text="${item.dateEnd}"></a></td>
+								<td class="text-center"><a th:text="#{${item.country}}"></a></td>
+								<td class="text-center"><a th:text="#{${item.sourceCurrency}}"></a></td>
+								<td class="text-right"><a th:text="${item.exchangeRate}"></a></td>
+								<td><a th:if="${item.sku != null}" th:text="${item.sku}"></a></td>
+								<td><a th:text="${item.skuName}"></a></td>
+								<td><a th:text="#{${item.name}}"></a></td>
+								<td class="text-center"><a th:text="${item.utcDate}"></a></td>
+								<td class="text-center"><a th:if="${item.marketplace != null}" th:text="${item.marketplace.name}"></a></td>
+								<td><a th:text="${item.orderId}"></a></td>
+								<td class="text-right"><a th:text="${item.quantity}"></a></td>
+								<td class="text-right"><a th:text="${item.pretaxPrincipalPrice}"></a></td>
+								<td class="text-right"><a th:text="${item.fcaInMarketSideCurrency}"></a></td>
+								<td class="text-right"><a th:text="${item.marketplaceFee}"></a></td>
+								<td class="text-right"><a th:text="${item.fulfillmentFee}"></a></td>
+								<td class="text-right"><a th:text="${item.drsRetainment}"></a></td>
+								<td class="text-right"><a th:text="${item.profitShare}"></a></td>
+							</tr>
+						</th:block>
+					</tbody>
+				</table>
+			</div>
+		</div>
+</div>
+</section>
+</body>
+</html>	

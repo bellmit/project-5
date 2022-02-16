@@ -1,0 +1,78 @@
+<head>
+	<title>
+		1-7b. Present product to MS team (PS)
+	</title>
+
+</head>
+<script>
+jQuery(window).on("load", function(e) {	
+	
+	$('#dueDatePresentProductToMSTeam').attr('readonly', true);
+	jQuery("#dueDatePresentProductToMSTeam").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});
+</script>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					1-7b. Present product to MS team (PS)
+				</div>
+			</div>
+		</div>
+		<form name="PresentProductToMSTeam" action="">
+		<div class="row">			
+			<div class="col-md-12">				
+				<div class="panel panel-default">
+  					<div class="panel-heading">Present product</div>
+  						<div class="panel-body">
+  							<p>Please add task and deadline for CM. (1-7c. Evaluate packaging content and manual): <a href="https://docs.google.com/spreadsheets/d/1NcU14cum3E-6H-KaG4a564HqxEYKrc5zm9eVT8LEY1k/edit#gid=0" target="_blank">MSM Task Management Table</a></p>  							 							 											    
+  						</div>
+				</div>		
+			</div>
+		</div>
+		<div class="row">			
+			<div class="col-md-12">
+				<span><b>Due date for 1-7b Present product to MS team (PS)</b></span><br>
+				<input type="text" id="dueDatePresentProductToMSTeam" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;">							
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Present product to MS team (PS) *</b></span><br>
+				<input type="checkbox" name="giveDemo" value="yes"> Give demo of product<br>
+				<input type="checkbox" name="presentInfoReceived" value="yes"> Present info received from supplier<br>
+				<input type="checkbox" name="acquireDigitalVersion" value="yes"> Acquire or prepare digital version of product packaging and user manual<br>
+				<input type="checkbox" name="addTaskAndDeadline" value="yes">	Add task and deadline to MSM sheet for CM		
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">			
+			<div class="col-md-6">
+				<span><b>Information for MSM & SC team</b></span><br>
+				<input type="text" class="form-control" style="width:50%;display:inline;">							
+			</div>
+			<div class="col-md-6">
+				<span><b>Comments for Present product to MS team</b></span><br>
+				<input type="text" class="form-control" style="width:50%;display:inline;">
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12 text-right">
+				<input class="btn btn-default" type="submit" value="Save" />	
+				<input class="btn btn-primary" type="submit" value="Submit" />
+			</div>
+		</div>
+		</form>	
+ 	</div>
+</div> 	
+ 	

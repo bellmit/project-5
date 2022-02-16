@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<title th:text="#{issue.issueType}+' - DRS'" ></title>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="text-center text-success">
+		<h1>[[${message}]]</h1>
+		
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="page-heading">
+					<a th:text="#{issue.issueType}"></a>
+				</div>
+			</div>
+			<div class="col-md-6 text-right">
+				<div class="page-heading">
+					<a class="btn btn-primary"
+						href="/Issues/createIssueType"
+						th:text="#{issue.createIssueType}">
+					</a>
+				</div>
+			</div>
+		</div>
+		<div style="padding-bottom: 10px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th><a th:text="#{issue.issueCategory}"></a></th>
+							<th><a th:text="#{issue.issueType}"></a></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="IssueCategoryToIssueType : ${IssueCategoryToIssueTypeAndIdMap}">
+							<th:block th:each="IssueType : ${IssueCategoryToIssueType.value}">
+								<tr>
+									<td><a th:text="#{'issue.'+${categoryIdToNameMap[IssueCategoryToIssueType.key]}}"></a></td>
+									<td>[[${IssueType.value}]]</td>
+									<td><a class="btn btn-default" 
+										th:href="@{/Issues/editIssueType?categoryId={ictiy}&typeId={it}(ictiy=${IssueCategoryToIssueType.key},it=${IssueType.key})}"
+										th:text="#{issue.edit}"></a></td>
+								</tr>
+							</th:block>
+						</th:block>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

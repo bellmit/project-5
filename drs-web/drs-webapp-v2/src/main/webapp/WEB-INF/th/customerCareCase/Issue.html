@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>
+	
+</title>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>-->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>	
+
+<script>
+
+	angular.module('issue', []).controller('issueCtrl',function($scope) {	
+		var currentURL = document.URL;
+		$scope.baseProductLineItems = [];
+		$scope.SKULineItems = [];				
+		$scope.issueNameLineItems = [];
+		$scope.relatedProductType = false;			
+		
+		console.log(currentURL)
+		if(currentURL.indexOf("edit") > -1){					
+		
+			
+
+			var IssueJson = [(${IssueJson})]
+			console.log(IssueJson)
+
+
+			$scope.categoryName = IssueJson.categoryId;
+			console.log(IssueJson.categoryId)
+			$scope.issueType = IssueJson.typeId;
+			$scope.status = IssueJson.status;						
+			if(IssueJson.supplierKcode != null)$scope.relatedProductType = true;																			
+			var issueTypeList = null;				
+			$.ajax({	
+				type : 'get',
+				url : '/Issues/getIssueTypeList/',
+				contentType : "application/json; charset=utf-8",
+				data : {categoryId : Number($scope.categoryName)},
+				//data : {categoryId : 1},
+				dataType : "json",
+				success : function(data) {							
+					issueTypeList = data;															
+					emptyList("issueType");																						
+					var selectIssueType = document.getElementById("issueType");
+					var optIssueType = document.createElement("option");
+					optIssueType.value = "";
+					optIssueType.textContent = "--- Select ---";
+					selectIssueType.appendChild(optIssueType);																																																																							
+					for ( var issueType in issueTypeList) {
+						if (issueTypeList.hasOwnProperty(issueType)) {									
+							optIssueType = document.createElement("option");
+							optIssueType.value = issueType;																
+							optIssueType.textContent = issueTypeList[issueType];
+							selectIssueType.appendChild(optIssueType);
+						}									
+					}								
+					$("#issueType").val(IssueJson.typeId);								
+				}						
+			});													
+			var languageList = IssueJson.language;				
+			var issueNameList = IssueJson.issueName;				
+			var languageToNameMap = IssueJson.languageToNameMap											
+			for(var key in issueNameList){							
+				if (issueNameList.hasOwnProperty(key)) {							
+					$scope.issueNameLineItems.push({language : languageList[key],name: issueNameList[key]});											
+				}							
+			}											    																		
+			if(IssueJson.relatedProductBaseCodeList != null){							
+				$("#relatedProduct-BP").prop('checked', true);							
+				$("#sku").hide();
+				$("#baseProduct").show();							
+				var relatedProductBaseCodeList = IssueJson.relatedProductBaseCodeList;							
+				for(var baseCode in relatedProductBaseCodeList){								
+					if (relatedProductBaseCodeList.hasOwnProperty(baseCode)) {								
+						$scope.baseProductLineItems.push({baseProduct : relatedProductBaseCodeList[baseCode]});								
+					}								
+				}								
+				var supplierKcode = IssueJson.supplierKcode;
+				var ajaxUrl = '/CustomerCareCases/getProductBaseCodeToSupplierNameMapInIssue/';
+				var productBaseCodeToSupplierNameMap = null;
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : {supplierKcode : supplierKcode},
+					dataType : "json",
+					success : function(data) {
+						productBaseCodeToSupplierNameMap = data;											
+						for (i = 0; i < $scope.baseProductLineItems.length; i++) {										
+							emptyList("baseProduct" + i);										
+							if (Object.keys(productBaseCodeToSupplierNameMap).length > 0) {
+								var selectBaseCode = document.getElementById("baseProduct" + i);
+								var optBaseCode = document.createElement("option");
+								optBaseCode.value = "";
+								optBaseCode.textContent = "--- Select Base Product ---";
+								selectBaseCode.appendChild(optBaseCode);
+							}										
+						for ( var key in productBaseCodeToSupplierNameMap) {
+							optBaseCode = document.createElement("option");
+							optBaseCode.value = key;
+							optBaseCode.textContent = key + " " + productBaseCodeToSupplierNameMap[key];
+							selectBaseCode.appendChild(optBaseCode);
+						}																					
+						selectBaseCode.value = IssueJson['relatedProductBaseCodeList'][i];																																
+						}																																																	
+					}																																		
+				});																					
+			}else if(IssueJson.relatedProductSkuCodeList != null){							
+				$("#relatedProduct-SKU").prop('checked', true);
+				$("#sku").show();
+				$("#baseProduct").hide();							
+				var relatedProductSkuCodeList = IssueJson.relatedProductSkuCodeList;							
+				for(var skuCode in relatedProductSkuCodeList){								
+					if (relatedProductSkuCodeList.hasOwnProperty(skuCode)) {								
+						$scope.SKULineItems.push({sku : relatedProductSkuCodeList[skuCode]});								
+					}								
+				}							
+				var supplierKcode = IssueJson.supplierKcode;
+				var ajaxUrl = '/CustomerCareCases/getProductSkuCodeToSupplierNameMapInIssue/';
+				var productSkuCodeToSupplierNameMap = null;
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : { supplierKcode : supplierKcode},
+					dataType : "json",
+					success : function(data) {
+						productSkuCodeToSupplierNameMap = data;
+						for (i = 0; i < $scope.SKULineItems.length; i++) {
+							emptyList("sku" + i);
+							if (Object.keys(productSkuCodeToSupplierNameMap).length > 0) {
+								var selectSku = document.getElementById("sku"+ i);
+								var optSku = document.createElement("option");
+								optSku.value = "";
+								optSku.textContent = "--- Select SKU ---";
+								selectSku.appendChild(optSku);
+							}
+							for ( var key in productSkuCodeToSupplierNameMap) {
+								optSku = document.createElement("option");
+								optSku.value = key;
+								optSku.textContent = key + " " + productSkuCodeToSupplierNameMap[key];
+								selectSku.appendChild(optSku);
+							}
+							selectSku.value = IssueJson['relatedProductSkuCodeList'][i];
+						}
+					}
+				});																											
+			}																		
+		}else{						
+			$scope.supplier = '';
+			$scope.baseProductLineItems = [];
+			$scope.SKULineItems = [];
+			$scope.issueNameLineItems = [{language : '',name:''}];													
+		}
+															
+		$scope.getRelatedProductList = function() {			
+			var id = document.querySelector('input[name="relatedProduct"]:checked').id;
+			var supplierKcode = document.getElementById('supplier').value;
+			if(supplierKcode == ""){						
+				$scope.relatedProductType = false;
+				$scope.baseProductLineItems = [];						
+				$scope.SKULineItems = [];												
+			}else{						
+				$scope.relatedProductType = true;						
+				if (id == "relatedProduct-BP") {							
+					$scope.baseProductLineItems = [{baseProduct : ''}];
+					getProductBaseCodeToSupplierNameMap(supplierKcode);
+				} else if (id == "relatedProduct-SKU") {	
+					$scope.SKULineItems = [{sku : ''}];
+					getProductSkuCodeToSupplierNameMap(supplierKcode);
+				}
+			}			
+		};
+				
+		$scope.checkRelatedProduct = function() {					
+			var id = document.querySelector('input[name="relatedProduct"]:checked').id;
+			var supplierKcode = document.getElementById('supplier').value;				
+			if (id == "relatedProduct-BP") {
+				for (var i = $scope.SKULineItems.length - 1; i >= 0; i--) {
+					$scope.SKULineItems.splice(i, 1);
+				}						
+				$('#relatedProductSkuCodeList').val("");								
+				document.getElementById("sku").style.display = "none";
+				document.getElementById("baseProduct").style.display = "block";
+				$scope.baseProductLineItems = [{baseProduct : ''}];
+				getProductBaseCodeToSupplierNameMap(supplierKcode);														
+			} else if (id == "relatedProduct-SKU") {
+				for (var i = $scope.baseProductLineItems.length - 1; i >= 0; i--) {
+					$scope.baseProductLineItems.splice(i, 1);
+				}					
+				$('#relatedProductBaseCodeList').val("");
+				document.getElementById("baseProduct").style.display = "none";
+				document.getElementById("sku").style.display = "block";
+				$scope.SKULineItems = [{sku : ''}];
+				getProductSkuCodeToSupplierNameMap(supplierKcode);
+			}																				
+		};
+				
+		$scope.addBaseProductLineItem = function() {					
+			$scope.baseProductLineItems.push({baseProduct : ''});
+			updateProductBaseCodeToSupplierNameMap($scope.baseProductLineItems.length - 1);					
+		};
+								
+		$scope.removeBaseProductLineItem = function(baseProductLineItem) {					
+			if ($scope.baseProductLineItems.length > 1) {
+				var idx = $scope.baseProductLineItems.indexOf(baseProductLineItem);
+				$scope.baseProductLineItems.splice(idx, 1);
+			}
+			$scope.updateBaseProductList();										
+		};
+				
+		$scope.updateBaseProductList = function() {				
+			var baseProductArray = new Array();
+			for ( var key in $scope.baseProductLineItems) {
+				if ($scope.baseProductLineItems.hasOwnProperty(key)) {						
+					if ($scope.baseProductLineItems[key]['baseProduct'] !== "") {
+						baseProductArray.push($scope.baseProductLineItems[key]['baseProduct']);
+					}						
+				}
+			}
+			document.getElementById('relatedProductBaseCodeList').value = baseProductArray.toString();										
+		};		
+								
+		$scope.addSKULineItem = function() {				
+			$scope.SKULineItems.push({sku : ''});
+			updateProductSkuCodeToSupplierNameMap($scope.SKULineItems.length - 1);																				
+		};
+				
+		$scope.removeSKULineItem = function(SKULineItem) {					
+			if ($scope.SKULineItems.length > 1) {
+				var idx = $scope.SKULineItems.indexOf(SKULineItem);
+				$scope.SKULineItems.splice(idx, 1);
+			}
+			$scope.updateSkuList();										
+		};
+				
+		$scope.updateSkuList = function() {					
+			var skuArray = new Array();
+				for ( var key in $scope.SKULineItems) {
+					if ($scope.SKULineItems.hasOwnProperty(key)) {						
+						if ($scope.SKULineItems[key]['sku'] !== "") {
+							skuArray.push($scope.SKULineItems[key]['sku']);
+						}
+					}
+				}
+			document.getElementById('relatedProductSkuCodeList').value = skuArray.toString();										
+		};
+				
+		function emptyList(id) {
+			document.getElementById(id).options.length = 0;
+		}
+
+		function getProductBaseCodeToSupplierNameMap(supplierKcodeParam) {
+			var supplierKcode = supplierKcodeParam;
+			var ajaxUrl = '/CustomerCareCases/getProductBaseCodeToSupplierNameMapInIssue/';
+			var productBaseCodeToSupplierNameMap = null;
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {supplierKcode : supplierKcode},
+				dataType : "json",
+				success : function(data) {
+					productBaseCodeToSupplierNameMap = data;
+					for (i = 0; i < $scope.baseProductLineItems.length; i++) {
+						emptyList("baseProduct" + i);
+						if (Object.keys(productBaseCodeToSupplierNameMap).length > 0) {
+							var selectBaseProduct = document.getElementById("baseProduct"+ i);
+							var optBaseProduct = document.createElement("option");
+							optBaseProduct.value = "";
+							optBaseProduct.textContent = "--- Select Base Product ---";
+							selectBaseProduct.appendChild(optBaseProduct);
+						}
+						for ( var key in productBaseCodeToSupplierNameMap) {
+							optBaseProduct = document.createElement("option");
+							optBaseProduct.value = key;
+							optBaseProduct.textContent = key + " " + productBaseCodeToSupplierNameMap[key];
+							selectBaseProduct.appendChild(optBaseProduct);
+						}
+					}//end for(i = 0; i < $scope.baseProductLineItems.length; i++) 																							
+				}
+			});
+		}
+			
+		function updateProductBaseCodeToSupplierNameMap(id) {
+			var supplierKcode = document.getElementById('supplier').value;
+			var ajaxUrl = '/CustomerCareCases/getProductBaseCodeToSupplierNameMapInIssue/';
+			var productBaseCodeToSupplierNameMap = null;
+			if (supplierKcode != "") {
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : {supplierKcode : supplierKcode},
+					dataType : "json",
+					success : function(data) {
+						productBaseCodeToSupplierNameMap = data;
+						emptyList("baseProduct" + id);
+						if (Object.keys(productBaseCodeToSupplierNameMap).length > 0) {
+							var selectBaseProduct = document.getElementById("baseProduct"+ id);
+							var optBaseProduct = document.createElement("option");
+							optBaseProduct.value = "";
+							optBaseProduct.textContent = "--- Select Base Product ---";
+							selectBaseProduct.appendChild(optBaseProduct);
+						}
+						for ( var key in productBaseCodeToSupplierNameMap) {
+							optBaseProduct = document.createElement("option");
+							optBaseProduct.value = key;
+							optBaseProduct.textContent = key + " " + productBaseCodeToSupplierNameMap[key];
+							selectBaseProduct.appendChild(optBaseProduct);
+						}
+					}
+				});
+			}
+		}
+								
+		function getProductSkuCodeToSupplierNameMap(supplierKcodeParam) {
+			var supplierKcode = supplierKcodeParam;
+			var ajaxUrl = '/CustomerCareCases/getProductSkuCodeToSupplierNameMapInIssue/';
+			var productSkuCodeToSupplierNameMap = null;
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : { supplierKcode : supplierKcode},
+				dataType : "json",
+				success : function(data) {
+					productSkuCodeToSupplierNameMap = data;
+					for (i = 0; i < $scope.SKULineItems.length; i++) {
+						emptyList("sku" + i);
+						if (Object.keys(productSkuCodeToSupplierNameMap).length > 0) {
+							var selectSku = document.getElementById("sku"+ i);
+							var optSku = document.createElement("option");
+							optSku.value = "";
+							optSku.textContent = "--- Select SKU ---";
+							selectSku.appendChild(optSku);
+						}
+						for ( var key in productSkuCodeToSupplierNameMap) {
+							optSku = document.createElement("option");
+							optSku.value = key;
+							optSku.textContent = key + " " + productSkuCodeToSupplierNameMap[key];
+							selectSku.appendChild(optSku);
+						}
+					}
+				}
+			});
+		}
+				
+		function updateProductSkuCodeToSupplierNameMap(id) {
+			var supplierKcode = document.getElementById('supplier').value;
+			var ajaxUrl = '/CustomerCareCases/getProductSkuCodeToSupplierNameMapInIssue/';
+			var productSkuCodeToSupplierNameMap = null;
+			if (supplierKcode != "") {
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : { supplierKcode : supplierKcode },
+					dataType : "json",
+					success : function(data) {
+						productSkuCodeToSupplierNameMap = data;
+						emptyList("sku" + id);
+						if (Object.keys(productSkuCodeToSupplierNameMap).length > 0) {
+							var selectSku = document.getElementById("sku"+ id);
+							var optSku = document.createElement("option");
+							optSku.value = "";
+							optSku.textContent = "--- Select SKU ---";
+							selectSku.appendChild(optSku);
+						}
+						for ( var key in productSkuCodeToSupplierNameMap) {
+							optSku = document.createElement("option");
+							optSku.value = key;
+							optSku.textContent = key + " " + productSkuCodeToSupplierNameMap[key];
+							selectSku.appendChild(optSku);
+						}
+					}
+				});
+			}						   
+		}
+				
+		$scope.getIssueTypeList = function(){				
+			var categoryId = $('#categoryName').val();					
+			retrieveIssueTypeList(categoryId);				
+		};	
+				
+		function retrieveIssueTypeList(categoryIdParam){					
+			var ajaxUrl = '/Issues/getIssueTypeList/';
+			var issueTypeList = null;			
+			$.ajax({	
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : { categoryId : Number(categoryIdParam)},
+				dataType : "json",
+				success : function(data) {						
+					issueTypeList = data;														
+					emptyList("issueType");																					
+					var selectIssueType = document.getElementById("issueType");
+					var optIssueType = document.createElement("option");
+					optIssueType.value = "";
+					optIssueType.textContent = "--- Select ---";
+					selectIssueType.appendChild(optIssueType);																																																																				
+					for ( var issueType in issueTypeList) {
+						if (issueTypeList.hasOwnProperty(issueType)) {								
+							optIssueType = document.createElement("option");
+							optIssueType.value = issueType;																
+							optIssueType.textContent = issueTypeList[issueType];
+							selectIssueType.appendChild(optIssueType);
+						}								
+					}																					
+				}					
+			});				
+		}
+								
+		$scope.addIssueNameLineItem = function(){					
+			$scope.issueNameLineItems.push({language : '',name:''});					
+		};
+				
+		$scope.removeIssueNameLineItem = function(issueNameLineItem){				
+			if ($scope.issueNameLineItems.length > 1) {
+				var idx = $scope.issueNameLineItems.indexOf(issueNameLineItem);
+				$scope.issueNameLineItems.splice(idx, 1);
+			}					
+			$scope.updateIssueNameList();										
+		};
+					
+		$scope.updateIssueNameList = function(){					
+			var languageArray = new Array();
+			var nameArray = new Array();					
+			for ( var key in $scope.issueNameLineItems) {
+				if ($scope.issueNameLineItems.hasOwnProperty(key)) {						
+					if ($scope.issueNameLineItems[key]['language'] !== "") {
+						languageArray.push($scope.issueNameLineItems[key]['language']);
+					}						
+					if ($scope.issueNameLineItems[key]['name'] !== "") {
+						nameArray.push($scope.issueNameLineItems[key]['name']);
+					}						
+				}						
+			}					
+			$('#language').val(languageArray.toString());
+			$('#issueName').val(nameArray.toString());		
+		};															
+	});	
+	
+	$(document).ready(function() {
+		//make dropdown combo box
+		$("#supplier").select2({ theme: "bootstrap"});
+	});
+	
+</script>	
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid" ng-app="issue" ng-controller="issueCtrl">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					
+						<div th:if="${type eq 'Create'}">
+							[[#{issue.createNew}]]
+							<script>
+								$(document).ready(function(){
+								document.title='[[#{issue.createNew}]]'+' - DRS'
+								$('#Issue').attr("action","/Issues/save");
+							});
+							</script>
+							
+						</div>
+						<div th:unless="${type eq 'Create'}">
+							[[#{issue.editIssue}]]
+							<script>
+								$(document).ready(function(){
+								document.title='[[#{issue.editIssue}]]'+' - DRS'
+								$('#Issue').attr("action","/Issues/update");
+							});
+							</script>
+						</div>
+					
+				</div>
+			</div>
+		</div>
+		<form id="Issue" name="Issue"
+			class="form-horizontal text-left" modelAttribute="Issue" method="POST">
+			<div class="row">
+				<div class="col-md-6">
+
+					<div class="form-group row">
+						<label class="col-sm-4 col-form-label"><a th:text="#{issue.issueCategory}"></a><span class="text-danger">*</span></label>
+						<div class="col-sm-8">
+							<input type="hidden" th:field="*{Issue.id}" />
+							<select id="categoryName" class="form-control" th:field="*{Issue.categoryId}"
+								name="categoryId" ng-model="categoryName"
+								ng-change="getIssueTypeList()" required="required">
+								<option value="" label="--- Select ---"></option>
+								<th:block th:each="categoryIdToName : ${categoryIdToNameMap}">
+									<option th:value="${categoryIdToName.key}"
+										th:text="#{'issue.'+${categoryIdToName.value}}" >
+									</option>
+								</th:block>
+							</select>
+							<small class="text-danger form-text"
+								ng-show="Issue.categoryId.$error.required && Issue.categoryId.$dirty">
+								<a th:text="#{issue.issueCategory_req}"></a>
+							</small>
+						</div>
+
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-4 col-form-label"> <a th:text="#{issue.issueType}"></a><span class="text-danger">*</span>
+						</label>
+						<div class="col-sm-8">
+							<select id="issueType" class="form-control" th:field="*{Issue.typeId}"
+								ng-model="issueType" required="required">
+							</select>
+							<small class="text-danger form-text"
+								ng-show="Issue.typeId.$error.required && Issue.typeId.$dirty">
+								<a th:text="#{issue.issueType_req}"></a>
+							</small>
+						</div>
+
+					</div>
+
+					<div ng-repeat="issueNameLineItem in issueNameLineItems">
+						<div class="form-group row">
+							<label class="col-sm-4 col-form-label"><a th:text="#{issue.issueName}"></a><span class="text-danger">*</span></label>
+
+							<div class="col-sm-4">
+								<select id="language{{$index}}" class="form-control"
+									name="issueLocale{{$index}}"
+									ng-model="issueNameLineItem.language"
+									ng-change="updateIssueNameList()" required>
+									<option value="">--- Select ---</option>
+									<th:block th:each="localeCode : ${localeCodeList}" >
+										<option th:value="${localeCode.code}" th:text="${localeCode.fullName}"></option>
+									</th:block>
+								</select> <small class="text-danger form-text"
+									ng-show="Issue.issueLocale{{$index}}.$error.required && Issue.issueLocale{{$index}}.$dirty">
+									<a th:text="#{issue.issuelocale_req}"></a>
+								</small>
+							</div>
+							<div class="col-sm-3">
+								<input id="name{{$index}}" class="form-control"
+									name="issueName{{$index}}" ng-model="issueNameLineItem.name"
+									ng-change="updateIssueNameList()" ng-maxlength="100" required>
+								<small class="text-danger"
+									ng-show="Issue.issueName{{$index}}.$error.required && Issue.issueName{{$index}}.$dirty">
+									<a th:text="#{issue.issueName_req}"></a>
+								</small> <small class="text-danger form-text"
+									ng-show="Issue.issueName{{$index}}.$error.maxlength"> 
+									<a th:text="#{issue.issueName_length}"></a>
+								</small>
+							</div>
+							<div class="col-sm-1 pl-0">
+								<button type="button" class="btn btn-default"
+									ng-click="removeIssueNameLineItem(issueNameLineItem)">
+									<i class="fas fa-trash-alt"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-4 col-form-label"></label>
+						<div class="col-sm-8">
+							<button class="btn btn-default" ng-click="addIssueNameLineItem()">
+								<i class="fas fa-plus"></i>
+							</button>
+							<input type="hidden" id="language" th:field="*{Issue.language}" />
+							<input type="hidden" id="issueName" th:field="*{Issue.issueName}" />
+						</div>
+
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-4 col-form-label"><a th:text="#{issue.status}"></a><span class="text-danger">*</span></label>
+						<div class="col-sm-8">
+							<select id="status" class="form-control" name="status"
+								ng-model="status" required="required">
+								<option value="" label="--- Select ---" ></option>
+								<th:block th:each="issueStatus : ${issueStatusList}">
+									<option th:value="${issueStatus}"
+										th:text="#{'issue.'+${issueStatus}}" >
+									</option>
+								</th:block>
+							</select>
+							<small class="text-danger form-text"
+								ng-show="Issue.status.$error.required && Issue.status.$dirty">
+								<a th:text="#{issue.issueStatus_req}"></a>
+							</small>
+						</div>
+
+					</div>
+
+
+
+
+				</div>
+
+
+				<div class="col-md-6">
+
+					<div class="form-group row">
+
+						
+							<th:block th:if="${type eq 'Create'}">
+
+								<label class="col-sm-4 col-form-label"><a th:text="#{issue.supplier}"></a><span class="text-danger">*</span></label>
+
+								<div class="col-sm-8">
+									<select id="supplier" class="form-control"
+										style="display: inline;" name="supplierKcode"
+										ng-model="supplier" ng-change="getRelatedProductList()">
+										<option value="">Any</option>
+										<th:block th:each="supplier : ${supplierKcodeToShortEnUsNameMap}">
+											<option th:value="${supplier.key}"
+												th:text="${supplier.key}+' '+${supplier.value}"></option>
+										</th:block>
+									</select>
+								</div>
+							</th:block>
+							<th:block th:unless="${type eq 'Create'}">
+
+								<label class="col-sm-4 col-form-label">[[#{issue.supplier}]]</label>
+
+
+								<div class="col-sm-8">
+									
+										<th:block th:if="${Issue.supplierKcode != null}">
+								[[${Issue.supplierKcode}]] [[${supplierKcodeToShortEnUsNameMap[Issue.supplierKcode]}]] 
+								<input type="hidden" id="supplier" name="supplierKcode" th:value="${Issue.supplierKcode}" />
+										</th:block>
+										<th:block th:unless="${Issue.supplierKcode != null}">
+											<a th:text="#{issue.anyForSupplier}"></a>
+											<input type="hidden" id="supplier" name="supplierKcode" />
+										</th:block>
+									
+								</div>
+							</th:block>
+						
+
+
+					</div>
+
+					<div class="form-group row" id="relatedProductTitle"
+						ng-show="supplier !=''">
+						<label class="col-sm-4 col-form-label"><a th:text="#{issue.relatedProducts}"></a><span class="text-danger">*</span></label>
+						<div class="col-sm-8">
+
+
+							<div ng-show="relatedProductType"
+								class="form-check form-check-inline">
+								<input name="relatedProduct" id="relatedProduct-BP"
+									value="Base Product" type="radio"
+									ng-click="checkRelatedProduct()"> 
+									<label class="form-check-label" for="relatedProduct-BP"><a th:text="#{issue.baseProduct}"></a></label>
+							</div>
+
+							<div ng-show="relatedProductType"
+								class="form-check form-check-inline">
+								<input name="relatedProduct" id="relatedProduct-SKU" value="SKU"
+									type="radio" ng-click="checkRelatedProduct()" checked="TRUE">
+								<label class="form-check-label" for="relatedProduct-SKU"><a th:text="#{issue.sku}"></a> </label>
+							</div>
+
+						</div>
+
+					</div>
+
+					<div id="relatedProductField" ng-show="relatedProductType">
+						<div id="baseProduct" style="display: none;">
+							<div ng-repeat="baseProductLineItem in baseProductLineItems">
+								<div class="form-group row">
+									<label class="col-sm-4 col-form-label"></label>
+									<div class="col-sm-7">
+										<select id="baseProduct{{$index}}" class="form-control"
+											name="baseProduct{{$index}}"
+											ng-model="baseProductLineItem.baseProduct"
+											ng-change="updateBaseProductList()" required>
+										</select>
+										<div class="text-danger"
+											ng-show="Issue.baseProduct{{$index}}.$error.required && Issue.baseProduct{{$index}}.$dirty">
+											<a th:text="#{issue.issueBaseProduct_req}"></a>
+										</div>
+									</div>
+									<div class="col-sm-1 pl-0">
+										<button type="button" class="btn btn-default"
+											ng-click="removeBaseProductLineItem(baseProductLineItem)">
+											<i class="fas fa-trash-alt"></i>
+										</button>
+									</div>
+
+								</div>
+							</div>
+							<div class="form-row">
+								<label class="col-sm-4 col-form-label"></label>
+								<div class="col-sm-8 pl-3">
+									<button type="button" class="btn btn-default"
+										ng-click="addBaseProductLineItem()">
+										<i class="fas fa-plus"></i>
+									</button>
+									<input type="hidden" id="relatedProductBaseCodeList"
+										name="relatedProductBaseCodeList" th:value="${#strings.arrayJoin(Issue.relatedProductBaseCodeList,',')}"/>
+								</div>
+							</div>
+						</div>
+
+						<div id="sku">
+							<div ng-repeat="SKULineItem in SKULineItems">
+								<div class="form-group row">
+									<div class="col-sm-7 offset-sm-4">
+										<select id="sku{{$index}}" class="form-control"
+											name="sku{{$index}}" ng-model="SKULineItem.sku"
+											ng-change="updateSkuList()" required>
+										</select>
+										<small class="text-danger form-text"
+											ng-show="Issue.sku{{$index}}.$error.required && Issue.sku{{$index}}.$dirty">
+											<a th:text="#{issue.issueSKU_req}"></a>
+										</small>
+									</div>
+									<div class="col-sm-1 pl-0">
+										<button type="button" class="btn btn-default"
+											ng-click="removeSKULineItem(SKULineItem)">
+											<i class="fas fa-trash-alt"></i>
+										</button>
+									</div>
+
+								</div>
+							</div>
+							<div class="form-row">
+								<label class="col-sm-4 col-form-label"></label>
+								<div class="col-sm-8 pl-3">
+									<button type="button" class="btn btn-default"
+										ng-click="addSKULineItem()">
+										<i class="fas fa-plus"></i>
+									</button>
+									<input type="hidden" id="relatedProductSkuCodeList"
+										name="relatedProductSkuCodeList" th:value="${#strings.arrayJoin(Issue.relatedProductSkuCodeList,',')}" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<th:block th:if="${type eq 'Edit'}">
+						<div class="form-group row">
+							<label class="col-sm-4 col-form-label"><a th:text="#{issue.templateOccurrences}"></a></label>
+							<div class="col-sm-8">[[${Issue.templateOccurrences}]]</div>
+
+							<div class="form-group" style="display: flex; width: 100% ;">
+								<label class="col-sm-4 col-form-label" style="display:inline-flex;"><a th:text="#{issue.created}"></a></label>
+								<div class="col-sm-8">[[${Issue.createdDate}]] UTC</div>
+							</div>
+						</div>	
+					</th:block>
+			</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12 text-right">
+			<input class="btn btn-primary" type="submit"
+				th:value="#{issue.submit}"
+				ng-disabled="Issue.$invalid" onclick="this.form.submit()"/>
+			
+				<span th:if="${type eq 'Create'}">
+					<a href="/Issues"> <input
+						class="btn btn-link" type="button"
+						th:value="#{issue.cancel}" />
+					</a>
+				</span>
+				<span th:unless="${type eq 'Create'}">
+					<a th:href="@{/Issues/{id}(id=${Issue.id})}">
+						<input class="btn btn-link" type="button"
+						th:value="#{issue.cancel}" />
+					</a>
+				</span>
+			
+		</div>
+	</div>
+	</form>
+</div>
+</div>
+</section>
+</body>
+</html>

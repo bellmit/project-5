@@ -1,0 +1,47 @@
+package com.kindminds.drs.core.biz.strategy;
+
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.List;
+
+import com.kindminds.drs.api.v1.model.accounting.MarketSideTransaction;
+import com.kindminds.drs.enums.Settlement;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+
+
+import com.kindminds.drs.enums.AmazonTransactionType;
+
+@Component
+public class MarketSideTransactionProcessorFbaReturnToSellable extends MarketSideTransactionProcessor {
+	
+	@Override
+	public List<Integer> process(Date periodStart, Date periodEnd, MarketSideTransaction transaction) {
+
+		Assert.isTrue(!transaction.getSku().equals("K489-RW70056-01"),"If assertion fail, remove this assertion and notify Bruce that the missed record has appeared.");
+
+		if(transaction.getSku().equals("K489-RW70056-01")) return null;
+
+		Object[] rawColumns = this.dao.queryReturnRawColumns(
+				transaction.getTransactionDate(),transaction.getSourceId(),transaction.getSku(),
+				Settlement.AmazonReturnReportDetailedDisposition.SELLABLE.getValue());
+
+		String orderId = (String)rawColumns[0];
+		String productSku = (String)rawColumns[1];
+		Integer quantity = (Integer)rawColumns[2];
+
+		String unsNameOrdr = this.dao.queryShipmentUnsName(orderId,productSku,
+				AmazonTransactionType.ORDER.getValue());
+		String ivsNameOrdr = this.dao.queryShipmentIvsName(orderId,productSku,
+				AmazonTransactionType.ORDER.getValue());
+
+		BigInteger lineItemId = this.dao.queryShipmentLineItemId(unsNameOrdr,ivsNameOrdr,productSku);
+
+		//todo arthur we have to separate return (inventory) and settlement
+		this.dao.incrementReturnQuantityByLineItemId(lineItemId,quantity);
+
+
+		return null;
+	}
+}

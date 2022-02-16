@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title
+            th:text="#{salesAndPageTrafficReport.title}+ ' - DRS'" >
+    </title>
+    <link th:href="@{/resources/css/bootstrap-multiselect.css}" type="text/css" rel="stylesheet">
+    <style>
+#salesAndPageTrafficReport tbody tr:nth-child(odd) {
+	background-color: #EEEEEE;
+}
+
+#radioTotalAvg {
+	margin-left: 20px;
+}
+</style>
+
+    <script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}"></script>
+    <script type='text/javascript' th:src="@{/resources/js/bootstrap-multiselect.js}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
+    <script>
+$(document).ready(function() {
+
+	//	when customized dateRange selected show input date boxes with datepicker plugin
+	if ($('.selectDateRange').val() == 6) {
+		$('.showOnCustomize').fadeTo(200, 1);
+		$('#startDateInput,#endDateInput').prop('disabled', false);
+	} else {
+		$('.showOnCustomize').fadeTo(0, 0);
+		$('#startDateInput,#endDateInput').prop('disabled', true);
+	}
+	$('.selectDateRange').on('change', function(){
+		if ($(this).val() == 6) {
+			$('.showOnCustomize').fadeTo(200, 1);
+			$('#startDateInput,#endDateInput').prop('disabled', false);
+		} else {
+			$('.showOnCustomize').fadeTo(200, 0);
+			$('#startDateInput,#endDateInput').prop('disabled', true);
+		}
+	});
+	$('#startDateInput,#endDateInput').datepicker({
+		beforeShow: function() {
+	        setTimeout(function(){
+	            $('.ui-datepicker').css('z-index', 200);
+	        }, 0);
+	    },
+		dateFormat : 'yy-mm-dd',
+		changeYear: true,
+		minDate: new Date(2015, 1 - 1, 1),
+		maxDate: '-2'
+	}).keyup(function(e) {
+	    if(e.keyCode == 8 || e.keyCode == 32 || e.keyCode == 46) {
+	    	$(this).datepicker('setDate', null);
+	    }
+	});
+	$('#startDateInput,#endDateInput').attr('readonly', true);
+
+
+	if($(window).width() >= 1024){
+		$('#salesAndPageTrafficReport').floatThead({
+			scrollingTop : $("#s5_menu_wrap").height(),
+			zIndex : 100
+		});
+		$('#salesAndPageTrafficReport').on("floatThead", function(e, isFloated, $floatContainer) {
+			if (isFloated) {
+				$floatContainer.addClass("table-floated");
+			} else {
+				$floatContainer.removeClass("table-floated");
+			}
+		});
+		}
+
+	//	build and initialize baseproduct and sku dropdowns with multiselect
+	$('#baseProduct').multiselect({
+		disableIfEmpty: true,
+		includeSelectAllOption: true,
+		maxHeight: 200,
+		buttonWidth: '100%',
+		numberDisplayed: 1
+	});
+	$('#sku').multiselect({
+		disableIfEmpty: true,
+		includeSelectAllOption: true,
+		nonSelectedText: 'None specified',
+		maxHeight: 200,
+		buttonWidth: '100%',
+		numberDisplayed: 1
+	});
+	var conditionsJson = [(${conditionsJson})]
+	console.log(conditionsJson);
+	if (conditionsJson.supplierKcode == null) {
+		$.ajax({
+			type : 'get',
+			url : '/SalesAndPageTrafficReport/getProductSkus',
+			contentType : "application/json; charset=utf-8",
+			data : {productBase : conditionsJson.baseProduct},
+			dataType : "json",
+			success : function(SKUs) {
+				buildSkuSelection(SKUs);
+			}
+		});
+	}else{
+		$.ajax({
+			type : 'get',
+			url : '/SalesAndPageTrafficReport/getProductBases',
+			contentType : "application/json; charset=utf-8",
+			data : {supplierKcode : conditionsJson.supplierKcode},
+			dataType : "json",
+			success : function(productBases) {
+				$('#baseProduct').empty();
+				$.each(productBases, function(baseCode, productName) {
+			    	$('<option>').val(baseCode).text(productName).appendTo('#baseProduct');
+			    });
+				$('#baseProduct').multiselect('rebuild');
+				var sp ='[[${selectedProducts}]]'.replace(/&quot;/g,'');
+	            var s1 =sp.substring(1,sp.length-1);
+	            var selectedProducts=s1.split(", ");
+
+				$('#baseProduct').multiselect('select', selectedProducts);
+				console.log('wwwww')
+				$('#baseProduct').multiselect('updateButtonText');
+
+			    $.ajax({
+					type : 'get',
+					url : '/SalesAndPageTrafficReport/getProductSkus',
+					contentType : "application/json; charset=utf-8",
+					data : {
+						productBase : conditionsJson.baseProduct,
+					},
+					dataType : "json",
+					success : function(SKUs) {
+						buildSkuSelection(SKUs);
+					}
+				});
+			}
+		});
+	}
+	$("#supplierKcode").change(function() {
+		$.ajax({
+			type : 'get',
+			url : '/SalesAndPageTrafficReport/getProductBases',
+			contentType : "application/json; charset=utf-8",
+			data : {supplierKcode : this.value},
+			dataType : "json",
+			success : function(productBases) {
+				$('#baseProduct').empty();
+				$('#sku').empty();
+			    $.each(productBases, function(baseCode, productName) {
+			    	$('<option>').val(baseCode).text(productName).appendTo('#baseProduct');
+			    });
+				$('#baseProduct').multiselect('rebuild');
+				$('#sku').multiselect('rebuild');
+			}
+		});
+	});
+	$( "#supplierKcode" ).select2({
+	    theme: "bootstrap"
+	});
+
+	$( "#baseProduct" ).change(function() {
+		if ($("#baseProduct").val() == null || $("#baseProduct").val().length != 1) {
+			$('#sku').empty();
+			$('#sku').multiselect('rebuild');
+		} else {
+			$.ajax({
+				type : 'get',
+				url : '/SalesAndPageTrafficReport/getProductSkus',
+				contentType : "application/json; charset=utf-8",
+				data : {productBase : this.value},
+				dataType : "json",
+				success : function(SKUs) {
+					buildSkuSelection(SKUs);
+				}
+			});
+		}
+	});
+	function buildSkuSelection(SKUs) {
+		$('#sku').empty();
+		$.each(SKUs, function(baseCode, SKUName) {
+	    	$('<option>').val(baseCode).text(SKUName).appendTo('#sku');
+	    });
+		$('#sku').multiselect('rebuild');
+		var ss ='[[${selectedSkus}]]'.replace(/&quot;/g,'');
+	    var s2 =ss.substring(1,ss.length-1);
+	    var selectedSkus=s2.split(", ");
+		$('#sku').multiselect('select', selectedSkus);
+        $('#sku').multiselect('updateButtonText');
+	}
+
+	//	build initialize dateRange dropdown according to timescale selected
+	var dateRangeList = $('.dateRangeList');
+	$('#timeScale').on('change', function(){
+		displayTimeRanges($(this).val());
+	});
+	displayTimeRanges($('#timeScale').val());
+	function displayTimeRanges(timescale) {
+		var selected = $('.selectDateRange').val();
+		$('.selectDateRange').empty();
+		if (timescale == 1) {
+			buildDateRangeFromIndex(0);
+		} else if (timescale == 2) {
+			buildDateRangeFromIndex(1);
+		} else if (timescale == 3) {
+			buildDateRangeFromIndex(3);
+		}
+		$('.selectDateRange').val(selected);
+	}
+	function buildDateRangeFromIndex(index) {
+		for (var i = index; i < 6; i++) {
+			$('<option>').val(dateRangeList.eq(i).val()).text(dateRangeList.eq(i).text()).appendTo('.selectDateRange');
+		}
+	}
+
+	if ($("#conditionURL").val() == null) {
+		$("#orderExport").hide();
+	} else {
+		$("#orderExport").show();
+	}
+	$("#orderExport").on('click', function(e) {
+		e.preventDefault();
+		if ($("#conditionURL").val() != null) {
+			var conditionURL = $("#conditionURL").val().substring(25);
+			var conditions = '[[${conditions}]]';
+            var conditions = conditions.replace(/{/g, "");
+            var conditions = conditions.replace(/}/g, "");
+            var conditions = conditions.replace(/, /g, "&");
+			$('#pageSalesIframe').attr('src',
+					"/SalesAndPageTrafficReport/export?"+conditions);
+		}
+	});
+
+
+
+
+	google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(function() {
+		$(function() {
+			var trafficType = [], scale = [], title = [];
+  		  	trafficType[1] = '[[#{salesAndPageTrafficReport.SESSIONS}]]';
+    	  	trafficType[2] = '[[#{salesAndPageTrafficReport.ORDERED_PRODUCT_SALES}]]';
+    	  	trafficType[3] = '[[#{salesAndPageTrafficReport.TOTAL_UNITS_ORDERED}]]';
+    	  	scale[1] = '[[#{salesAndPageTrafficReport.date}]]'
+    	  		+ ' ([[#{salesAndPageTrafficReport.DAY}]])';
+    	  	scale[2] = '[[#{salesAndPageTrafficReport.date}]]'
+    	  		+ ' ([[#{salesAndPageTrafficReport.WEEK}]])';
+    	  	scale[3] = '[[#{salesAndPageTrafficReport.date}]]'
+    	  		+ ' ([[#{salesAndPageTrafficReport.MONTH}]])';
+    	  	title[1] = ' ([[#{salesAndPageTrafficReport.TOTAL}]])';
+    	  	title[2] = ' ([[#{salesAndPageTrafficReport.AVERAGE}]])';
+    	  	console.log('[[${conditionsJson}]]');
+    	  	var cj ='[[${conditionsJson}]]'.replace(/&quot;/g,'');
+	        var s3 =cj.substring(1,cj.length-1);
+	        var conditions=s3.split(",");
+
+	        console.log(conditions)
+	        console.log('[[${conditions.baseProduct}]]')
+
+	  		var chartDataString = $('#chartDataString').val();
+
+	  		if (chartDataString == "") {
+	  			return;
+	  		}
+	  		var chartData = JSON.parse(chartDataString);
+  		  	var rowsData = [];
+  		  	for(i = 0; i < chartData.length; i++) {
+  			 	var rowData =  [new Date(chartData[i]['date']),Number(chartData[i]['total'])];
+				rowsData.push(rowData);
+  		  	}
+
+  		  	var data = new google.visualization.DataTable();
+      	  	data.addColumn('date', 'Day');
+      	  	data.addColumn('number', trafficType['[[${conditions.trafficType}]]']);
+      	  	data.addRows(rowsData);
+      	  	var options = {
+				title: trafficType['[[${conditions.trafficType}]]'] + title['[[${conditions.totalOrAverage}]]'],
+   	            legend: { position: 'right'},
+   	            series: {0:{color:'#3d85c6'}},
+   	            hAxis: {
+   	            	title: scale['[[${conditions.timeScale}]]'],
+   	            	format:'yyyy/MM/dd',
+   	            	gridlines:{count: 10}
+   	            },
+   	            vAxis: {
+   	            	title: trafficType['[[${conditions.trafficType}]]'],
+   	            	viewWindow: {min: 0},
+   	            	gridlines:{count: 5}
+   	            },
+   	            chartArea:{left:80,top:50,width:'75%',height:'75%'},
+   	            height: 400,
+   	            trendlines: {
+   	           		0: {
+   	           			 labelInLegend: '[[#{salesAndPageTrafficReport.Trendline}]]',
+   	            	     type: 'linear',
+   	            	     color: '#e69138',
+   	            	     lineWidth: 3,
+   	            	     opacity: 0.6,
+   	            	     visibleInLegend: true
+   	           		}
+   	      		}
+   	      	};
+
+   	  	  	chart = new google.visualization.LineChart(document.getElementById('lineChart'));
+          	chart.draw(data, options);
+
+         	//toggle trendline visibility
+          	google.visualization.events.addListener(chart, 'click', function (target) {
+
+                if (target.targetID == 'legendentry#1') {
+                	if (options.trendlines[0].lineWidth == 3){
+                		options.trendlines[0].lineWidth = 0;
+                	} else {
+                		options.trendlines[0].lineWidth = 3;
+                	}
+                }
+
+                chart.draw(data, options);
+              });
+
+
+  		});
+	});
+});
+</script>
+    <style>
+	.select2-container--default .select2-selection--single {
+  border: 1px solid #ccc;
+  color: #555;
+}
+
+.multiselect {
+  color: #555;
+}
+
+.checkbox input[type="checkbox"] {
+    opacity: 1 !important;
+    z-index: 1;
+}
+</style>
+</head>
+
+<body>
+<section layout:fragment="custom-content">
+
+<div class="max-width">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-heading"><a th:text="#{salesAndPageTrafficReport.title}"></a></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form action="/SalesAndPageTrafficReport" method="GET" name="SalesAndPageTrafficReport"
+                           id="salesAndPageTrafficReportForm" modelAttribute="SalesAndPageTrafficReport">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div sec:authorize="${hasAnyRole(@authProperties['SALES_AND_PAGE_TRAFFIC_SUPPLIER_SELECTOR'])}">
+                                <div class="form-group">
+                                    <label for="supplierKcode"><a th:text="#{salesAndPageTrafficReport.supplier}"></a></label>
+
+                                    <select id="supplierKcode" class="form-control" name="supplierKcode" >
+                                        <option value="">--- Select ---</option>
+                                        <th:block th:each="supplierKcodeName : ${supplierKcodeNames}" >
+                                            <option th:value="${supplierKcodeName.key}" th:selected="${supplierKcodeName.key} == ${conditions.supplierKcode}"
+                                                    th:text="${supplierKcodeName.key}+' '+${supplierKcodeName.value}">
+                                            </option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="baseProduct"><a th:text="#{salesAndPageTrafficReport.BPandSKU}"></a></label>
+                                <select id="baseProduct" multiple="multiple" class="form-control" name="baseProduct">
+                                    <th:block th:each="productBase : ${productBases}">
+                                        <option th:value="${productBase.key}"
+                                                th:text="${productBase.value}">
+                                         </option>
+                                    </th:block>
+                                </select><input type="hidden" name="_baseProduct" value="1"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sku"><a th:text="#{salesAndPageTrafficReport.SKU}"></a></label>
+                                <select multiple="multiple" id="sku" class="form-control" name="sku">
+                                </select><input type="hidden" name="_sku" value="1"/>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="marketplaceId"><a th:text="#{salesAndPageTrafficReport.marketplace}"></a></label>
+                                <select class="form-control" name="marketplaceId">
+                                    <option value="">--- Select ---</option>
+                                    <th:block th:each="marketplace : ${marketplaces}">
+                                        <option th:value="${marketplace.key}"  th:selected="${marketplace.key} == ${conditions.marketplaceId}"
+                                                th:text="${marketplace.name}">
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+
+                            <div class="form-group">
+                                <label for="timeScale"><a th:text="#{salesAndPageTrafficReport.timeScale}"></a></label>
+                                <select id="timeScale" class="form-control" name="timeScale" >
+                                    <th:block th:each="timeScale : ${timeScales}" >
+                                        <option th:value="${timeScale.key}" th:selected="${timeScale.key} == ${conditions.timeScale}"
+                                                th:text="#{|salesAndPageTrafficReport.${timeScale}|}">
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trafficType"><a th:text="#{salesAndPageTrafficReport.trafficType}"></a></label>
+                                <select id="trafficType" class="form-control" name="trafficType">
+                                    <th:block th:each="trafficType : ${trafficTypes}">
+                                        <option th:value="${trafficType.key}" th:selected="${trafficType.key} == ${conditions.trafficType}"
+                                                th:text="#{|salesAndPageTrafficReport.${trafficType}|}">
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dateRange"><a th:text="#{salesAndPageTrafficReport.timeRange}"></a></label>
+                                <select id="dateRange" class="form-control selectDateRange" name="dateRange">
+                                    <th:block th:each="dateRange : ${dateRanges}">
+                                        <option class="dateRangeList"
+                                                th:value="${dateRange.key}" th:selected="${dateRange.key} == ${conditions.dateRange}"
+                                                th:text="#{|salesAndPageTrafficReport.${dateRange}|}">
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input id="totalOrAverage1" type="radio" class="totalOrAverage" name="totalOrAverage" value="1" checked th:checked="'1' == ${conditions.totalOrAverage}"/>
+                                <label><a th:text="#{salesAndPageTrafficReport.TOTAL}"></a></label>
+                                <span id="radioTotalAvg">
+							    <input id="totalOrAverage2" type="radio" class="totalOrAverage" name="totalOrAverage" value="2" th:checked="'2' == ${conditions.totalOrAverage}"/>
+							    <label><a th:text="#{salesAndPageTrafficReport.AVERAGE}"></a></label>
+                                </span>
+                            </div>
+
+                            <div class="showOnCustomize form-group">
+                                <label><a th:text="#{campaignPerformance.startDateInput}"></a></label>
+                                <div th:if="${report == null}">
+                                    <input class="form-control" id="startDateInput" name="startDate"
+                                           style="width:100px;cursor:default;background-color:white;">
+                                </div>
+                                <div th:if="${report != null}">
+                                <input class="form-control" id="startDateInput" name="startDate" th:value="${report.startDate}"
+                                            style="width:100px;cursor:default;background-color:white;">
+                                </div>
+                            </div>
+
+                            <div class="showOnCustomize form-group">
+                                <label><a th:text="#{campaignPerformance.endDateInput}"></a></label>
+                                <div th:if="${report == null}">
+                                    <input class="form-control" id="endDateInput"   name="endDate"
+                                           style="width:100px;cursor:default;background-color:white;">
+                                </div>
+                                <div th:if="${report != null}">
+                                    <input class="form-control" id="endDateInput"   name="endDate" th:value="${report.endDate}"
+                                           style="width:100px;cursor:default;background-color:white;">
+                                </div>
+                            </div>
+                            <div>
+                                <div th:if="${report == null}">
+
+                                    <small class="form-text">
+                                        <a th:text="#{salesAndPageTrafficReport.noInfoFound}"></a>
+                                        <a th:text="#{salesAndPageTrafficReport.searchAgain}"></a>
+                                    </small>
+
+                                </div>
+                            </div>
+
+
+                            <div class="float-right">
+                                <input type="hidden" id="selectedSkus" name="selectedSkus" th:value="${selectedSkus}" />
+                                <input type="hidden" id="selectedProducts" name="selectedProducts" th:value="${selectedProducts}" />
+                                <button class="btn btn-primary" style="float:right" type="submit"><i class="fas fa-search"></i> <a th:text="#{salesAndPageTrafficReport.search}"></a></button>
+                                <input id="orderExport" class="btn btn-default mr-2" style="float:right"  type="submit" th:value="#{customerOrder.export}">
+                            </div>
+                            <iframe id="pageSalesIframe" style="border:none;height:0;width:0;"></iframe>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div style="padding-bottom: 20px"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div th:if="${conditions.totalOrAverage == '1'}">
+                    <h4><b><a th:text="#{salesAndPageTrafficReport.TOTAL}"></a></b></h4>
+                </div>
+                <div th:if="${conditions.totalOrAverage == '2'}">
+                    <h4><b><a th:text="#{salesAndPageTrafficReport.AVERAGE}"></a></b></h4>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <a th:text="#{salesAndPageTrafficReport.dateRange}"></a><a th:if="${report != null}" th:text="' '+${report.startDate}+' to '+${report.endDate}"></a>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-withoutBorder">
+                    <tr style="background-color:#EEEDED;font-weight: bold;font-size: 20px;">
+                        <td>
+                            <a th:text="#{salesAndPageTrafficReport.totalUnitsOrdered}"></a>
+                            <a th:if="${report != null}"
+                               th:text="${report.totalUnitsOrdered}"></a>
+                        </td>
+                        <td>
+                            <a th:text="#{salesAndPageTrafficReport.orderProductSales}"></a>
+                            <a th:if="${report != null}"
+                               th:text="${report.currency}+' '+${report.totalOrderedProductSales}"></a>
+                        </td>
+                        <td>
+                            <a th:text="#{salesAndPageTrafficReport.totalSessions}"></a>
+                            <a th:if="${report != null}"
+                               th:text="${report.totalSessions}"></a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <input type="hidden" id="chartDataString" name="chartDataString" th:value="${chartData}" />
+                <div id="lineChart"></div>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div th:if="${totalPages > 0}">
+                    <th:block th:each="condition : ${conditions}">
+                                <script>
+                                $(document).ready(function(){
+                                var totalPages = parseInt('[[${totalPages}]]');
+                                var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+                                var e;
+                                var conditions = '[[${conditions}]]';
+                                var conditions = conditions.replace(/{/g, "");
+                                var conditions = conditions.replace(/}/g, "");
+                                var conditions = conditions.replace(/, /g, "&");
+                                var conditions = conditions.replace(/,/g, "%2c");
+                                var conditions = conditions.replace(/null/g, "");
+                                console.log('[[${condition}]]')
+
+
+                                $('.URL').attr("href","/SalesAndPageTrafficReport?"+(conditions));
+
+                                if(currentPageIndex == 1){
+                                $('.nextUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex+1));
+                                $('.lastUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+totalPages);
+                                }
+
+                                else if(currentPageIndex == totalPages){
+                                $('.firstUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page=1");
+                                $('.prevUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex-1));
+                                }
+
+                               else{
+                                $('.firstUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page=1");
+                                $('.lastUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+totalPages);
+                                $('.prevUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex-1));
+                                $('.nextUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex+1));
+                                }
+
+                                });
+                                </script>
+                    </th:block>
+                        <input type="hidden" id="conditionURL" name="conditionURL" th:value="URL" />
+                </div>
+                <div th:if="${totalPages > 1}">
+
+                        <center>
+                            <nav>
+                                <ul class="pagination pagination-sm justify-content-center">
+                                    <div th:if="${currentPageIndex != 1}" style="display: flex;">
+                                            <li class="page-item"><a class="page-link firstUrl" >&lt;&lt;</a></li>
+                                            <li class="page-item"><a class="page-link prevUrl" >&lt;</a></li>
+                                    </div>
+
+                                    <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                                        <script>
+                                $(document).ready(function(){
+                                var totalPages = parseInt('[[${totalPages}]]');
+                                var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+                                var conditions = '[[${conditions}]]';
+                                var conditions = conditions.replace(/{/g, "");
+                                var conditions = conditions.replace(/}/g, "");
+                                var conditions = conditions.replace(/, /g, "&");
+                                var conditions = conditions.replace(/,/g, "%2c");
+                                var conditions = conditions.replace(/null/g, "");
+                                var i = '[[${i}]]';
+
+                                $('#pl'+i).attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+i);
+
+                                });
+
+                                </script>
+
+                                        <div th:if="${i == currentPageIndex}">
+                                                <li class="active page-item"><a th:id="'pl'+${i}" class="page-link"  th:text="${i}"></a></li>
+                                        </div>
+                                        <div th:unless="${i == currentPageIndex}">
+                                                <li class="page-item"><a th:id="'pl'+${i}" class="page-link"  th:text="${i}"></a></li>
+                                        </div>
+                                    </th:block>
+
+                                    <div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+                                            <li class="page-item"><a class="page-link nextUrl" th:href="${nextUrl}">&gt;</a></li>
+                                            <li class="page-item"><a class="page-link lastUrl" th:href="${lastUrl}">&gt;&gt;</a></li>
+                                    </div>
+                                </ul>
+                            </nav>
+                        </center>
+                </div>
+                <div class="table-responsive">
+                    <table id="salesAndPageTrafficReport" class="table table-withoutBorder">
+                        <thead>
+                        <tr>
+                            <th><a th:text="#{salesAndPageTrafficReport.date}"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.Sessions}"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.pageView}"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.buybox}"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.unitSession}"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.orderedProductSales}"></a><a th:if="${report != null}" th:text="' ('+${report.currency}+')'"></a></th>
+                            <th class="text-right"><a th:text="#{salesAndPageTrafficReport.unitsOrdered}"></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each=" historyLine : ${historyLines}">
+                            <tr>
+                                <td><a th:text="${historyLine.date}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.sessions}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.pageViews}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.buyBoxPercentage}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.unitSessionPercentage}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.orderedProductSales}"></a></td>
+                                <td class="text-right"><a th:text="${historyLine.unitsOrdered}"></a></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${totalPages > 1}">
+                    <th:block th:each="condition : ${conditions}">
+                        <script>
+                                $(document).ready(function(){
+                                var totalPages = parseInt('[[${totalPages}]]');
+                                var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+                                var e;
+                                var conditions = '[[${conditions}]]';
+                                var conditions = conditions.replace(/{/g, "");
+                                var conditions = conditions.replace(/}/g, "");
+                                var conditions = conditions.replace(/, /g, "&");
+                                var conditions = conditions.replace(/,/g, "%2c");
+                                var conditions = conditions.replace(/null/g, "");
+
+
+
+
+                                if(currentPageIndex == 1){
+                                $('.nextUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex+1));
+                                $('.lastUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+totalPages);
+                                }
+
+                                else if(currentPageIndex == totalPages){
+                                $('.firstUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page=1");
+                                $('.prevUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex-1));
+                                }
+
+                               else{
+                                $('.firstUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page=1");
+                                $('.lastUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+totalPages);
+                                $('.prevUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex-1));
+                                $('.nextUrl').attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+(currentPageIndex+1));
+                                }
+
+                                });
+                                </script>
+                    </th:block>
+                    <center>
+                        <nav>
+                            <ul class="pagination pagination-sm justify-content-center">
+                                <div th:if="${currentPageIndex != 1}" style="display: flex;">
+                                    <li class="page-item"><a class="page-link firstUrl" >&lt;&lt;</a></li>
+                                    <li class="page-item"><a class="page-link prevUrl" >&lt;</a></li>
+                                </div>
+
+                                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                                    <script>
+                                $(document).ready(function(){
+                                var totalPages = parseInt('[[${totalPages}]]');
+                                var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+                                var conditions = '[[${conditions}]]';
+                                var conditions = conditions.replace(/{/g, "");
+                                var conditions = conditions.replace(/}/g, "");
+                                var conditions = conditions.replace(/, /g, "&");
+                                var conditions = conditions.replace(/,/g, "%2c");
+                                var conditions = conditions.replace(/null/g, "");
+                                var i = '[[${i}]]';
+
+                                $('#plbelow'+i).attr("href","/SalesAndPageTrafficReport?"+(conditions)+"&page="+i);
+
+                                });
+
+                                </script>
+
+                                    <div th:if="${i == currentPageIndex}">
+                                        <li class="active page-item"><a th:id="'plbelow'+${i}" class="page-link"  th:text="${i}"></a></li>
+                                    </div>
+                                    <div th:unless="${i == currentPageIndex}">
+                                        <li class="page-item"><a th:id="'plbelow'+${i}" class="page-link"  th:text="${i}"></a></li>
+                                    </div>
+                                </th:block>
+
+                                <div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+                                    <li class="page-item"><a class="page-link nextUrl" th:href="${nextUrl}">&gt;</a></li>
+                                    <li class="page-item"><a class="page-link lastUrl" th:href="${lastUrl}">&gt;&gt;</a></li>
+                                </div>
+                            </ul>
+                        </nav>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+</body>
+</html>

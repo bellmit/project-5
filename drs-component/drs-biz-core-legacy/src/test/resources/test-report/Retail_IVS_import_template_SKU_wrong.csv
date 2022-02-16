@@ -1,0 +1,7 @@
+Market region,"Shipping method (Express, Air cargo, Sea freight)",Expected export date,Delivery date,Mixed Box?,Sku,Unit per carton,Number of cartons,FCA unit price,Retail PO number
+US,Air cargo,2020-06-05,2020-05-29,No,K488-Spectra-TypeA-B,20,1,1300,P00002
+,,,,Yes,K151-17A,24,1,1400,P00001
+,,,,Yes,K151-17,8,0,8,P00001
+,,,,,,,,,
+EU,Express,2020-06-19,2020-06-14,No,K228-28,100,1,195,P00005
+,,,,No,K228-30A,40,2,225,P00005

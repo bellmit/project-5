@@ -1,0 +1,146 @@
+#s5_body_padding {
+direction:rtl;
+text-align:right;
+}
+
+#s5_center_area1, #s5_welcome {
+direction:ltr;
+}
+
+#s5_logo, #s5_logo_module {
+float:right;
+}
+
+.homepage_icon_text {
+padding-left:0px !important;
+padding-right:20px !important;
+}
+
+.homepage_icon {
+float:right !important;
+}
+
+ul.actions {
+float:left;
+}
+
+#loading_img {
+visibility:hidden;
+}
+
+#s5_loginreg, #s5_search_wrap, #s5_search_login_wrap {
+float:left;
+}
+
+#s5_login, #s5_register {
+margin-left:0px;
+margin-right:8px;
+display:inline-block;
+}
+
+#s5_social_bar {
+float:left;
+margin-left:-8px;
+}
+
+
+/* Flex Menu
+----------------------------------------------------------- */
+
+#s5_nav, #subMenusContainer {
+direction:rtl;
+}
+
+#s5_nav li {
+float:right;
+}
+
+.s5_sub_wrap, .s5_sub_wrap_lower, .s5_sub_wrap_rtl, .s5_sub_wrap_lower_rtl {
+	margin-left:8px !important;
+}
+
+#s5_menu_wrap_inner2 {
+border-left:none;
+border-right:solid 1px #FFFFFF;
+}
+
+#s5_nav li.mainParentBtn .s5_level1_span2 a {
+padding-right:0px !important;
+}
+
+#subMenusContainer a, #s5_nav li li a {
+text-align:right;
+}
+
+.subParentBtn .S5_submenu_item a {
+background:none;
+}
+
+#s5_nav li {
+margin-left:0px;
+border-right:none;
+}
+
+#s5_nav li.mainParentBtn .s5_level1_span2 a {
+background-position:center left !important;
+}
+
+.subParentBtn .S5_submenu_item a {
+background:none !important;
+}
+
+#s5_nav li.mainParentBtn .s5_level1_span2 a {
+padding-right:0px;
+padding-left:20px;
+}
+
+#s5_social_bar_narrow_screen {
+margin-left:0px;
+margin-right:-8px;
+float:right;
+}
+
+	
+#s5_bottom_menu_wrap li {
+margin-left:16px !important;
+margin-right:0px !important;
+float:right !important;
+}
+
+#s5_shape5_logo {
+float:right;
+}
+
+#s5_scrolltopvar .s5_scrolltotop {
+float:left;
+margin-right:0px;
+margin-left:18px;
+}
+
+#s5_breadcrumb_wrap {
+float:right;
+}
+
+#fontControls {
+float:left;
+}
+
+
+/* End Flex Menu
+----------------------------------------------------------- */
+
+
+#s5_component_wrap {
+direction:rtl;
+text-decoration:right;
+}
+
+.pull-left img {
+margin-left:26px;
+margin-right:0px;
+}
+
+.pull-right img {
+margin-left:0px;
+margin-right:26px;
+}

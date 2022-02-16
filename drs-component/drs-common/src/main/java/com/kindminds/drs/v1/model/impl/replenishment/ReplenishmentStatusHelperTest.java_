@@ -1,0 +1,29 @@
+package com.kindminds.drs.v1.model.impl.replenishment;
+
+import com.kindminds.drs.api.v1.model.replenishment.ReplenishmentPredition.ReplenishmentStatus;
+import org.junit.Test;
+
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+
+public class ReplenishmentStatusHelperTest {
+
+	@Test
+	public void testBuildStatus() {
+		Date input = new Date(116, 11, 12);
+		ReplenishmentStatus expectedResult = ReplenishmentStatus.ExpiredIn7Days;
+		ReplenishmentStatus realResult = ReplenishmentStatusHelper.buildStatus(input);
+		assertEquals(expectedResult, realResult);
+		input = new Date(117, 0, 25);
+		expectedResult = ReplenishmentStatus.ExpiredIn14Days;
+		realResult = ReplenishmentStatusHelper.buildStatus(input);		
+		input = new Date(117, 0, 31);
+		expectedResult = ReplenishmentStatus.ExpiredIn21Days;
+		realResult = ReplenishmentStatusHelper.buildStatus(input);				
+		input = new Date(117, 2, 23);
+		expectedResult = ReplenishmentStatus.Normal;
+		realResult = ReplenishmentStatusHelper.buildStatus(input);
+	}
+
+}

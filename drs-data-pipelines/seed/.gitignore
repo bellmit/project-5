@@ -1,0 +1,12 @@
+/bin/
+/target/
+.settings/
+*.iml
+.cache-main
+
+# Eclipse Core
+.project
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+

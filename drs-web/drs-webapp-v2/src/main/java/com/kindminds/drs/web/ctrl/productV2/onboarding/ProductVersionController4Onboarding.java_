@@ -1,0 +1,1261 @@
+package com.kindminds.drs.web.ctrl.productV2.onboarding;
+
+import static akka.pattern.Patterns.ask;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kindminds.drs.Context;
+import com.kindminds.drs.Country;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.ApproveApplicationLineitem;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.ProductSource;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.RejectApplicationLineitem;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.SaveApplicationLineitem;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.SubmitApplication;
+import com.kindminds.drs.api.usecase.product.MaintainProductOnboardingUco;
+import com.kindminds.drs.domain.product.ProductStatusType;
+import com.kindminds.drs.data.dto.BaseProductOnboardingDetail.StatusType;
+import com.kindminds.drs.data.dto.BaseProductOnboardingWithSKU;
+import com.kindminds.drs.data.dto.common.DtoList;
+import com.kindminds.drs.data.dto.common.Pager;
+import com.kindminds.drs.service.util.SpringAppCtx;
+import com.kindminds.drs.util.JsonHelper;
+import com.kindminds.drs.web.data.dto.BaseProductOnboardingWithSKUImpl;
+import com.kindminds.drs.web.data.dto.DevelopingProductListWeb;
+import com.kindminds.drs.web.data.dto.DevelopingProductWeb;
+import com.kindminds.drs.web.data.dto.product.ProductInfoMarketSide;
+import com.kindminds.drs.api.message.command.maintainProductOnboardingUco.CreateApplication;
+
+
+
+
+import akka.actor.ActorRef;
+import akka.util.Timeout;
+import scala.Option;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+
+@Controller
+@RequestMapping(value = "/oa")
+public class ProductVersionController4Onboarding_ {
+		
+	@Autowired @Qualifier("drsCmdBus") ActorRef drsCmdBus;
+	@Autowired @Qualifier("drsQueryBus") ActorRef drsQueryBus;
+	
+	private  ObjectMapper mapper = new ObjectMapper();
+	
+	private MaintainProductOnboardingUco uco  = null ;
+	private MaintainProductOnboardingUco getMaintainProductOnboardingUco(){
+		if(uco == null)
+		 uco = (MaintainProductOnboardingUco)SpringAppCtx.get().getBean("maintainProductOnboardingUco");
+		return uco;
+	}
+	
+	/*
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_EDIT'))")			
+	@RequestMapping(value = "/EditCoreProductInformation/{baseProductCode}")
+	public String editCoreProductInformation(@PathVariable String baseProductCode,@RequestParam(value="supplierKcode",defaultValue="",required=false) String supplierKcode,Model model) throws JsonParseException,JsonMappingException,IOException{		
+		List<String> marketSideRegionList = this.getMarketSideRegionList();	
+		Map<String,List<String>> regionToMarketplaceMap = this.getRegionToMarketplaceMap();				
+		Map<String,String> supplierKcodeToShortEnUsNameMap = this.getMaintainProductOnboardingUco().getSupplierKcodeToShortEnUsNameMap();
+		boolean isDrsUser = this.getMaintainProductOnboardingUco().isDrsUser();
+		String userCompanyKcode = this.getMaintainProductOnboardingUco().getUserCompanyKcode();		
+		BaseProductOnboarding baseProduct = this.getMaintainProductOnboardingUco().getDetailOfBaseProductOnboarding(baseProductCode);
+		BaseProductOnboardingDetail baseProductSource = baseProduct.getProductInfoSource();			
+		// for marketSideList, add throws exceptions at method
+		ObjectMapper objectMapper = new ObjectMapper();
+		BaseProductOnboardingDetail productInfoSource = baseProduct.getProductInfoSource();
+		String productInfoSourceData = productInfoSource.getData();		
+		JsonNode productInfoSourceJsonNode = objectMapper.readValue(productInfoSourceData, JsonNode.class);								
+		JsonNode applicableRegionBPJsonNode = objectMapper.readValue(productInfoSourceJsonNode.get("applicableRegionBP"), JsonNode.class);
+		List<String> marketSideList  = new ArrayList<String>();
+		for(JsonNode applicableRegionBP:applicableRegionBPJsonNode){			
+			marketSideList.add(applicableRegionBP.asText());				
+		}								
+		//end of marketSideList				
+		boolean isExecutable = this.getMaintainProductOnboardingUco().isExecutable(StatusType.fromValue(baseProductSource.getStatus()));		
+		if(isExecutable){
+			model.addAttribute("marketSideRegionList",JsonHelper.toJson(marketSideRegionList));				
+			model.addAttribute("regionToMarketplaceMap",JsonHelper.toJson(regionToMarketplaceMap));
+			model.addAttribute("baseProduct",JsonHelper.toJson(baseProduct));		
+			model.addAttribute("productName",productInfoSourceJsonNode.get("productNameEnglish").asText());			
+			model.addAttribute("supplierKcodeToShortEnUsNameMap", supplierKcodeToShortEnUsNameMap);							
+			model.addAttribute("isDrsUser", isDrsUser);
+			model.addAttribute("isDrsUserJson", JsonHelper.toJson(isDrsUser));
+			model.addAttribute("userCompanyKcode", userCompanyKcode);
+			model.addAttribute("userCompanyKcodeJson", JsonHelper.toJson(userCompanyKcode));				
+			model.addAttribute("type", "Edit");
+			model.addAttribute("typeJson", JsonHelper.toJson("Edit"));			
+			model.addAttribute("marketSideList",marketSideList);			
+			return "ProductInfoSourceVersion";
+		}		
+		return "accessDeny";		
+	}*/
+	
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_LIST'))")
+	@RequestMapping(value = "/NewDevelopingProductList", method = RequestMethod.GET)
+	public String listNewDevelopingProducts(@RequestParam(value="kcode",defaultValue="All",required=false) 
+		String companyKcode,@RequestParam(value="page",defaultValue="1",required=false) Integer pageIndex,Model model) throws JsonParseException, JsonMappingException, IOException{		
+		
+		
+		Timeout timeout = new Timeout(Duration.create(30, "seconds"));
+		
+		
+		 final Future<Object> futureResult = (Context.getCurrentUser().isDrsUser()) ? 
+	                ask(drsQueryBus, new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+	                		GetBaseProductOnboardingList4DRS(companyKcode,pageIndex),timeout) :
+	                		     ask(drsQueryBus, new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+	         	                		GetBaseProductOnboardingList(Context.getCurrentUser().getCompanyKcode()
+	         	                				,pageIndex),timeout);
+		
+		    try {
+		    	
+		    	String str  = (String)  Await.result(futureResult, timeout.duration());
+		    	
+		    	
+		    	DtoList baseProducts = mapper.readValue(str,
+		    			com.kindminds.drs.data.dto.common.DtoList.class);
+		    	
+		    	Pager page = baseProducts.getPager();	
+				
+				model.addAttribute("totalPages",page.getTotalPages());
+				model.addAttribute("currentPageIndex",page.getCurrentPageIndex());
+				model.addAttribute("startPage",page.getStartPage());
+				model.addAttribute("endPage",page.getEndPage());
+				model.addAttribute("companyKcode",companyKcode);	
+				
+				model.addAttribute("baseProducts",this.generateBaseProductList(baseProducts.getItems()));
+				model.addAttribute("baseProductsJson",JsonHelper.toJson(this.generateBaseProductList(baseProducts.getItems())));
+			
+				model.addAttribute("supplierKcodeToNameMap",this.getSupplierKcodeToShortEnUsNameMap());
+		    	
+		    	
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch blockc
+				e.printStackTrace();
+			}
+				
+	
+		
+		return "ListOfProductInfoSourceVersions";	
+		
+		
+	}
+	
+
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_CREATE'))")
+	@RequestMapping(value = "/CreateCoreProductInformation")
+	public String CreateCoreProductInformation(Model model){	
+				
+		List<String> marketSideRegionList = this.getMarketSideRegionList();	
+		Map<String,List<String>> regionToMarketplaceMap = this.getRegionToMarketplaceMap();		
+		Map<String,String> supplierKcodeToShortEnUsNameMap = this.getMaintainProductOnboardingUco().getSupplierKcodeToShortEnUsNameMap();
+		boolean isDrsUser = this.getMaintainProductOnboardingUco().isDrsUser();
+		String userCompanyKcode = this.getMaintainProductOnboardingUco().getUserCompanyKcode();		
+		
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		final Future<Object> applicationSnObject = 
+				ask(drsQueryBus,
+						new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetApplicationSerialNumbersBySupplier(
+								userCompanyKcode),timeout);		
+		try {
+			Optional<List<String>> applicationSnList = (Optional<List<String>>) Await.result(applicationSnObject, timeout.duration());
+			model.addAttribute("applicationSnList",applicationSnList.get());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+		model.addAttribute("marketSideRegionList",JsonHelper.toJson(marketSideRegionList));		
+		model.addAttribute("regionToMarketplaceMap",JsonHelper.toJson(regionToMarketplaceMap));
+		model.addAttribute("baseProduct",JsonHelper.toJson(null));	
+		model.addAttribute("developingProduct",JsonHelper.toJson(null));		
+		model.addAttribute("supplierKcodeToShortEnUsNameMap", supplierKcodeToShortEnUsNameMap);		
+		model.addAttribute("isDrsUser", isDrsUser);
+		model.addAttribute("isDrsUserJson", JsonHelper.toJson(isDrsUser));
+		model.addAttribute("userCompanyKcode", userCompanyKcode);
+		model.addAttribute("userCompanyKcodeJson", JsonHelper.toJson(userCompanyKcode));	
+		model.addAttribute("type", "Create");
+		model.addAttribute("typeJson", JsonHelper.toJson("Create"));		
+		
+		return "ProductInfoSourceVersion";		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_CREATE'))")	
+	@RequestMapping(value = "/saveCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})		
+	public @ResponseBody String saveCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{
+
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+		
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		String userKCode = Context.getCurrentUser().getCompanyKcode();
+				
+	    final Future<Object> futureResult =
+	                ask(drsCmdBus, 
+	                		new CreateApplication(
+	                		isDrsUser,
+	                		userKCode,
+	                		developingProduct.getProductInfoSource(),
+	                		developingProduct.getProductInfoMarketSide(), 
+	                		developingProduct.getProductMarketingMaterialSource(),
+	                		developingProduct.getProductMarketingMaterialMarketSide(),
+	                		scala.Option.apply(developingProduct.getSerialNumber())), // Serial Number
+	                		timeout);
+	    
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		
+	    return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_SAVE_DRAFT'))")		
+	@RequestMapping(value = "/saveDraftForCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})	
+	public @ResponseBody String saveDraftForCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{
+		
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		String userKCode = Context.getCurrentUser().getCompanyKcode();
+		
+	    final Future<Object> futureResult =
+                ask(drsCmdBus, 
+                		new SaveApplicationLineitem(
+                		isDrsUser,userKCode,
+                		scala.Option.empty(),
+                		Country.CORE, new ProductSource(
+                		scala.Option.apply(developingProduct.getProductInfoSource()),
+                		scala.Option.apply(developingProduct.getProductMarketingMaterialSource()), 
+                		scala.Option.apply(developingProduct.getProductInfoMarketSide()), 
+                		scala.Option.apply(developingProduct.getProductMarketingMaterialMarketSide()))
+                				, scala.Option.empty(), scala.Option.apply(developingProduct.getSerialNumber()), null),
+                		timeout);
+	   
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+	    
+
+
+	    return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+		
+
+				
+				
+								
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_SUBMIT'))")	
+	@RequestMapping(value = "/submitCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})		
+	public @ResponseBody String submitCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{		
+
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+			
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		String userKCode = Context.getCurrentUser().getCompanyKcode();
+		
+	    final Future<Object> futureResult =
+	                ask(drsCmdBus, new SubmitApplication(
+	                		isDrsUser,userKCode,scala.Option.empty(),
+	                		Country.CORE, new ProductSource(
+	                				scala.Option.apply(developingProduct.getProductInfoSource()),
+	                				scala.Option.apply(developingProduct.getProductMarketingMaterialSource()), 
+	                				scala.Option.apply(developingProduct.getProductInfoMarketSide()), 
+	                				scala.Option.apply(developingProduct.getProductMarketingMaterialMarketSide())), 
+	                		scala.Option.empty(), scala.Option.apply(developingProduct.getSerialNumber())),
+	                		timeout);
+	    
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    
+
+		
+	    return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+		
+					
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_APPROVE'))")	
+	@RequestMapping(value = "/approveCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})	
+	public @ResponseBody String approveCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{		
+
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+	
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	
+		
+	    final Future<Object> futureResult =
+	                ask(drsCmdBus, new ApproveApplicationLineitem(
+	                		scala.Option.empty(),
+	                		Country.CORE, new ProductSource(
+	                				Option.apply(developingProduct.getProductInfoSource()),
+	                				Option.apply(developingProduct.getProductMarketingMaterialSource()), 
+	                				Option.apply(developingProduct.getProductInfoMarketSide()), 
+	                				Option.apply(developingProduct.getProductMarketingMaterialMarketSide())), 
+	                		scala.Option.empty(), null),
+	                		timeout);
+	    
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    
+		
+	    return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+		
+		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_RETURN'))")		
+	@RequestMapping(value = "/returnCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})		
+	public @ResponseBody String returnCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{		
+
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+		
+	
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	
+		
+	    final Future<Object> futureResult =
+	                ask(drsCmdBus, new 
+	                		RejectApplicationLineitem(
+	                        	scala.Option.empty(),
+	                        		Country.CORE, new ProductSource(
+	                        				scala.Option.apply(developingProduct.getProductInfoSource()),
+	                        				scala.Option.apply(developingProduct.getProductMarketingMaterialSource()), 
+	                        				scala.Option.apply(developingProduct.getProductInfoMarketSide()), 
+	                        				scala.Option.apply(developingProduct.getProductMarketingMaterialMarketSide())), 
+	                        	    scala.Option.empty(), null),
+	                		timeout);
+		
+	    
+	   try {
+		Thread.sleep(2000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+		
+		
+		return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+	}
+		
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_UPDATE'))")	
+	@RequestMapping(value = "/updateCoreProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})	
+	public @ResponseBody String updateCoreProductInformation(@RequestBody DevelopingProductWeb developingProduct) throws IOException{		
+
+		String productInfoSource = getMaintainProductOnboardingUco()
+				.updateDangerousGoodsCode(developingProduct.getProductInfoSource());
+		developingProduct.setProductInfoSource(productInfoSource);
+				
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		String userKCode = Context.getCurrentUser().getCompanyKcode();
+		
+		
+
+	    final Future<Object> futureResult =
+                ask(drsCmdBus, 
+                		new SaveApplicationLineitem(
+                		isDrsUser,userKCode,
+                		scala.Option.empty(),
+                		Country.CORE, new ProductSource(
+                		scala.Option.apply(developingProduct.getProductInfoSource()),
+                		scala.Option.apply(developingProduct.getProductMarketingMaterialSource()), 
+                		scala.Option.apply(developingProduct.getProductInfoMarketSide()), 
+                		scala.Option.apply(developingProduct.getProductMarketingMaterialMarketSide()))
+                				, scala.Option.empty(), scala.Option.apply(developingProduct.getSerialNumber()), null),
+                		timeout);
+	   
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+	    
+
+
+	    return  "/CoreProductInformation/" + developingProduct.getProductBaseCode();
+		
+		
+		
+	}
+		
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_VIEW'))")
+	@RequestMapping(value = "/CoreProductInformation/{baseProductCode}")
+	public String showCoreProductInformation(@PathVariable String baseProductCode,@RequestParam(value="supplierKcode",defaultValue="",required=false) String supplierKcode,Model model) throws JsonParseException, JsonMappingException, IOException{		
+		
+		
+		
+		Timeout timeout = new Timeout(Duration.create(180, "seconds"));
+		
+		 final Future<Object> futureResult =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetBaseProductOnboarding
+	                		(Context.getCurrentUser().isDrsUser() ,
+	                				Context.getCurrentUser().getCompanyKcode(),baseProductCode),timeout);
+		 
+		 
+		    try {
+		    	
+		    	String str  = (String)  Await.result(futureResult, timeout.duration());
+		    	
+		    
+		    	com.kindminds.drs.web.view.product.BaseProductOnboarding baseProduct = mapper.readValue(str,
+		    			com.kindminds.drs.web.view.product.BaseProductOnboarding.class);
+		    	
+		    
+		    	com.kindminds.drs.web.view.product.BaseProductOnboardingDetail baseProductSource = baseProduct.getProductInfoSource();
+				
+				String productInfoSourceData = baseProductSource.getData();
+				JsonNode productInfoSourceJsonNode = mapper.readValue(productInfoSourceData, JsonNode.class);
+				
+				model.addAttribute("baseProduct",JsonHelper.toJson(baseProduct));				
+				model.addAttribute("productName",productInfoSourceJsonNode.get("productNameEnglish").asText());
+				
+				model.addAttribute("status",StatusType.fromValue(baseProductSource.getStatus()));
+		    	
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch blockc
+				e.printStackTrace();
+			}
+		
+		
+		return "ProductInfoSourceVersionView";		
+	}
+
+
+	
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_EDIT'))")			
+	@RequestMapping(value = "/ep/{baseProductCode}")
+	public String editCoreProduct(@PathVariable String baseProductCode,@RequestParam(value="supplierKcode",defaultValue="",required=false) String supplierKcode,Model model) throws JsonParseException,JsonMappingException,IOException{		
+		
+		
+		List<String> marketSideRegionList =  this.getMarketSideRegionList();	
+		Map<String,List<String>> regionToMarketplaceMap = this.getRegionToMarketplaceMap();			
+		
+		Timeout timeout = new Timeout(Duration.create(180, "seconds"));
+		
+		
+	
+		 boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		 String userCompanyKcode = Context.getCurrentUser().getCompanyKcode();		
+			
+		 final Future<Object> futureResult =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetBaseProductOnboarding(isDrsUser,  userCompanyKcode,
+	                				baseProductCode) ,timeout);
+		
+		 final Future<Object> applicationSnObject = 
+					ask(drsQueryBus,
+							new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetApplicationSerialNumbersBySupplier(
+									userCompanyKcode),timeout);
+		 				 
+		    try {
+		    	
+		    	
+		    	String pStr  = (String)  Await.result(futureResult, timeout.duration());
+		    	
+		    	Optional<List<String>> applicationSnList = (Optional<List<String>>) Await.result(applicationSnObject, timeout.duration());			
+						    			    
+		    	com.kindminds.drs.web.view.product.BaseProductOnboarding p = mapper.readValue(pStr,
+		    			com.kindminds.drs.web.view.product.BaseProductOnboarding.class);
+		    	
+		    		
+		    	com.kindminds.drs.web.view.product.BaseProductOnboardingDetail productInfoSource = 
+		    			p.getProductInfoSource();
+				String productInfoSourceData = productInfoSource.getData();		
+						
+				JsonNode productInfoSourceJsonNode = 
+						mapper.readValue(productInfoSourceData, JsonNode.class);								
+					
+						
+				 final Future<Object> futureResult2 =
+			                ask(drsQueryBus, 
+			                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.IsExecutable(userCompanyKcode, 
+			                				ProductStatusType.fromText(productInfoSource.getStatus())) ,timeout);
+				 
+				 Boolean isExecutable  = (Boolean)  Await.result(futureResult2, timeout.duration());
+				
+							
+				if(isExecutable){
+					model.addAttribute("applicationSnList",applicationSnList.get());
+					model.addAttribute("marketSideRegionList",JsonHelper.toJson(marketSideRegionList));				
+					model.addAttribute("regionToMarketplaceMap",JsonHelper.toJson(regionToMarketplaceMap));
+					
+					model.addAttribute("baseProduct",JsonHelper.toJson(p));		
+					
+					model.addAttribute("productName",productInfoSourceJsonNode.get("productNameEnglish").asText());			
+					model.addAttribute("supplierKcodeToShortEnUsNameMap", this.getSupplierKcodeToShortEnUsNameMap());							
+					model.addAttribute("isDrsUser", isDrsUser);
+					model.addAttribute("isDrsUserJson", JsonHelper.toJson(isDrsUser));
+					model.addAttribute("userCompanyKcode", userCompanyKcode);
+					model.addAttribute("userCompanyKcodeJson", JsonHelper.toJson(userCompanyKcode));				
+					model.addAttribute("type", "Edit");
+					model.addAttribute("typeJson", JsonHelper.toJson("Edit"));			
+					model.addAttribute("marketSideList",this.createMarketSides(productInfoSourceJsonNode));	
+					
+					return "ProductInfoSourceVersion";
+				}		
+				
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch blockc
+				e.printStackTrace();
+			}
+		    
+		    
+		
+		return "accessDeny";		
+	}
+	
+	
+	
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_VIEW'))")			
+	@RequestMapping(value = "/MarketSideProductInformation/{baseProductCode}/{marketSideRegion}")			
+	public String showMarketSideProductInformation(@PathVariable String baseProductCode,@PathVariable String marketSideRegion,@RequestParam(value="supplierKcode",defaultValue="",required=false) String supplierKcode,Model model) throws JsonParseException,JsonMappingException,IOException{		
+		
+		
+		
+		Timeout timeout = new Timeout(Duration.create(180, "seconds"));
+		
+		String userKcode = Context.getCurrentUser().getCompanyKcode();
+		if(!Context.getCurrentUser().isDrsUser()){
+			supplierKcode = userKcode;
+		}		
+		
+		
+		 final Future<Object> futureResult =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+	                		GetProductInfoMarketSide(
+	                				marketSideRegion , supplierKcode, baseProductCode),timeout);
+		 
+		 final Future<Object> futureResult2 =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetBaseProductOnboarding(
+	                				Context.getCurrentUser().isDrsUser() ,
+	    	                				Context.getCurrentUser().getCompanyKcode(),baseProductCode),timeout);
+		 
+		 
+		    try {
+		    	
+		    	String str  = (String)  Await.result(futureResult, timeout.duration());
+		    	
+		    	
+		    	com.kindminds.drs.web.view.product.BaseProductOnboardingDetail pDtl =
+		    			mapper.readValue(str,com.kindminds.drs.web.view.product.BaseProductOnboardingDetail.class);
+		    	
+		    	String pStr  = (String)  Await.result(futureResult2, timeout.duration());
+		    	
+		    	
+		    	com.kindminds.drs.web.view.product.BaseProductOnboarding p = mapper.readValue(pStr,
+		    			com.kindminds.drs.web.view.product.BaseProductOnboarding.class);
+		    	
+		    	JsonNode productInfoSourceJsonNode = 
+		    			mapper.readValue(p.getProductInfoSource().getData(), JsonNode.class);										
+				
+		    	
+		    	model.addAttribute("product", JsonHelper.toJson(pDtl));		
+				 	
+				model.addAttribute("breadcrumbProduct",baseProductCode+" "+productInfoSourceJsonNode.get("productNameEnglish").asText());				
+				
+				model.addAttribute("baseProductCode", baseProductCode);
+				model.addAttribute("supplierKcode", supplierKcode);
+				model.addAttribute("marketSideRegion",marketSideRegion);
+				model.addAttribute("regionToCurrencyMap",this.getRegionToCurrencyMap());
+				model.addAttribute("status",StatusType.fromValue(pDtl.getStatus()));	
+				
+				
+				model.addAttribute("marketSideList",this.createMarketSides(productInfoSourceJsonNode));
+				
+			
+			} catch (Exception e) {
+				// TODO Auto-generated catch blockc
+				e.printStackTrace();
+			}
+		 
+		 
+		
+		return "ProductInfoMarketSideVersionView";		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_EDIT'))")			
+	@RequestMapping(value = "/EditMarketSideProductInformation/{baseProductCode}/{marketSideRegion}")		
+	public String editMarketSideProductInformation(@PathVariable String baseProductCode,@PathVariable String marketSideRegion,@RequestParam(value="supplierKcode",defaultValue="",required=false) String supplierKcode,Model model) throws JsonParseException,JsonMappingException,IOException{				
+		
+		
+		
+		Map<String,List<String>> regionToMarketplaceMap = this.getRegionToMarketplaceMap();
+		
+				
+		Timeout timeout = new Timeout(Duration.create(180, "seconds"));
+		
+		String userKcode = Context.getCurrentUser().getCompanyKcode();
+		if(!Context.getCurrentUser().isDrsUser()){
+			supplierKcode = userKcode;
+		}		
+		
+		
+		
+		 final Future<Object> futureResult =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+	                		GetProductInfoMarketSide(
+	                				marketSideRegion , supplierKcode, baseProductCode),timeout);
+		 
+		 
+		 final Future<Object> futureResult2 =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+	                		GetBaseProductOnboarding(
+	                				Context.getCurrentUser().isDrsUser() ,
+	    	                				Context.getCurrentUser().getCompanyKcode(),baseProductCode),timeout);
+	
+		
+		
+		 ObjectMapper mapper = new ObjectMapper();
+		    try {
+		    	
+		    	String str  = (String)  Await.result(futureResult, timeout.duration());
+		    	
+		    	
+		    	com.kindminds.drs.web.view.product.BaseProductOnboardingDetail baseProduct =
+		    			mapper.readValue(str,com.kindminds.drs.web.view.product.BaseProductOnboardingDetail.class);
+		    	
+		    
+				String pStr  = (String)  Await.result(futureResult2, timeout.duration());
+				
+		    	com.kindminds.drs.web.view.product.BaseProductOnboarding baseProductInfo = mapper.readValue(pStr,
+		    			com.kindminds.drs.web.view.product.BaseProductOnboarding.class);
+		    	
+		    	JsonNode productInfoSourceJsonNode = 
+		    			mapper.readValue(baseProductInfo.getProductInfoSource().getData(), JsonNode.class);										
+				
+		    
+			
+				
+				 final Future<Object> futureResult3 =
+			                ask(drsQueryBus, 
+			                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.
+			                		IsExecutable(userKcode, 
+			                				ProductStatusType.fromText(baseProduct.getStatus())) ,timeout);
+				 
+				 Boolean isExecutable  = (Boolean)  Await.result(futureResult3, timeout.duration());
+				 
+				 
+					if(isExecutable){			
+					
+						model.addAttribute("breadcrumbProduct",baseProductCode+" "+productInfoSourceJsonNode.get("productNameEnglish").asText());
+						
+						
+						model.addAttribute("product", JsonHelper.toJson(baseProduct));
+						model.addAttribute("baseProductCode", baseProductCode);
+						
+						model.addAttribute("supplierKcode", supplierKcode);
+						model.addAttribute("marketSideRegion",marketSideRegion);
+						model.addAttribute("regionToCurrencyMap",this.getRegionToCurrencyMap());
+						model.addAttribute("marketplaceList",regionToMarketplaceMap.get(marketSideRegion));			
+						model.addAttribute("marketSideList",this.createMarketSides(productInfoSourceJsonNode));		
+						
+						return "ProductInfoMarketSideVersion";						
+					}						
+		    	
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch blockc
+				e.printStackTrace();
+			}
+		 
+			return "accessDeny";		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_SAVE_DRAFT'))")	
+	@RequestMapping(value = "/saveDraftForMarketSideProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})			
+	public @ResponseBody String saveDraftForMarketSideProductInformation(@RequestBody 
+			ProductInfoMarketSide productInfoMarketSide){	
+		
+	
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	
+		
+	    final Future<Object> futureResult =
+	                ask(drsCmdBus, 
+	                		new SaveApplicationLineitem(
+	                				isDrsUser,Context.getCurrentUser().getCompanyKcode(),
+	                				Option.apply(productInfoMarketSide.getSupplierKcode()),
+	                        		Country.valueOf(productInfoMarketSide.getCountry()),
+	                        		new ProductSource(
+	                        		Option.empty(),Option.empty(),
+	                        	    Option.apply(productInfoMarketSide.getJsonData()),
+	                        	    Option.empty()), 
+	                        	    Option.apply(productInfoMarketSide.getProductBaseCode()),
+	                        	    Option.empty(), null),
+	                		timeout);
+		
+	
+	    try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+		return "/MarketSideProductInformation/"+productInfoMarketSide.getProductBaseCode()+"/"+productInfoMarketSide.getCountry()+"?supplierKcode="+productInfoMarketSide.getSupplierKcode();
+		
+		
+	}
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_SUBMIT'))")	
+	@RequestMapping(value = "/submitMarketSideProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})			
+	public @ResponseBody String submitMarketSideProductInformation(@RequestBody ProductInfoMarketSide productInfoMarketSide){		
+		
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	    final Future<Object> futureResult =
+                ask(drsCmdBus, 
+                		new  SubmitApplication(
+                				isDrsUser,Context.getCurrentUser().getCompanyKcode(),
+                				scala.Option.apply(productInfoMarketSide.getSupplierKcode()),
+                		Country.valueOf(productInfoMarketSide.getCountry()),
+                		new ProductSource(
+                				Option.empty(),
+                				Option.empty(),
+                				scala.Option.apply(productInfoMarketSide.getJsonData()),
+                	    Option.empty()), 
+                		Option.apply(productInfoMarketSide.getProductBaseCode()),
+                		Option.empty()),
+                		timeout);
+		
+	    try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+		return "/MarketSideProductInformation/"+productInfoMarketSide.getProductBaseCode()+"/"+productInfoMarketSide.getCountry()+"?supplierKcode="+productInfoMarketSide.getSupplierKcode();
+		
+		
+	}
+
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_APPROVE'))")	
+	@RequestMapping(value = "/approveMarketSideProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})	
+	public @ResponseBody String approveMarketSideProductInformation(@RequestBody ProductInfoMarketSide productInfoMarketSide){	
+		
+				Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	    final Future<Object> futureResult =
+                ask(drsCmdBus, new  ApproveApplicationLineitem(
+                				Option.apply(productInfoMarketSide.getSupplierKcode()),
+                        		Country.valueOf(productInfoMarketSide.getCountry()),
+                        		new ProductSource(
+                        				Option.empty(),Option.empty(),
+                        	    Option.apply(productInfoMarketSide.getJsonData()),
+                        	    Option.empty()), 
+                        	    Option.apply(productInfoMarketSide.getProductBaseCode()), null),
+                		timeout);
+		
+		
+	    try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+	    return "/MarketSideProductInformation/"+productInfoMarketSide.getProductBaseCode()+"/"+productInfoMarketSide.getCountry()+"?supplierKcode="+productInfoMarketSide.getSupplierKcode();
+		
+		
+	}
+
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_RETURN'))")		
+	@RequestMapping(value = "/returnMarketSideProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})		
+	public @ResponseBody String returnMarketSideProductInformation(@RequestBody ProductInfoMarketSide productInfoMarketSide){		
+		
+				
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+	    final Future<Object> futureResult =
+                ask(drsCmdBus, new RejectApplicationLineitem(
+                				Option.apply(productInfoMarketSide.getSupplierKcode()),
+                        		Country.valueOf(productInfoMarketSide.getCountry()),
+                        		new ProductSource(Option.empty(),Option.empty(),
+                        	    Option.apply(productInfoMarketSide.getJsonData()),
+                        	    Option.empty()), 
+                        	    Option.apply(productInfoMarketSide.getProductBaseCode()), null),
+                		timeout);
+		
+		
+	    try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+	    
+	    return "/MarketSideProductInformation/"+productInfoMarketSide.getProductBaseCode()+"/"+productInfoMarketSide.getCountry()+"?supplierKcode="+productInfoMarketSide.getSupplierKcode();
+		
+		
+	}
+		
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_UPDATE'))")	
+	@RequestMapping(value = "/updateMarketSideProductInformation",method = RequestMethod.POST,headers = {"Content-type=application/json"})	
+	public @ResponseBody String updateMarketSideProductInformation(@RequestBody ProductInfoMarketSide productInfoMarketSide){	
+		
+			
+		Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+		
+		Boolean isDrsUser = Context.getCurrentUser().isDrsUser();
+		String userKCode = Context.getCurrentUser().getCompanyKcode();
+		
+		
+
+		  final Future<Object> futureResult =
+	                ask(drsCmdBus, 
+	                		new  SubmitApplication(
+	                				isDrsUser,Context.getCurrentUser().getCompanyKcode(),
+	                				scala.Option.apply(productInfoMarketSide.getSupplierKcode()),
+	                		Country.valueOf(productInfoMarketSide.getCountry()),
+	                		new ProductSource(
+	                				Option.empty(),
+	                				Option.empty(),
+	                				scala.Option.apply(productInfoMarketSide.getJsonData()),
+	                	    Option.empty()), 
+	                		Option.apply(productInfoMarketSide.getProductBaseCode()),
+	                		Option.empty()),
+	                		timeout);
+	   
+		   try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		
+		
+		return "/MarketSideProductInformation/"+productInfoMarketSide.getProductBaseCode()+"/"+productInfoMarketSide.getCountry()+"?supplierKcode="+productInfoMarketSide.getSupplierKcode();		
+	}
+		
+
+
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_VIEW_SKU_UPDATE'))")		
+	@RequestMapping(value = "/CoreProductInformation/SKUs/{baseProductCode}")	
+	public String editCoreProductInformationSKU(Model model, @PathVariable String baseProductCode) throws JsonParseException, JsonMappingException, IOException{		
+		
+		//todo here
+		BaseProductOnboardingWithSKU baseProductOnboardingWithSKU = 
+				this.getMaintainProductOnboardingUco().getBaseProductOnboardingWithSKU(baseProductCode);	
+		
+		
+		boolean isExecutable = this.getMaintainProductOnboardingUco().isExecutableForUpdatingSKUs(StatusType.fromValue(baseProductOnboardingWithSKU.getStatus()));		
+		if(isExecutable){
+			BaseProductOnboardingWithSKUImpl bpOnboardingWithSKU = new BaseProductOnboardingWithSKUImpl(baseProductOnboardingWithSKU);
+			model.addAttribute("BaseProductOnboardingWithSKU",bpOnboardingWithSKU);
+			model.addAttribute("BaseProductOnboardingWithSKUJson",JsonHelper.toJson(bpOnboardingWithSKU));
+			return "ProductInfoSKU";
+		}		
+		return "accessDeny";		
+	}
+
+	
+	@PreAuthorize("hasAnyRole(T(com.kindminds.drs.service.util.AuthorityList).auth('PRODUCT_ONBOARDING_VIEW_SKU_UPDATE'))")		
+	@RequestMapping(value = "/CoreProductInformation/SKUs/update", method = RequestMethod.POST)			
+	public String updateCoreProductInformationSKU(@ModelAttribute("BaseProductOnboardingWithSKU") BaseProductOnboardingWithSKUImpl baseProductOnboardingWithSKU,Model model) throws JsonParseException, JsonMappingException, IOException{
+		this.getMaintainProductOnboardingUco().updateBaseProductOnboardingWithSKU(baseProductOnboardingWithSKU);		
+		return "redirect:/CoreProductInformation/"+baseProductOnboardingWithSKU.getProductBaseCode();		
+	}
+		
+	@RequestMapping(value="/ProductInfoSourceVersion/uploadReferenceFile",method=RequestMethod.POST)   
+	public @ResponseBody String uploadReferenceFile(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException{			
+			Iterator<String> itr = request.getFileNames();
+			MultipartFile mpf = request.getFile(itr.next());	
+		try {
+			String originalFileName = mpf.getOriginalFilename();
+			byte[] fileBytes = mpf.getBytes();
+			String result = this.getMaintainProductOnboardingUco().uploadReferenceFile(originalFileName, fileBytes);			 						 
+			if(result == null) return JsonHelper.toJson("fail");
+		} catch (IOException e) {
+				e.printStackTrace();
+		}		 
+		return JsonHelper.toJson(mpf.getOriginalFilename()); 		
+	} 	
+	
+	@RequestMapping(value = "/ReferenceFile", method = RequestMethod.GET)
+    public void downloadReferenceFile(@RequestParam("fileName") String fileName,HttpServletRequest request,HttpServletResponse response) throws IOException{				
+		this.getMaintainProductOnboardingUco().downloadReferenceFile(fileName, response);		
+	}
+	
+	@RequestMapping(value="/ProductInfoSourceVersion/removeReferenceFile",method=RequestMethod.POST)   	
+	public @ResponseBody String removeReferenceFile(@RequestParam("referenceFile") String referenceFile){					
+		 this.getMaintainProductOnboardingUco().removeReferenceFile(referenceFile);
+		 return JsonHelper.toJson(referenceFile);
+	}
+	
+	@RequestMapping(value="/ProductInfoSourceVersion/uploadBatteryFile",method=RequestMethod.POST) 	
+	public @ResponseBody String uploadBatteryFile(MultipartHttpServletRequest request, HttpServletResponse response){					
+		Iterator<String> itr = request.getFileNames();
+		MultipartFile mpf = request.getFile(itr.next());	
+		try {
+			String originalFileName = mpf.getOriginalFilename();
+			byte[] fileBytes = mpf.getBytes();
+			String result = this.getMaintainProductOnboardingUco().uploadBatteryFile(originalFileName, fileBytes);			 						 
+			if(result == null) return JsonHelper.toJson("fail");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		return JsonHelper.toJson(mpf.getOriginalFilename());	
+	}
+	
+	@RequestMapping(value = "/BatteryFile", method = RequestMethod.GET)
+    public void downloadBatteryFile(@RequestParam("fileName") String fileName,HttpServletRequest request,HttpServletResponse response) throws IOException{				
+		this.getMaintainProductOnboardingUco().downloadBatteryFile(fileName, response);
+	}
+	
+	@RequestMapping(value="/ProductInfoSourceVersion/removeBatteryFile",method=RequestMethod.POST)
+	public @ResponseBody String removeBatteryFile(@RequestParam("batteryFile") String batteryFile){
+		 this.getMaintainProductOnboardingUco().removeBatteryFile(batteryFile);
+		 return JsonHelper.toJson(batteryFile);
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/uploadMainImageFile",method=RequestMethod.POST)
+	public @ResponseBody String uploadMainImageFile(MultipartHttpServletRequest request, HttpServletResponse response,@RequestParam(value="region",required=false) String region){					
+		Iterator<String> itr = request.getFileNames(); 	 
+		MultipartFile mpf = request.getFile(itr.next());		
+		try {
+			String originalFileName = mpf.getOriginalFilename();
+			byte[] fileBytes = mpf.getBytes();
+			String result = this.getMaintainProductOnboardingUco().uploadMainImageFile(originalFileName, fileBytes, region); 			 						 
+			if(result == null) return JsonHelper.toJson("fail");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+		return JsonHelper.toJson(mpf.getOriginalFilename());	
+	}
+	
+	@RequestMapping(value = "/MainImageFile", method = RequestMethod.GET)
+    public void downloadMainImageFile(@RequestParam("fileName") String fileName,@RequestParam("region") String region,HttpServletRequest request,HttpServletResponse response) throws IOException{				
+		this.getMaintainProductOnboardingUco().downloadMainImageFile(fileName, region, response);				
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/removeMainImageFile",method=RequestMethod.POST)	
+	public @ResponseBody String removeMainImageFile(@RequestParam("mainImageFile") String mainImageFile,@RequestParam("region") String region){
+		this.getMaintainProductOnboardingUco().removeMainImageFile(mainImageFile,region);
+		return JsonHelper.toJson(mainImageFile);	
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/uploadVariationImageFile",method=RequestMethod.POST)	
+	public @ResponseBody String uploadVariationImageFile(MultipartHttpServletRequest request, HttpServletResponse response,@RequestParam(value="region",required=false) String region){				
+		Iterator<String> itr = request.getFileNames();
+		MultipartFile mpf = request.getFile(itr.next());
+		try {
+			String originalFileName = mpf.getOriginalFilename();
+			byte[] fileBytes = mpf.getBytes();
+			String result = this.getMaintainProductOnboardingUco().uploadVariationImageFile(originalFileName, fileBytes, region); 			 						 
+			if(result == null) return JsonHelper.toJson("fail");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return JsonHelper.toJson(mpf.getOriginalFilename());		
+	}
+	
+	@RequestMapping(value = "/VariationImageFile", method = RequestMethod.GET)
+    public void downloadVariationImageFile(@RequestParam("fileName") String fileName,@RequestParam("region") String region,HttpServletRequest request,HttpServletResponse response) throws IOException{				
+		this.getMaintainProductOnboardingUco().downloadVariationImageFile(fileName, region, response);				
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/removeVariationImageFile",method=RequestMethod.POST)		
+	public @ResponseBody String removeVariationImageFile(@RequestParam("variationImageFile") String variationImageFile,@RequestParam("region") String region){
+		 this.getMaintainProductOnboardingUco().removeVariationImageFile(variationImageFile,region);
+		 return JsonHelper.toJson(variationImageFile);	
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/uploadOtherImageFile",method=RequestMethod.POST)	
+	public @ResponseBody String uploadOtherImageFile(MultipartHttpServletRequest request, HttpServletResponse response,@RequestParam(value="region",required=false) String region){				
+		Iterator<String> itr = request.getFileNames();	 	 
+		MultipartFile mpf = request.getFile(itr.next());		
+		try {
+			String originalFileName = mpf.getOriginalFilename();
+			byte[] fileBytes = mpf.getBytes();
+			String result = this.getMaintainProductOnboardingUco().uploadOtherImageFile(originalFileName, fileBytes, region); 			 						 
+			if(result == null) return JsonHelper.toJson("fail");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return JsonHelper.toJson(mpf.getOriginalFilename());			
+	}
+	
+	@RequestMapping(value = "/OtherImageFile", method = RequestMethod.GET)
+    public void downloadOtherImageFile(@RequestParam("fileName") String fileName,@RequestParam("region") String region,HttpServletRequest request,HttpServletResponse response) throws IOException{				
+		this.getMaintainProductOnboardingUco().downloadOtherImageFile(fileName, region, response);				
+	}
+	
+	@RequestMapping(value="/ProductMarketingMaterial/removeOtherImageFile",method=RequestMethod.POST)	
+	public @ResponseBody String removeOtherImageFile(@RequestParam("otherImageFile") String otherImageFile,@RequestParam("region") String region){
+		this.getMaintainProductOnboardingUco().removeOtherImageFile(otherImageFile,region);		
+		return JsonHelper.toJson(otherImageFile);
+	}
+		
+	@RequestMapping(value = "/ProductInfoSourceVersion/isBaseProductCodeExist", method = RequestMethod.GET)	
+	public @ResponseBody String isBaseProductCodeExist(@RequestParam("supplierKcode") String supplierKcode, @RequestParam("productBaseCode") String productBaseCode){			
+		boolean baseProductCodeExist = this.getMaintainProductOnboardingUco().isBaseProductCodeExist(supplierKcode, productBaseCode);
+		return JsonHelper.toJson(baseProductCodeExist);
+	}
+	
+	@RequestMapping(value = "/ProductInfoMarketSide/getPriceWithTax", method = RequestMethod.GET)		
+	public @ResponseBody String getPriceWithTax(@RequestParam("country") String country, @RequestParam("price") BigDecimal price){							
+		return this.getMaintainProductOnboardingUco().getPriceWithTax(country, price);
+	}
+		
+	@RequestMapping(value = "/ProductMarketingMaterial/avoidSessionTimeout", method = RequestMethod.GET)		
+	public @ResponseBody String avoidSessionTimeout(){		
+		return "session";
+	}
+	
+	/*
+	private String getProductBaseCodeAndName(String baseProductCode) throws JsonParseException, JsonMappingException, IOException{	
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		BaseProductOnboarding baseProduct = this.getMaintainProductOnboardingUco().getDetailOfBaseProductOnboarding(baseProductCode);
+		
+		BaseProductOnboardingDetail baseProductSource = baseProduct.getProductInfoSource();
+		String productInfoSourceData = baseProductSource.getData();		
+		JsonNode productInfoSourceJsonNode = objectMapper.readValue(productInfoSourceData, JsonNode.class);										
+		
+		return baseProductCode+" "+productInfoSourceJsonNode.get("productNameEnglish").asText();		
+	}*/
+	
+	
+	private List<String> createMarketSides(JsonNode productInfoSourceJsonNode ) {
+		
+		List<String> marketSideList  = new ArrayList<String>();
+		JsonNode applicableRegionBPJsonNode;
+		try {
+			applicableRegionBPJsonNode = mapper.readValue(
+					productInfoSourceJsonNode.get("applicableRegionBP").asText(), JsonNode.class);
+		
+			for(JsonNode applicableRegionBP:applicableRegionBPJsonNode){			
+				marketSideList.add(applicableRegionBP.asText());				
+			}		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		
+		return marketSideList;
+		
+	}
+	
+	private Map getSupplierKcodeToShortEnUsNameMap() {
+		
+		Timeout timeout = new Timeout(Duration.create(180, "seconds"));
+		
+		
+		 final Future<Object> futureResult =
+	                ask(drsQueryBus, 
+	                		new com.kindminds.drs.api.message.maintainProductOnboardingUco.GetSupplierKcodeToShortEnUsNameMap() 
+	                		,timeout);
+		 
+		 
+		  
+		try {
+			String	str = (String)  Await.result(futureResult, timeout.duration());
+			Map supplierKcodeToShortEnUsNameMap =  mapper.readValue(str,Map.class);
+			return supplierKcodeToShortEnUsNameMap;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    	
+	    	
+		 return null;
+		
+		
+	}
+	
+	
+	
+	private List<String> getMarketSideRegionList(){
+		//TODO : refactoring
+		List<String> marketSideRegionList = new ArrayList<String>(); 		
+		marketSideRegionList.add("US");
+		marketSideRegionList.add("UK");
+		marketSideRegionList.add("CA");
+		marketSideRegionList.add("DE");
+		marketSideRegionList.add("IT");
+		marketSideRegionList.add("FR");
+		marketSideRegionList.add("ES");		
+		return marketSideRegionList;
+	}
+	
+	private Map<String,String> getRegionToCurrencyMap(){
+		//TODO : refactoring
+		Map<String,String> regionToCurrencyMap = new HashMap<String,String>();
+		regionToCurrencyMap.put("US", "USD");
+		regionToCurrencyMap.put("UK", "GBP");
+		regionToCurrencyMap.put("CA", "CAD");
+		regionToCurrencyMap.put("DE", "EUR");
+		regionToCurrencyMap.put("IT", "EUR");
+		regionToCurrencyMap.put("FR", "EUR");
+		regionToCurrencyMap.put("ES", "EUR");		
+		return regionToCurrencyMap;
+	}
+	
+	private Map<String,List<String>> getRegionToMarketplaceMap(){
+		//TODO : refactoring
+		Map<String,List<String>> regionToMarketplaceMap = new HashMap<String,List<String>>();
+		List<String> marketplaceUS = new ArrayList<String>();
+		marketplaceUS.add("Amazon US");
+		List<String> marketplaceUK = new ArrayList<String>();
+		marketplaceUK.add("Amazon UK");
+		List<String> marketplaceCA = new ArrayList<String>();
+		marketplaceCA.add("Amazon CA");
+		List<String> marketplaceDE = new ArrayList<String>();
+		marketplaceDE.add("Amazon DE");
+		List<String> marketplaceIT = new ArrayList<String>();
+		marketplaceIT.add("Amazon IT");
+		List<String> marketplaceFR = new ArrayList<String>();
+		marketplaceFR.add("Amazon FR");
+		List<String> marketplaceES = new ArrayList<String>();
+		marketplaceES.add("Amazon ES");		
+		regionToMarketplaceMap.put("US", marketplaceUS);
+		regionToMarketplaceMap.put("UK", marketplaceUK);
+		regionToMarketplaceMap.put("CA", marketplaceCA);
+		regionToMarketplaceMap.put("DE", marketplaceDE);
+		regionToMarketplaceMap.put("IT", marketplaceIT);
+		regionToMarketplaceMap.put("FR", marketplaceFR);
+		regionToMarketplaceMap.put("ES", marketplaceES);					
+		return regionToMarketplaceMap;
+	}
+	
+	private List<DevelopingProductListWeb> generateBaseProductList(List<LinkedHashMap> bpList) throws JsonParseException, JsonMappingException, IOException{		
+		List<DevelopingProductListWeb> baseProductList = new ArrayList<DevelopingProductListWeb>();		
+		
+		
+		
+		for(LinkedHashMap dp:bpList){			
+			DevelopingProductListWeb baseProduct = new DevelopingProductListWeb();
+			List<Map<String,Object>> variationProductList = new ArrayList<Map<String,Object>>();	
+			
+			String productInfoSource = dp.get("jsonData").toString();		
+			
+			JsonNode productInfoSourceJsonNode = mapper.readValue(productInfoSource, JsonNode.class);						
+			String products = productInfoSourceJsonNode.get("products").asText();
+			
+			JsonNode productsJsonNode = mapper.readValue(products, JsonNode.class);			
+			for(JsonNode productJsonNode:productsJsonNode){				
+				Collection<String> applicableRegionList = new TreeSet<String>();				
+				Iterator<JsonNode> applicableRegions = productJsonNode.get("applicableRegionList").elements();				
+				while (applicableRegions.hasNext()) {					
+					applicableRegionList.add(applicableRegions.next().toString());										
+				}								
+				
+				Map<String,Object> variationProduct = new HashMap<String,Object>();								
+				variationProduct.put("SKU",productInfoSourceJsonNode.get("supplierKcode").asText()+"-"+productJsonNode.get("SKU").asText());
+				variationProduct.put("type1", productJsonNode.get("type1").asText());
+				variationProduct.put("type1Value", productJsonNode.get("type1Value").asText());
+				variationProduct.put("type2", productJsonNode.get("type2").asText());				
+				variationProduct.put("type2Value", productJsonNode.get("type2Value").asText());				
+				variationProduct.put("productWithVariation",productInfoSourceJsonNode.get("productWithVariation").asText());
+				variationProduct.put("applicableRegionList", applicableRegionList);				
+				variationProductList.add(variationProduct);								
+			}						
+			
+			baseProduct.setBaseProduct(productInfoSourceJsonNode.get("baseProductCode").asText());
+			baseProduct.setProductName(productInfoSourceJsonNode.get("productNameEnglish").isNull()?"":productInfoSourceJsonNode.get("productNameEnglish").asText());			
+			baseProduct.setSupplierKcode(productInfoSourceJsonNode.get("supplierKcode").asText());
+			baseProduct.setVariationProducts(variationProductList);
+			baseProductList.add(baseProduct);			
+		}				
+		
+		return baseProductList;		
+	}
+		
+
+				
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{storageFee.title}+' - DRS'" >
+</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}"></script>
+<script>
+$(function() {
+
+	if($(window).width() >= 1024){
+	$('#storageFee').floatThead({
+		scrollingTop : $("#s5_menu_wrap").height(),
+		zIndex : 100
+	});
+	$('#storageFee').on("floatThead", function(e, isFloated, $floatContainer) {
+		if (isFloated) {
+			$floatContainer.addClass("table-floated");
+		} else {
+			$floatContainer.removeClass("table-floated");
+		}
+	})};
+	
+	$( "#supplierSelector" ).select2({
+	    theme: "bootstrap"
+	});		
+	$('[data-toggle="tooltip"]').tooltip();
+	
+	$("#search").click(function() {
+		
+		var supplierKcode = $("#supplierSelector").val();
+		if (supplierKcode === undefined) {
+			supplierKcode = $("#userCode").val();
+			console.log('0');
+		}
+		var country = $("#country").val();
+		var year = $("#year").val();
+		var month = $("#month").val();
+		//alert( supplierKcode + country + year + month);
+		
+		window.location.href = "/storage-fee/"+ supplierKcode 
+			+ "/" + country + "/" + year + "/" + month;
+	});
+});
+</script>
+<style>
+	.select2-container--default .select2-selection--single {
+  border: 1px solid #ccc;
+  font-size: 12px;
+}		
+
+.select2-container {
+    display: block;
+}
+
+</style>	
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{storageFee.title}"></a>						
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+			<form action="storage-fee" class="form-inline" method="post">
+			    <input type="hidden" id="userCode" value="${supplierKcode}" />
+				<div sec:authorize="${hasAnyRole(@authProperties['MONTHLY_STOREAGE_FEE_SUPPLIER_SELECTOR'])}">
+				<label class="control-label"></label>
+				<a th:text="#{storageFee.supplier}"></a> 
+				<select id="supplierSelector" class="form-control" name="supplierKcode" style="display: inline;">
+					<option value="all">--- All ---</option>							
+					<th:block th:each="kcodeAndName : ${supplierKcodeToShortEnNameMap}">
+					<option th:value="${kcodeAndName.key}" th:selected="${kcodeAndName.key}==${supplierKcode}"
+						th:text="${kcodeAndName.key}+' '+${kcodeAndName.value}"></option>
+					</th:block>
+				</select>						
+				</div>
+				<label for="country" class="mr-2 ml-md-2 mt-2 mt-md-0"><a th:text="#{storageFee.country}"></a></label>
+				<select id="country" class="form-control mr-md-2 pr-4" name="country">
+					<th:block th:each="country : ${countryList}" >
+					<option th:value="${country}" th:selected="${#strings.toString(country)}==${countryInput}"
+						th:text="${country}"></option>
+					</th:block>				
+				</select>
+
+				
+				<label class="mr-2 mt-2 mt-md-0" for="year"><a th:text="#{storageFee.year}"></a></label>
+				<select id="year" class="form-control mr-md-2 pr-4" name="year">
+					<th:block th:each="year : ${yearList}" >
+					<option th:value="${year}" th:selected="${year}==${yearInput}"
+					th:text="${year}"></option>
+					</th:block>
+				</select>
+
+				<label class="mr-2 mt-2 mt-md-0" for="month"><a th:text="#{storageFee.month}"></a></label>
+				<select id="month" class="form-control mr-md-2 pr-4" name="month">
+					<th:block th:each="month : ${monthList}" >
+					<option th:value="${month}" th:selected="${month}==${monthInput}"
+					th:text="${month}"></option>
+					</th:block>							
+				</select>
+
+				<a id="search" class="btn btn-primary mt-2 mt-md-0" th:text="#{storageFee.search}"><i class="fas fa-search"></i> </a>
+
+			</form>
+			</div>
+		</div>
+		<div style="padding-bottom: 10px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<label class="control-label enhancement">
+					<a th:utext="#{storageFee.description}"></a>															
+				</label>
+			</div>
+		</div>
+		<div style="padding-bottom: 40px"></div>
+		<div class="row">
+			<div class="col-md-12">
+			<div class="table-responsive">
+				<table id="storageFee" class="table">
+					<thead>	
+						<tr>
+							<th><a th:text="#{storageFee.sku}"></a></th>
+							<th><a th:text="#{storageFee.productName}"></a> </th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.itemVolume_hint}"><a th:text="#{storageFee.itemVolume}"></a></th>
+							<th data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.volumeUnit_hint}"><a th:text="#{storageFee.volumeUnit}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.averageQuantityOnHand_hint}"><a th:text="#{storageFee.averageQuantityOnHand}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.averageQuantityPendingRemoval_hint}"><a th:text="#{storageFee.averageQuantityPendingRemoval}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.estimatedTotalItemVolume_hint}"><a th:text="#{storageFee.estimatedTotalItemVolume}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.monthOfCharge_hint}"><a th:text="#{storageFee.monthOfCharge}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.storageRate_hint}"><a th:text="#{storageFee.storageRate}"></a></th>
+							<th data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.currency_hint}"><a th:text="#{storageFee.currency}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{storageFee.estimatedMonthlyStorageFee_hint}"><a th:text="#{storageFee.estimatedMonthlyStorageFee}"></a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<div th:if="${report.lineItems != null}">
+							<th:block th:each="item : ${report.lineItems}" >
+								<tr>
+									<td th:text="${item.sku}"></td>
+									<td th:text="${item.productName}"></td>
+									<td class="text-right" th:text="${item.itemVolume}"></td>
+									<td th:text="${item.volumeUnit}"></td>
+									<td class="text-right" th:text="${item.totalAverageQuantityOnHand}"></td>
+									<td class="text-right" th:text="${item.totalAverageQuantityPendingRemoval}"></td>
+									<td class="text-right" th:text="${item.totalEstimatedTotalItemVolume}"></td>
+									<td class="text-right" th:text="${item.monthOfCharge}"></td>
+									<td class="text-right" th:text="${item.storageRate}"></td>
+									<td th:text="${item.currency}"></td>
+									<td class="text-right" th:text="${item.totalEstimatedMonthlyStorageFee}"></td>
+								</tr>
+							</th:block>
+								<tr>
+									<td colspan="9"></td>
+									<td><b><a th:text="#{storageFee.total}" /></b></td>
+									<td class="text-right"><a th:text="${report.sumOfTotalEstimatedMonthlyStorageFee}"></a></td>
+								</tr>
+						</div>					
+					</tbody>
+				</table>
+				</div>
+			</div>
+		</div>		
+	</div>
+</div>
+</section>
+</body>
+</html>

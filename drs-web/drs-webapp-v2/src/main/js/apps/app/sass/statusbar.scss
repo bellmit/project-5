@@ -1,0 +1,102 @@
+$noticificationGreen: #21D59B;
+$mainCTA: #053763;
+$longShadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+$shortShadow: 0 1px 2px 0 rgba(9,30,66,.25);
+
+// .statusbar-section {
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     width: 100%;
+// }
+
+.statusbar-wrapper {
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 14px 0;
+    // margin-left: 4%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    // width: 91%;
+    align-items: center;
+    box-shadow: $shortShadow;
+}
+.statusbar-wrapper-inline {
+    padding: 14px 0;
+    display: flex;
+    justify-content: center;
+    // margin: 0 1%;
+    width:100%;
+    align-items: center;
+}
+
+.statusbar {
+    margin: 12px;
+    // position: relative;
+    // left: 5%;
+    width: 90%;
+    z-index: 1;
+}
+.statusbar-inline {
+    width: 100%;
+    z-index: 1;
+}
+
+.progressbar li {
+    float: left;
+    min-width: 12%;
+    font-size: 14px;
+    line-height: 1.2rem;
+    position: relative;
+    text-align: center;
+}
+.progressbar {
+    counter-reset: step;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+  .progressbar li:before {
+    content:counter(step);
+    counter-increment: step;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #bebebe;
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: 50%;
+    line-height: 27px;
+    background: white;
+    color: #bebebe;
+    text-align: center;
+    font-weight: bold;
+}
+
+.progressbar li:after{
+    content: '';
+    position: absolute;
+    width:100%;
+    height: 3px;
+    background: #979797;
+    top: 15px;
+    left: -50%;
+    z-index: -1;
+}
+.progressbar li:first-child:after{
+    content: none;
+}
+
+.progressbar li.active {
+    color: $mainCTA;
+}
+
+.progressbar li.active:before {
+   border-color: $mainCTA;
+   background: $mainCTA;
+   color: white;
+}
+
+.progressbar li.active + li:after {
+    background: $mainCTA;
+}

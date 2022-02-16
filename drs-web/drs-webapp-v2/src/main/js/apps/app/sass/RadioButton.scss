@@ -1,0 +1,199 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+
+$md-radio-checked-color: rgb(51, 122, 183);
+$md-radio-border-color: rgba(0, 0, 0, 0.54);
+$md-radio-size: 20px;
+$md-radio-checked-size: 10px; 
+$md-radio-ripple-size: 15px;
+
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }  
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }  
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};      
+}
+
+@include keyframes(ripple) {
+  0% {
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.0);
+  }
+
+  50% { 
+    box-shadow: 0px 0px 0px $md-radio-ripple-size rgba(0, 0, 0, 0.1);
+  }
+
+  100% {
+    box-shadow: 0px 0px 0px $md-radio-ripple-size rgba(0, 0, 0, 0);
+  }
+}
+
+// .element {
+//   width: 100px;
+//   height: 100px;
+//   background: black;
+//   @include animation('slide-down 5s 3');
+// }
+
+// @keyframes ripple {
+
+//   0% {
+//     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.0);
+//   }
+
+//   50% { 
+//     box-shadow: 0px 0px 0px $md-radio-ripple-size rgba(0, 0, 0, 0.1);
+//   }
+
+//   100% {
+//     box-shadow: 0px 0px 0px $md-radio-ripple-size rgba(0, 0, 0, 0);
+//   }
+// }
+
+.RadioButton input[type=radio]:disabled + label:before {
+  border-color: #ddd !important;
+  // cursor: not-allowed;
+  cursor: default;
+}
+
+.RadioButton {
+    // margin: 16px 0;
+    display: flex;
+    align-items: center;
+    
+    input[type="radio"] {
+        display: none;
+
+        &:checked + label:before {
+            border-color: $md-radio-checked-color;
+            // animation: ripple 0.2s linear forwards;
+            @include animation('ripple 0.2s linear forwards');
+        }
+
+        &:checked + label:after {
+            transform: scale(1);
+        }
+    }
+
+    input[type="radio"]:disabled {
+      background-color: initial;
+
+      &:checked + label:before {
+        border-color: #ddd;
+        // cursor: not-allowed;
+        cursor: default;
+      }
+
+      &:checked + label:after {
+        // transform: scale(1);
+        background-color: #ddd;
+        // cursor: not-allowed;
+        cursor: default;
+      }
+
+    }
+
+    label {
+        display: inline-block;
+        height:$md-radio-size;
+        position: relative;
+        padding: 0 ($md-radio-size + 10px);
+        margin-bottom: 0;
+        cursor: pointer;
+        vertical-align: bottom;
+        line-height: 1.5rem;
+
+        &:before, &:after {
+            position: absolute;            
+            content: '';  
+            border-radius: 50%;
+            transition: all .3s ease;
+            transition-property: transform, border-color;
+        }
+
+        &:before {
+            left: 0;
+            top: 0;
+            width: $md-radio-size;
+            height: $md-radio-size;
+            border: 2px solid $md-radio-border-color;
+        }
+
+        &:after {
+            top: $md-radio-size / 2 - $md-radio-checked-size / 2;
+            left: $md-radio-size / 2 - $md-radio-checked-size / 2;
+            width:$md-radio-checked-size;
+            height:$md-radio-checked-size;
+            transform: scale(0);
+            background:$md-radio-checked-color;
+        }
+    }
+}
+
+// .RadioButton {
+//     margin: 16px 0;
+// }
+// .RadioButton input[type="radio"]  {
+//     display: none;
+// }
+
+// .RadioButton input[type="radio"]:checked + label:before {
+//     border-color: rgb(51, 122, 183);
+//     animation: ripple 0.2s linear forwards;   
+// }
+
+// .RadioButton input[type="radio"] :checked + label:after {
+//     transform: scale(1);
+// }
+
+// .RadioButton label {
+//     display: inline-block;
+//     height: 20px;
+//     position: relative;
+//     padding: 0 30px;
+//     margin-bottom: 0;
+//     cursor: pointer;
+//     vertical-align: bottom;
+// }
+// .RadioButton label:before, label:after {
+//     position: absolute;            
+//     content: '';  
+//     border-radius: 50%;
+//     transition: all .3s ease;
+//     transition-property: transform, border-color;
+// }
+
+// .RadioButton label:before {
+//     left: 0;
+//     top: 0;
+//     width: 20px;
+//     height: 20px;
+//     border: 2px solid rgba(0, 0, 0, 0.54);
+// }
+
+// .RadioButton label:after {
+//     top: 5px;
+//     left: 5px;
+//     width: 10px;
+//     height: 10px;
+//     transform: scale(0);
+//     background:rgb(51, 122, 183);
+// }

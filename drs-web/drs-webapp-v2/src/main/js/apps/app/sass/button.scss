@@ -1,0 +1,89 @@
+$mainCTA: #0052cc;
+$normalColor: #053763;
+$notificationRed: #F0142F;
+$longShadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+
+.drs-btn {
+    height: 37px;
+    padding: 2px 16px;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    box-shadow: $longShadow;
+    font-size: 15px;
+    margin-right: 12px;
+}
+.drs-btn.disabled:hover {
+    cursor: default!important;
+    background-color: #ddd!important;;
+}
+.drs-tb-btn {
+    padding: 6px 9px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    font-family: 'Roboto';
+    border-radius: 4px;
+    box-shadow: $longShadow;
+    color: #fff;
+}
+.btn-cta-group {
+    display: flex;
+    align-items: center;
+}
+.drs-btn-cta a, .drs-btn-normal a {
+    color: #fff;
+}
+.drs-btn-cta, .drs-btn-cta:visited {
+    background-color: $mainCTA !important;
+}
+.drs-btn-cta:hover, .drs-btn-cta:active:hover {
+    background-color: #0f61db !important;
+}
+.drs-btn-cta:active, .drs-btn-cta:focus {
+    background-color: $mainCTA !important;
+    border-color: $mainCTA !important;
+    outline: none;
+}
+
+.drs-btn-cta:focus,
+.drs-btn-cta:active:focus {
+    background-color: $mainCTA !important;
+    border-color: $mainCTA !important;
+    outline: none;
+}
+
+.drs-btn-normal, .drs-btn-normal:visited {
+    background-color: $normalColor;
+}
+.drs-btn-normal:hover {
+    background-color: #071f33 !important;
+}
+.drs-btn-normal:active, .drs-btn-normal:focus {
+    background-color: $normalColor;
+    border-color: $normalColor;
+    outline: none;
+}
+
+.drs-btn-warning, .drs-btn-warning:visited {
+    background-color: $notificationRed;
+}
+.drs-btn-warning:hover {
+    background-color: #f53148 !important;
+}
+.drs-btn-warning:active, .drs-btn-warning:focus {
+    background-color: $notificationRed;
+    border-color: $notificationRed;
+    outline: none;
+}
+.onClose-btn {
+    padding: 8px;
+    margin-right: 15px;
+}
+.onClose-btn:hover {
+    background-color: rgba(208,212,218, 0.3);
+    border-radius: 4px;
+}
+// button style ends here...
+  

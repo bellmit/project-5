@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{ss2spStatement.advertisingCost}+' - DRS'" ></title>
+<link th:href="@{/resources/css/newstyle.css}" type="text/css" rel="stylesheet">
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="row">
+    <div class="col-md-12 max-width" >   
+    <div class="breadcrumb">
+   		 <a href="/" th:text="#{productVersion.homepage}" ></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div> 
+         <a th:href="@{/{rootUrl}(rootUrl=${rootUrl})}" th:text="#{ss2spStatement.statements}" ></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                 
+		 <a th:href="@{/{rootUrl}/{statementName}(rootUrl=${rootUrl},statementName=${statementName})}" th:text="${statementName}"></a>
+			<div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                          
+		 <a th:href="@{/{rootUrl}/{statementName}/profitshare(rootUrl=${rootUrl},statementName=${statementName})}" th:text="#{ss2spStatement.profitShare}"></a>
+		  	<div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                          
+         <span><a th:text="#{ss2spStatement.profitShareSubtraction}+': '+ #{ss2spStatement.advertisingCost}+'@'+${country}"></a></span>  
+    </div>
+    </div>
+</div>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{ss2spStatement.profitShareSubtraction}"></a> : <a th:text="#{ss2spStatement.advertisingCost}+'@'+${country}"></a> 
+				</div>
+			</div>
+		</div>		
+		<div class="row">
+			<div class="col-md-12">
+				<p class="text-right">
+					<a th:text="#{ss2spStatement.period}" ></a><a th:text="'：'+${advertisingCost.dateStart}+' ~ '+${advertisingCost.dateEnd}" ></a> <br>
+					<a th:text="#{ss2spStatement.issuer}" ></a><a th:text="'：'+${companyKcodeToNameMap[advertisingCost.isurKcode]}" ></a><br>
+					<a th:text="#{ss2spStatement.receiver}" ></a><a th:text="'：'+${companyKcodeToNameMap[advertisingCost.rcvrKcode]}"></a>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="text-center"><a th:text="#{ss2spStatement.itemName}" ></a></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.notes}" ></a></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.sourceCurrency}" ></a></th>		
+							<th class="text-right"><a th:text="#{ss2spStatement.amount}" ></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.vatRate}" ></a></th>
+							<th class="text-right"><a th:text="#{ss2spStatement.amountWithVat}" ></a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="lineItem : ${advertisingCost.lineItems}" >
+							<tr>
+								<td class="text-center"><a th:text="#{ss2spStatement.profitShareSubtraction}"></a> : <a th:text="#{ss2spStatement.advertisingCost}"></a> </td>
+								<td class="text-center"><a th:text="${lineItem.itemNote}"></a></td>
+								<td class="text-center"><a th:text="${lineItem.currency}"></a></td>
+								<td class="text-right"><a th:text="${#numbers.formatDecimal(lineItem.amount,1,2)}"></a></td>
+								<td class="text-right"><a th:text="${#numbers.formatDecimal(lineItem.vatRate,1,2)}"></a>%</td>
+								<td class="text-right"><a th:text="${#numbers.formatDecimal(lineItem.subTotal,1,2)}"></a></td>
+							</tr>		
+						</th:block>					
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-7"></div>
+			<div class="col-md-3 text-right">
+				<strong><a th:text="#{ss2spStatement.totalAmount}"></a></strong></div>
+			<div class="col-md-2 text-right" style="padding-right:20px">
+			 <strong><a th:text="${#numbers.formatDecimal(advertisingCost.total,1,2)}"></a></strong>
+			</div>					
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

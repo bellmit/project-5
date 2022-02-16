@@ -1,0 +1,75 @@
+<head>
+	<title>
+		Evaluate Sample (SC)
+	</title>
+</head>
+<script>
+jQuery(window).on("load", function(e) {	
+	
+	$('#dueDateForSampleEvaluation').attr('readonly', true);
+	jQuery("#dueDateForSampleEvaluation").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});
+</script>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					Evaluate Sample (SC)
+				</div>
+			</div>
+		</div>
+		<form name="evaluateSampleSC" action="">
+		<div class="row">			
+			<div class="col-md-12">				
+				<div class="panel panel-default">
+  					<div class="panel-heading">Evaluate Sample</div>
+  						<div class="panel-body">
+							<p>	  							
+  							Please evaluate the product, product packaging and user manual to ensure that it is at a standard that customers of the market-side countries would be happy to accept.  
+							</p>
+							<p>
+							Note in comments section, what changes must be made and what would be nice to have.
+  							</p>  						  								  									  							 							 											    
+  						</div>
+				</div>		
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">			
+			<div class="col-md-6">
+				<span><b>Due date for Sample evaluation (SC) *</b></span><br>
+				<input type="text" id="dueDateForSampleEvaluation" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;">							
+			</div>
+			<div class="col-md-6">
+				<span><b>Comments from Sample evaluation (SC)</b></span><br>
+				<input type="text" class="form-control" style="width:50%;display:inline;">				
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Sample evaluation (SC) *</b></span><br>
+				<input type="checkbox" name="" value="yes"> Check overall product quality (appearance, quality and crucial function)<br>
+				<input type="checkbox" name="" value="yes"> Check for warranty content<br>
+				<input type="checkbox" name="" value="yes"> Check user manual, online manual, system, APP						
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12 text-right">
+				<input class="btn btn-default" type="submit" value="Save" />	
+				<input class="btn btn-primary" type="submit" value="Submit" />
+			</div>
+		</div>
+		</form>	
+ 	</div>
+</div> 	
+ 	

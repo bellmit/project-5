@@ -1,0 +1,83 @@
+<head>
+	<title>
+		evaluateProductInfo - Check Profitability
+	</title>
+</head>
+<script>
+jQuery(window).on("load", function(e) {	
+	$('#dueDateCheckProfitability').attr('readonly', true);
+	jQuery("#dueDateCheckProfitability").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});
+</script>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					1-6. Check Profitability (PS)
+				</div>
+			</div>
+		</div>
+		<div class="row">			
+			<div class="col-md-12">
+				<div class="panel panel-default">
+  					<div class="panel-heading">HS code & import rate</div>
+  						<div class="panel-body">
+  							<p>HS code & import rate</p>
+							<br>
+							<br>
+							<p><a href="https://fbfh.trade.gov.tw/rich/text/indexfh.asp" target="_blank">Taiwan</a>; <a href="http://dataweb.usitc.gov/scripts/tariff_current.asp" target="_blank">US</a>; <a href="https://www.gov.uk/trade-tariff/sections" target="_blank">UK</a>; <a href="http://www.cbsa-asfc.gc.ca/trade-commerce/tariff-tarif/2016/01-99/01-99-t2016-3-eng.pdf" target="_blank">CA</a></p>  												    
+  						</div>
+				</div>			
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>	
+		<div class="row">			
+			<div class="col-md-12">
+				<div class="panel panel-default">
+  					<div class="panel-heading">Unfillable</div>
+  						<div class="panel-body">
+  							<p><b>Unfulfillable</b></p>
+							<br>	
+							<br>
+							<p><a href="https://docs.google.com/spreadsheets/d/112IoQr4A3GqllsomiIUZgJcNr81HdPA5AfmKTH7vDzY/edit#gid=1545476659" target="_blank">Unfulfillable Inventory Management</a> Use this to calculate return shipping fee.</p>   							
+  						</div>
+				</div>			
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateCheckProfitability" class="form-control" style="width:25%;display:inline;cursor:default;background-color: white;margin-right:20px" placeholder="Due date for 1-6 Check Profitability"> <br><br>
+				<input type="text" class="form-control" style="width:25%;display:inline;" placeholder="Comments for Check Profitability">			
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Check Profitability *</b></span><br>
+				<input type="checkbox" name="amazonReferralFee" value="yes"> Check for Amazon referral fee<br>
+				<input type="checkbox" name="hsCode" value="yes"> Check for HS code, duty rate. Reminder supplier if there is  貨物稅 (T code)<br>
+				<input type="checkbox" name="incomeEstimator" value="yes"> Update Income Estimator for supplier and save link on DRS.network > 輔助連結<br>
+				<input type="checkbox" name="shareProfitability" value="yes"> Share profitability with supplier and confirm FCA price and MSRP<br>
+				<input type="checkbox" name="cifPrice" value="yes">	Add CIF price on DRS.network			 											
+			</div>			
+		</div>				
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Unfulfillable *</b></span><br>
+				<input type="checkbox" name="estimatedReturnShipping" value="yes"> Calculate estimated return shipping for unfulfillable inventory<br>
+				<input type="checkbox" name="removeOrDispose" value="yes"> Share with supplier and confirm whether to remove or dispose<br>				
+				<input type="checkbox" name="removeOrDispose" value="yes"> Share with supplier and confirm whether to remove or dispose<br>
+				<input type="checkbox" name="unfulfillableInventoryManagement" value="yes"> Update the sheet;Unfulfillable Inventory Management											
+			</div>			
+		</div>		
+	</div>
+</div>	

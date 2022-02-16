@@ -1,0 +1,114 @@
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }  
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }  
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};      
+}
+
+.black-spinner-wrapper {
+    position: fixed; /* Stay in place */
+    z-index: 400; /* Sit on top */
+    padding-top: 40px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    // background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    /* position: relative; */
+    // animation: spinner 1.2s ease-in-out infinite;
+    @include animation('spinner 1.2s ease-in-out infinite');
+}
+
+.spinner-text {
+    padding: 31px 2px 0 13px;
+    color: #DADADA;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.2px;
+    line-height: 18px;
+}
+
+.spinner::before {
+    border: solid 3px #eee;
+    /* border-bottom-color: #EF6565; */
+    border-bottom-color: #DADADA;
+    border-radius: 50%;
+    content: "";
+    height: 40px;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    width: 40px;
+}
+
+
+  
+//   @include keyframes(slide-down) {
+//     0% { opacity: 1; }
+//     90% { opacity: 0; }
+//   }
+  
+//   .element {
+//     width: 100px;
+//     height: 100px;
+//     background: black;
+//     @include animation('slide-down 5s 3');
+//   }
+
+// @keyframes spinner {
+//     0% {
+//         transform: translate3d(-50%, -50%, 0) rotate(0deg);
+//     }
+//     100% {
+//          transform: translate3d(-50%, -50%, 0) rotate(360deg);
+//     }
+// }
+
+@include keyframes(spinner) {
+    0% {
+        transform: translate3d(-50%, -50%, 0) rotate(0deg);
+    }
+    100% {
+         transform: translate3d(-50%, -50%, 0) rotate(360deg);
+    }
+  }
+  
+
+.spinner-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 20vh;
+    background-color: #f8f8f8;
+    padding-top: 10px;
+}

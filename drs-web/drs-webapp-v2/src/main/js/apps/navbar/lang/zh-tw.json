@@ -1,0 +1,78 @@
+{
+    "header.home": "首頁",
+    "header.dashBoard": "資訊主頁",
+    "header.products":"產品",
+    "header.ProductsInformationMaintenance":" 產品資訊維護",
+    "header.manageProducts":" 產品管理",
+    "header.appllyNewProductOnboarding":" 申請產品上架",
+    "header.asinMapping":" SKU-ASIN 對照（內部）",
+    "header.keyProductStats":" 產品關鍵數據",
+    "header.baseProduct":" 基本產品",
+    "header.sku":" SKU",
+    "header.customerOrders":" 客戶訂單",
+    "header.orders":" 訂單",
+	
+    "header.logistics":" 物流",
+    "header.replenishmentPrediction":" 補貨規劃",
+    "header.inventoryShipments":" 供應商補貨",
+    "header.unifiedShipments":" 統一出貨（內部）",
+    "header.replenishmentInformation":" 補貨資訊維護（內部）",
+    "header.inventoryAvailability":" 更新FBA庫存可用性（內部）",
+
+    "header.customerCare":" 客戶服務",
+    "header.customerCareCase":" 客戶服務案件",
+    "header.issues":" 議題",
+
+    "header.accounting":" 帳務",
+    "header.ss2spStatements":" 對帳單",
+    "header.intercompanyStatementsReceived":" Intercompany statements received （內部）",
+    "header.intercompanyStatementsIssued":" Intercompany statements issued（內部）",
+    "header.remittance":" 付款紀錄（內部）",
+    "header.domesticTransaction":" 國內交易（內部）",
+    "header.internationalTransaction":" 國際交易（內部）",
+    "header.importDutyTransaction":" 關稅交易（內部）",
+    "header.settleableTransaction":" 可結帳交易（內部）",
+    "header.draftStatements":" SS2SP draft statements（內部）",
+    "header.profitCostShareStatements":" Profit / Cost Share（內部）",
+    "header.processCouponRedemptionFee":" Process Coupon Redemption Fee (Internal) ",
+  
+    "customerSatisfaction.title" : "消費者滿意度",
+    "inventoryHealthReport.title" : "FBA 長期倉儲預估費用",
+    "header.report":" 報告",
+    "header.salesAndPageTrafficReport":" 銷售量與頁面流量",
+    "header.storageFee":" FBA 月倉儲費用",
+    "header.importInventoryReport":" Import Reports (Internal)",
+    "header.emailReminder":" Email Reminder Options (內部)",
+    "header.marketingSalesDashboard":" Marketing Sales Dashboard (beta - internal)",
+    
+    "header.marketingActivities":" 行銷活動",
+
+    "header.skuAdvertisingPerformanceReport":"Amazon 廣告活動表現",
+    "header.searchTermReport":"Amazon 關鍵字搜尋",
+    "header.skuAdvertisingEvaluationReport":"Amazon 產品頁面分析",
+    "header.sponsoredBrandsCampaign":" Amazon 品牌廣告 - 關鍵字",
+    "header.sponsoredBrandsCampaignCP":" Amazon 品牌廣告 - 活動表現",
+    "header.importMarketingReport":" 匯入.. (內部)",    
+    "header.ecom-school":" 電商小學堂",    
+    "header.companies":" 公司",
+    
+    "header.references":" 參考資訊",
+    "header.documentation":" 參考文件",
+    "header.links":" 輔助連結",
+    
+    "header.logout":" 登出",
+    "header.agreement":" DRS 通路參與合約",
+    "header.companyInfoMaintenance":" 公司資訊維護 ",
+    "header.drs-typography":" DRS Typography",
+    "header.article-management":" 文章管理（內部）",
+    "header.specialist-contact":" 聯絡專員 ",
+
+    "header.amazon-guide":" Amazon 指南",
+    "header.blog":" Blog",
+    "header.question":" 常見問題",
+
+    "links.item":" 項目",
+    "links.description":" 說明",
+    "links.preview":" 預覽"
+
+}

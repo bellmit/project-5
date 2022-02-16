@@ -1,0 +1,22 @@
+package com.kindminds.drs.core.biz.strategy;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import com.kindminds.drs.api.v1.model.amazon.AmazonTransaction.AmazonTransactionLineItem.AmzAmountTypeDesc;
+
+@Component
+public class MarketSideTransactionProcessorOrderUS extends MarketSideTransactionProcessorOrder {
+	
+	@Override
+	protected BigDecimal getPretaxPrincipalPrice(Map<AmzAmountTypeDesc,BigDecimal> unitAmount) {
+		BigDecimal principal = unitAmount.containsKey(AmzAmountTypeDesc.PRICE_PRINCIPAL)?unitAmount.get(AmzAmountTypeDesc.PRICE_PRINCIPAL):BigDecimal.ZERO;
+		BigDecimal promotion = unitAmount.containsKey(AmzAmountTypeDesc.PROMOTION_PRINCIPAL)?unitAmount.get(AmzAmountTypeDesc.PROMOTION_PRINCIPAL):BigDecimal.ZERO;
+		BigDecimal result = principal.subtract(promotion);
+		Assert.isTrue(result.signum()>=0,"result.signum()>=0");
+		return result;
+	}
+	
+}

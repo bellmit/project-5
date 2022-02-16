@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> -->
+	<bean id="dataSource"	class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+<!--		<property name="driverClassName" value="org.postgresql.Driver" />-->
+<!--		<property name="url" value="jdbc:postgresql://drs.crghoygbfshk.ap-northeast-1.rds.amazonaws.com:5432/drs?assumeMinServerVersion=9.0" />-->
+<!--		<property name="username" value="drs" />-->
+		<property name="driverClass" value="org.postgresql.Driver" />
+		<property name="jdbcUrl" value="jdbc:postgresql://drs.crghoygbfshk.ap-northeast-1.rds.amazonaws.com:5432/drs?assumeMinServerVersion=9.0" />
+		<property name="user" value="drs" />
+		<property name="password" value="phi42PrlGo6p" />
+	</bean>
+
+	<bean id="envProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath*:env.prod.properties</value>
+			</list>
+		</property>
+		<property name="fileEncoding" value="UTF-8" />
+	</bean>
+
+	
+
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames" value="
+					classpath:/META-INF/settleableItems,
+					classpath:/META-INF/header,
+					classpath:/META-INF/product,
+					classpath:/META-INF/inventoryShipment,
+					classpath:/META-INF/login,
+					classpath:/META-INF/ss2spStatement,
+					classpath:/META-INF/statementLineType,
+					classpath:/META-INF/common,
+					classpath:/META-INF/unifiedShipment,					
+					classpath:/META-INF/remittance,
+					classpath:/META-INF/company,
+					classpath:/META-INF/customerCareCase,
+					classpath:/META-INF/Issue,
+					classpath:/META-INF/template,
+					classpath:/META-INF/mail,
+					classpath:/META-INF/customerOrder,
+					classpath:/META-INF/productVersion,
+					classpath:/META-INF/campaignPerformance,
+					classpath:/META-INF/inventoryPaymentReport,
+					classpath:/META-INF/searchTermReport,
+					classpath:/META-INF/skuAdvertisingEvaluationReport,
+					classpath:/META-INF/customerSatisfaction,
+					classpath:/META-INF/inventoryHealthReport,
+					classpath:/META-INF/replenishmentInformation,
+					classpath:/META-INF/dailyPageSalesTrafficReport,
+					classpath:/META-INF/domesticTransaction,
+					classpath:/META-INF/replenishmentPrediction,
+					classpath:/META-INF/inventoryAvailability,
+					classpath:/META-INF/salesAndPageTrafficReport,
+					classpath:/META-INF/storageFee,
+					classpath:/META-INF/emailReminder,
+					classpath:/META-INF/profitCostShareStatement,
+					classpath:/META-INF/sponsoredBrandsCampaign,
+					classpath:/META-INF/sponsoredBrandsCampaignCP,
+					classpath:/META-INF/processAdSpend,
+					classpath:/META-INF/mpOnboardingApplication"
+		/>
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp-relay.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="" />
+		<property name="password" value="" />
+		
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.starttls.required">true</prop>
+				<prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+				<prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+				<prop key="mail.smtp.auth">false</prop>
+				<prop key="mail.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<context:component-scan base-package="com.kindminds.drs.service" >
+
+
+		<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.util.DrsBizCoreAnnotationConfig4DP" />
+		<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.util.DrsBizCoreAnnotationConfigNoDB" />
+
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.UpdateUserProfileUcoImpl"/>
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.product.MaintainProductOnboardingUcoImpl"/>
+
+		<context:exclude-filter type="assignable" expression="com.kindminds.drs.core.service.command.MaintainShipmentIvsCmdSrv"/>
+
+	<!--env prop  -->
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.customercare.MaintainCustomerCareCaseUcoImpl"/>
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.customercare.MaintainCustomerCareCaseIssueTemplateUcoImpl"/>
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.customercare.MaintainCustomerCareCaseIssueUcoImpl"/>
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.logistics.MaintainShipmentIvsUcoImpl"/>
+
+	<context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.report.amazon.ImportAmazonCampaignPerformanceReportUcoImpl"/>
+	<!--  <context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.EmailReminderUcoImpl"/>-->
+	<!--  <context:exclude-filter type="assignable" expression="com.kindminds.drs.service.usecase.report.amazon.ImportAmazonCampaignPerformanceReportUcoImpl"/>-->
+
+	</context:component-scan>
+
+
+	<context:component-scan base-package="com.kindminds.drs.persist" >
+	 <context:exclude-filter type="assignable" expression="com.kindminds.drs.persist.data.access.usecase.UpdateUserProfileDaoImpl"/>
+	  <context:exclude-filter type="assignable" expression="com.kindminds.drs.persist.data.access.usecase.product.MaintainProductOnboardingDaoImpl"/>
+
+	  
+	  <!--env prop  -->
+	  <!-- <context:exclude-filter type="assignable" expression="com.kindminds.drs.persist.dao.report.amazon.ImportAmazonCampaignPerformanceReportDaoImpl"/> -->
+	  
+	</context:component-scan>
+
+	<context:component-scan base-package="com.kindminds.drs.core" />
+
+	<context:component-scan base-package="com.kindminds.drs.biz.query" />
+
+	<context:component-scan base-package="com.kindminds.drs.adapter" />
+	<context:component-scan base-package="com.kindminds.drs.v1.model.impl" />
+
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="dataSource"/>
+		</property>
+	</bean>
+
+
+</beans>

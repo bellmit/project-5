@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title
+	th:text="#{header.inventoryShipments}+' - DRS'" >
+</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>	
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script th:src="@{/resources/js/accounting.min.js}" ></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/absolute.js"></script>	
+
+<script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}" ></script>
+
+<script language="javascript" type="text/javascript">
+	$(document).ready(function() {
+		// if($(window).width() >= 1024){
+		// $('#InventoryShipments').floatThead({
+		// 	scrollingTop : $("#s5_menu_wrap").height(),
+		// 	zIndex : 100
+		// });
+		// $('#InventoryShipments').on("floatThead", function(e, isFloated, $floatContainer) {
+		// 	if (isFloated) {
+		// 		$floatContainer.addClass("table-floated");
+		// 	} else {
+		// 		$floatContainer.removeClass("table-floated");
+		// 	}
+		// })};
+		
+
+		var report = $('#InventoryShipments').DataTable({
+			ordering: false,
+			searching: true,
+			paging: false,
+			info: false,
+			responsive: true,
+			fixedHeader: true,
+			columnDefs: [{
+				"targets":0,
+				"visible":false,
+				// "width":"100px"
+			},{
+				"targets":1,
+				"visible":false,
+				// "width":"100px"
+			},{
+				"targets":2,
+				"visible":false,
+				// "width":"100px"
+			},{
+				"targets":3,
+				"visible":false,
+				// "width":"100px"
+			},{
+				"targets":4,
+				"visible":false,
+				"width":"60px"
+			},{
+				// "type":numbersType,
+				"targets":5,
+				"visible":false,
+				"width":"60px"
+			},{
+				"targets":6,
+				"visible":false,
+				"width":"40px"
+			},{
+				"targets":7,
+				"visible":false,
+				"width":"40px"
+			},{
+				"targets":8,
+				"visible":false,
+				// "width":"100px"
+			}]
+		});
+		$('#InventoryShipments_filter').hide();
+		report.column(0).visible(true);
+		report.column(1).visible(true);
+		report.column(2).visible(true);
+		report.column(3).visible(true);
+		report.column(4).visible(true);
+		report.column(5).visible(true);
+		report.column(6).visible(true);
+		report.column(7).visible(true);
+		report.column(8).visible(true);
+		$( "#sellerSelector" ).select2({
+		    theme: "bootstrap"
+		});
+		$('[data-toggle="tooltip"]').tooltip();	
+
+        /*
+        $("#submitImport").click(function() {
+            var fileData = $("#importIVS").prop("files")[0];
+            var form_data = new FormData();
+            form_data.append("file", fileData);
+
+            $.ajax({
+                url : "${pageContext.request.contextPath}/InventoryShipments/ImportIVS",
+                dataType : 'script',
+                cache : false,
+                contentType : false,
+                processData : false,
+                data : form_data,
+                type : 'POST',
+                success : function(data) {
+                    $("#result-message").html(data);
+                }
+            });
+            $("#importIVS").val("");
+        });
+        */
+
+		$(".custom-file-input").on("change", function() {
+			var fileName = $(this).val().split("\\").pop();
+			$(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+		});
+
+		var importMessage = $(".import-result-message").html();
+
+		$('#importBtn').on('click', function() {
+			console.log('click button');
+			$(".import-result-message").html('');
+			message = '';
+			$('.import-result-wrapper').removeClass('show-result');
+			$('.import-result-wrapper').removeClass('import-result-scroll');
+			return true;
+		})
+
+		if (importMessage !== '') {
+			$(".import-result-wrapper").addClass('show-result');
+			$(".import-result-wrapper").addClass('import-result-scroll');
+
+		} else {
+			console.log('empty file')
+		};
+	
+		
+	
+	var IvsSearchConditions= '[[${IvsSearchConditions}]]'.replace(/, /g,'&').replace(/null/g,'');
+	var isc =IvsSearchConditions.substring(1,IvsSearchConditions.length-1);
+	
+	var totalPages = parseInt('[[${totalPages}]]');
+	var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+
+	$('.firstUrl').attr("href","InventoryShipments?"+isc+"&page=1");
+	$('.lastUrl').attr("href","InventoryShipments?"+isc+"&page="+totalPages);
+	$('.prevUrl').attr("href","InventoryShipments?"+isc+"&page="+(currentPageIndex - 1));
+	$('.nextUrl').attr("href","InventoryShipments?"+isc+"&page="+(currentPageIndex + 1));
+	
+	for(i=1 ;i<=totalPages;i ++){
+	$('.pl'+i).attr("href","InventoryShipments?"+isc+"&page="+i);
+	}
+	
+	$('.dataTables_empty').attr('colspan',12)
+	var is ='[[${ShipmentOfInventoryList}]]';
+	var isSupplier = '[[${isSupplier}]]';
+	
+		if(isSupplier == 'true'){
+			
+		$('.trow').addClass('empty-table-row');	
+		$('#InventoryShipments').parent().parent().css( "width", "100%" );
+		}
+
+	});
+</script>
+
+<style>
+#shipmentStatus {
+	width: 136px;
+}
+
+#sellerSelector {
+	width: 200px !important;
+}
+
+.empty-table-row {
+	margin-left:-4% !important;
+}
+
+.empty-head-button {
+	margin-right: 140px;
+}
+
+@media only screen and (max-width: 576px) {
+  #shipmentStatus {
+    width:100%
+  }
+}
+
+.importArea {
+	// float: right;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-item: right;
+	justify-content: flex-start;
+	background-color: #f2f2f2;
+	border: dashed 2px rgba(0,0,0, .2);
+    padding: 22px;
+}
+.importform {
+	display: flex;
+	justify-content: center;
+}
+.import-result {
+    margin: 1%;
+}
+.show-result {
+	background-color: #f2f2f2;
+    border: dashed 2px rgba(0,0,0, .2);
+    margin: 1%;
+    padding: 0;
+}
+.import-result-wrapper {
+	display: flex;
+	justify-content: center;
+}
+.import-result-scroll {
+	max-height: 300px;
+  	overflow-y: scroll;
+}
+.import-result-message {
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1.2px;
+	line-height: 26px;
+	margin: 0;
+}
+.import-btn {
+	margin-left: 12px;
+}
+.custom-file {
+    position: relative;
+    display: inline-block;
+	// width: 100%;
+	width: 85%;
+    height: calc(1.5em + .75rem + 2px);
+    margin-bottom: 0;
+}
+.custom-file-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+	border-radius: .25rem;
+	text-align: left;
+}
+.custom-file-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    margin: 0;
+	opacity: 0;
+}
+table.dataTable {    
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+table.dataTable.no-footer {
+    border-bottom: 0px solid #111;
+}
+table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > td.sorting_asc, table.dataTable thead > tr > td.sorting_desc, table.dataTable thead > tr > td.sorting {
+    padding-right: 20px;
+}
+table.dataTable tfoot th, table.dataTable tfoot td {
+    padding: 8px 10px;
+    border-top: 2px solid #ccc;
+}
+table.fixedHeader-floating {
+	top:48px !important;
+}
+table.dataTable thead th{
+	border-bottom: 1px solid #eeeded;
+}
+.table > tbody > tr > td.dataTables_empty {
+	border-top:0px;
+}
+
+</style>
+</head>
+<body>
+<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="text-center text-success">
+		<h2>[[${message}]]</h2>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="page-heading">
+					<a th:text="#{header.inventoryShipments}"></a>
+				</div>
+			</div>
+			<th:block sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_CREATE'])}">
+			<div class="col-md-6 text-right">
+				<div class="page-heading">
+					<a class="btn btn-primary create-btn" href="/InventoryShipments/create"
+						th:text="#{inventoryShipment.createInventoryShipment}" >
+					</a>
+				</div>
+			</div>	
+			</th:block>		
+		</div>
+
+		<form class="form-inline mb-3" action="/InventoryShipments" method="GET" name="InventoryShipment" modelAttribute="ShipmentIvsSearchCondition">
+			
+			<div sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_SEARCH'])}">		
+			<label for="sellerSelector" class="control-label mr-2"></label><a th:text="#{inventoryShipment.seller}"></a>
+				<select id="sellerSelector" name="sellerCompanyKcode" class="form-control mr-2 " >
+					<option value="">All</option>
+					<th:block th:each="sellerKcodeToName : ${sellerKcodeToNameMap}">		
+						<option th:value="${sellerKcodeToName.key}" th:text="${sellerKcodeToName.key}+' '+${sellerKcodeToName.value}" 
+						th:selected="${sellerKcodeToName.key}==${IvsSearchConditions.sellerCompanyKcode} "></option>																													
+					</th:block>				
+				</select>
+			</div>
+
+				<label class="control-label my-2 mr-2 ml-md-2"><a th:text="#{inventoryShipment.marketRegion}" ></a></label>
+			<select name="destinationCountry" class="form-control mr-md-2">
+				<option value="">All</option>
+				<th:block th:each="destinationCountry : ${destinationCountryList}">		
+					<option th:value="${destinationCountry}" th:text="#{${destinationCountry}}"
+					th:selected="${destinationCountry} ==${IvsSearchConditions.destinationCountry}" ></option>																																							
+				</th:block>
+			</select>
+
+			<label class="control-label my-2 mr-2"><a th:text="#{inventoryShipment.shippingMethod}" ></a></label>
+			<select name="shippingMethod" class="form-control mr-md-2">
+				<option value="">All</option>
+				<th:block th:each="shippingMethod : ${shippingMethodList}">		
+					<option th:value="${shippingMethod}" th:text="#{${shippingMethod}}"
+					th:selected="${shippingMethod} ==${IvsSearchConditions.shippingMethod}" ></option>																																							
+				</th:block>				
+			</select>
+
+			<label class="control-label my-2 mr-2"><a th:text="#{inventoryShipment.status}"></a></label>
+			<select id="shipmentStatus" name="status" class="form-control mr-md-2">
+				<option value="">All</option>
+				<th:block th:each="shipmentStatus : ${shipmentStatusList}">		
+					<option th:value="${shipmentStatus}" th:text="#{${shipmentStatus}}" 
+					th:selected="${shipmentStatus} ==${IvsSearchConditions.status}" ></option>																																							
+				</th:block>				
+			</select>
+
+			<div class="float-right">
+				<button class="btn btn-primary mr-2 mt-2 mt-md-0 float-right" type="submit"><i class="fas fa-search"></i>[[#{inventoryShipment.search}]]</button>
+			</div>
+
+			<div sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_CREATE'])}">
+			<button
+				type="button" class="btn btn-default" style="margin-left:10px;float:right;" 
+				data-toggle="collapse"
+				data-target=".import-box"
+				aria-expanded="false"
+				id='importBtn'>
+				<i class="fas fa-upload" style='margin-right: 12px;'></i>Import Shipment</button>
+			</div>
+		</form>
+
+		<div class="row import-box collapse">
+			<div class="col-md-12" style='margin-top: 20px;'>
+			    <div class="importArea">
+					<form
+						id='importIVSForm'
+						class='importform'
+						accept-charset="UTF-8"
+						method="POST"
+						enctype="multipart/form-data"
+						action="/InventoryShipments/ImportIVS"
+						
+					>
+						<table class="no-head" style='width: 100%;'>
+							<tr style='width: 100%;'>
+								<td><div class="custom-file">
+									<input type="file" class="custom-file-input" name="file">
+									<label class="custom-file-label" for="customFile"></label>
+								</div></td>
+								<td style="width:15%;">
+									<input id='import-submit' class="btn btn-primary import-btn" type="submit" value="Upload & Import">
+								</td>
+								<td><a th:utext="${importTemplate}"></a></td>
+							</tr>						
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="row import-result-wrapper">
+			<div class="text-success import-result">
+				<p class="import-result-message" th:utext="${importMessage}"></p>
+			</div>
+		</div>
+
+		<div class="row trow"  >
+			<div class="col-md-12">
+				
+					<div th:if="${totalPages > 1}">
+						
+						<div class="text-center">
+							<nav>
+								<ul class="pagination pagination-sm justify-content-center">
+									
+										<div th:if="${currentPageIndex != 1}" style="display: flex;">
+											<li class="page-item"><a class="page-link firstUrl" data-pager="1">&lt;&lt;</a></li>
+											<li class="page-item"><a class="page-link prevUrl" data-pager="${currentPageIndex - 1}">&lt;</a></li>
+										</div>
+									
+									<th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+										
+											<div th:if="${i == currentPageIndex}">
+												<li class="active page-item"><a th:class="'page-link pl'+${i}"  data-pager="${i}">[[${i}]]</a></li>
+											</div>
+											<div th:unless="${i == currentPageIndex}">
+												<li class="page-item"><a th:class="'page-link pl'+${i}"  data-pager="${i}">[[${i}]]</a></li>
+											</div>
+										
+									</th:block>
+									
+										<div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+											<li class="page-item"><a class="page-link nextUrl"  data-pager="${currentPageIndex + 1}">&gt;</a></li>
+											<li class="page-item"><a class="page-link lastUrl"  data-pager="${totalPages}">&gt;&gt;</a></li>
+										</div>
+									
+								</ul>
+							</nav>
+						</div>
+					</div>
+								
+
+				<div class="table-responsible">
+				<table id="InventoryShipments" class="table table-floated" style='width: 100% !important;'>
+					<thead>
+						<tr>
+							<th><a th:text="#{inventoryShipment.inventoryShipmentId}"></a></th>
+							<th><a th:text="#{inventoryShipment.invoiceNumber}"></a></th>
+							<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+								<th><a th:text="#{inventoryShipment.seller}"></a></th>
+								<th><a th:text="#{inventoryShipment.buyer}"></a></th>
+							</th:block>
+							<th class="text-center"><a th:utext="#{inventoryShipment.FCADeliveryDate}"></a></th>
+							<th class="text-center"><a th:utext="#{inventoryShipment.expectedExportDate}"></a></th>
+							<th class="text-center"><a th:utext="#{inventoryShipment.marketRegion}"></a></th>
+							<th class="text-center"><a th:utext="#{inventoryShipment.shippingMethod}"></a></th>
+							<th class="text-center"><a th:utext="#{inventoryShipment.status}"></a></th>
+							<th class="text-right" ><a th:utext="#{inventoryShipment.totalAmount}"></a></th>
+							<th class="text-right" ><a th:utext="#{inventoryShipment.paid}"></a></th>
+							<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+								<th>UNS</th>
+							</th:block>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="shipmentOfInventory : ${ShipmentOfInventoryList}">
+							<tr>
+								<td>
+									<a th:href="@{/InventoryShipments/{name}(name=${shipmentOfInventory.name})}" th:text="${shipmentOfInventory.name}"></a>											
+								</td>
+								<td>
+								
+									<div th:if="${shipmentOfInventory.invoiceNumber == ''}">
+										<span class="text-danger">[[#{inventoryShipment.waitingInvoice}]]</span>	
+									</div>										
+									<div th:unless="${shipmentOfInventory.invoiceNumber == ''}">
+										[[${shipmentOfInventory.invoiceNumber}]]										
+									</div>
+																
+								</td>
+								<div sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									<td><a th:text="${shipmentOfInventory.sellerCompanyKcode}+' '+${AllCompanyKcodeToNameMap[shipmentOfInventory.sellerCompanyKcode]}"></a></td>
+									<td><a th:text="${shipmentOfInventory.buyerCompanyKcode}+' '+${AllCompanyKcodeToNameMap[shipmentOfInventory.buyerCompanyKcode]}"></a></td>
+								</div>
+								<td class="text-center">[[${shipmentOfInventory.fcaDeliveryDate}]]</td>
+								<td class="text-center">[[${shipmentOfInventory.expectedExportDate}]]</td>
+								<td class="text-center"><a th:text="#{${shipmentOfInventory.destinationCountry}}"></a></td>
+								<td class="text-center"><a th:text="#{${shipmentOfInventory.shippingMethod}}"></a></td>
+								<td class="text-center"><a th:text="#{${shipmentOfInventory.status}}"></a></td>
+								<td class="text-right" >[[${shipmentOfInventory.total}]]</td>								
+								<td class="text-right" ><a th:href="@{/InventoryShipments/{name}/InventoryPayment(name=${shipmentOfInventory.name})}"
+									th:text="${shipmentOfInventory.paidTotal}"></a></td>
+								<div sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									<td class="text-right"><a th:href="@{/UnifiedShipments/{unsName}/view(unsName=${shipmentOfInventory.unsName})}"
+										th:text="${shipmentOfInventory.unsName}"></a></td>
+								</div>
+							</tr>
+						</th:block>
+					</tbody>
+				</table>
+				</div>
+				
+				<div th:if="${totalPages > 1}">
+						
+					<div class="text-center">
+						<nav>
+							<ul class="pagination pagination-sm justify-content-center">
+								
+									<div th:if="${currentPageIndex != 1}" style="display: flex;">
+										<li class="page-item"><a class="page-link firstUrl" data-pager="1">&lt;&lt;</a></li>
+										<li class="page-item"><a class="page-link prevUrl" data-pager="${currentPageIndex - 1}">&lt;</a></li>
+									</div>
+								
+								<th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+
+									
+										<div th:if="${i == currentPageIndex}">
+											<li class="active page-item"><a th:class="'page-link pl'+${i}"  data-pager="${i}">[[${i}]]</a></li>
+										</div>
+										<div th:unless="${i == currentPageIndex}">
+											<li class="page-item"><a th:class="'page-link pl'+${i}"  data-pager="${i}">[[${i}]]</a></li>
+										</div>
+									
+								</th:block>
+								
+									<div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+										<li class="page-item"><a class="page-link nextUrl"  data-pager="${currentPageIndex + 1}">&gt;</a></li>
+										<li class="page-item"><a class="page-link lastUrl"  data-pager="${totalPages}">&gt;&gt;</a></li>
+									</div>
+								
+							</ul>
+						</nav>
+					</div>
+				</div>
+								
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

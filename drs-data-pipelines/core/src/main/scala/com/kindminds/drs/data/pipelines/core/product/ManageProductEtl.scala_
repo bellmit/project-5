@@ -1,0 +1,220 @@
+package com.kindminds.drs.data.pipelines.core.product
+
+
+//case class BaseProduct(supplierId: Integer)
+
+//case class BaseProduct(bpId: String, category: String, brandNameCh: String, brandNameEn: String,
+//                       productNameCh: String, productNameEn: String, variationTheme: String,
+//                       totalSkus: Integer, pageSize: Integer, currentIndex: Integer,
+//                       bpStatus: String, variable: String, pageIndex: Integer,
+//                       retailPrice: Double, salesVolume: Double, openPosition: Integer,
+//                       fbaQuantity: Integer, status: String, actions: String,
+//                       editable: Boolean, isSelected: Boolean)
+
+case class TestObject(bpId: String, category: String)
+
+
+
+
+import java.util.concurrent.TimeUnit
+
+import akka.{Done, NotUsed}
+import akka.actor.ActorSystem
+import akka.stream.alpakka.elasticsearch.WriteMessage
+import akka.stream.alpakka.elasticsearch.scaladsl.ElasticsearchSink
+import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
+import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.alpakka.slick.javadsl.SlickSession
+import akka.stream.alpakka.slick.scaladsl.Slick
+import akka.stream.scaladsl.{Sink, Source}
+import akka.util.ByteString
+import com.kindminds.drs.data.pipelines.core.dto.Order
+
+import com.mongodb.client.model.InsertOneOptions
+import com.mongodb.reactivestreams.client.{MongoClients, MongoCollection}
+import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, MustMatchers, WordSpec}
+import slick.jdbc.GetResult
+import spray.json.{DefaultJsonProtocol, JsValue, JsonWriter}
+
+import scala.concurrent.{Await, Future}
+
+
+
+//class MongoSinkSpec
+//  extends WordSpec
+//    with ScalaFutures
+//    with BeforeAndAfterEach
+//    with BeforeAndAfterAll
+//    with MustMatchers
+//    with DefaultJsonProtocol{
+//
+//  val codecRegistry = fromRegistries(fromProviders(), DEFAULT_CODEC_REGISTRY)
+//
+//  implicit val system = ActorSystem()
+//  implicit val mat = ActorMaterializer()
+//
+//  //override protected def beforeAll(): Unit =
+//  //Source.fromPublisher(db.drop()).runWith(Sink.head).futureValue
+//
+//  private val client = MongoClients.create("mongodb://drsMongo:vgy7ujm@35.221.131.190:27017/drs")
+//
+//  private val db = client.getDatabase("drs").withCodecRegistry(codecRegistry)
+//
+//  private val numbersColl: MongoCollection[BaseProduct] =
+//    db.getCollection("product", classOf[BaseProduct]).withCodecRegistry(codecRegistry)
+//
+//  private val numbersDocumentColl = db.getCollection("product").countDocuments()
+//
+//  println("count documents: " + numbersDocumentColl)
+//
+////  implicit val defaultPatience =
+////    PatienceConfig(timeout = 5.seconds, interval = 50.millis)
+//
+//  // override def afterEach(): Unit =
+//  // Source.fromPublisher(numbersDocumentColl.deleteMany(new Document())).runWith(Sink.head).futureValue
+//
+//  override def afterAll(): Unit =
+//    system.terminate().futureValue
+//
+//  val testRange = 0 until 10
+//
+//  def cleanseCsvData(csvData: Map[String, ByteString]): Map[String, String] =
+//    csvData
+//      .filterNot { case (key, _) => key.isEmpty }
+//      .mapValues(_.utf8String)
+//
+//  def toJson(map: Map[String, String])(
+//    implicit jsWriter: JsonWriter[Map[String, String]]): JsValue = jsWriter.write(map)
+//
+//
+//
+//}
+
+object ManageProductEtl {
+
+
+
+  implicit val system = ActorSystem("drsDP")
+  implicit val session = SlickSession.forConfig("slick-postgres")
+  import session.profile.api._
+  implicit val ec =  scala.concurrent.ExecutionContext.global
+  implicit val materializer: Materializer = ActorMaterializer()
+  val timeout = scala.concurrent.duration.FiniteDuration(10, TimeUnit.SECONDS)
+
+
+
+  //override protected def beforeAll(): Unit =
+  //Source.fromPublisher(db.drop()).runWith(Sink.head).futureValue
+
+  //val codecRegistry = fromRegistries(fromProviders(classOf[BaseProduct]), DEFAULT_CODEC_REGISTRY)
+
+  private val client = MongoClients.create("mongodb://drsMongo:vgy7ujm@35.221.131.190:27017/drs")
+
+  private val db = client.getDatabase("drs")
+
+  //val numbersColl: MongoCollection[BaseProduct] =
+    //db.getCollection("product", classOf[BaseProduct]).withCodecRegistry(codecRegistry)
+
+
+
+
+
+  def main(args: Array[String]): Unit = {
+    //transform()
+  }
+
+
+  def transform(): Unit = {
+
+
+    val marketSide = 2
+
+    val baseProd = sql""" select distinct(product_base_code) from product.product_view
+                  where market_side ='#${marketSide}'
+                     order by  product_base_code   """.as[String]
+
+    var products : Vector[String] = null
+
+    Await.result(
+      session.db.run(baseProd).map { res =>
+//        println(res.size)
+        products = res
+      }, timeout)
+
+    val userList = Seq(TestObject("Ann", "girl") , TestObject("Lewis"  , "boy"))
+    val insertSource = Source(userList.toList)
+//Graph[SinkShape[String], NotInferedMat]
+//    insertSource.map(element => {element.toString}).runWith(MongoSink.insertOne(numbersColl)).futureValue
+
+
+//    val done: Future[Done] =
+//      Slick
+//        .source(
+//          sql""" select * from sales.all_orders where marketplace_order_id in ( #${ids} )
+//                order by last_update_date  desc """.as[BaseProduct])
+//        .map(o => {
+//
+//
+//          println(o.bpId)
+//
+//          println(o.brandNameEn)
+//
+//
+//        })
+//        .runWith(
+//          MongoSink.insertMany(numbersColl))
+
+
+
+    for (product <- products)
+      println(product)
+
+    //val source: Source[BaseProduct, NotUsed] =
+      //MongoSource(numbersColl.find(classOf[BaseProduct]))
+
+    //val rows: Future[Seq[BaseProduct]] = source.runWith(Sink.seq)
+
+    //println(rows.value.size)
+    //rows.value.foreach(println)
+
+//    val bp = List(BaseProduct("15151515", "", "", "",
+//      "", "", "", 0, 0, 0, "", "", 0,
+//      0, 0, 0, 0, "", "", false, false))
+//    val bpSource = Source(bp)
+
+//    val completion = source.runWith(MongoSink.insertOne(numbersColl))
+
+    val testDb = db.getCollection("product")
+
+//    testDb.insertOne(document)
+
+//    val document = BaseProduct(250)
+//    println("result : " + numbersColl.insertOne(document))
+
+    val numbersDocumentColl = db.getCollection("product").countDocuments().toString
+
+    println("count documents: " + numbersDocumentColl)
+
+//    val q = sql""" select market_side, product_base_code from product.product_view
+//                     order by  product_base_code , market_side  """.as[BaseProduct]
+//
+//    var productBaseDS : Vector[BaseProduct] = null
+//
+//    Await.result(
+//      session.db.run(q).map { res =>
+//        println(res.size)
+//        productBaseDS = res
+//      }, timeout)
+
+//    productBaseDS.foreach(tup => println(tup(0), tup(1)))
+
+  }
+
+  implicit val getTableResult = GetResult(r => (r.nextInt, r.nextInt))
+
+
+
+}

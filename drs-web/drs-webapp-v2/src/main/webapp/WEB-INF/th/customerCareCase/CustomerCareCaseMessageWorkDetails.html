@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title
+	th:text="#{ccc.id}+' : '+${caseId}+' - '+#{ccc.msg}+' #'+${Message.lineSeq}+' - DRS'">
+</title>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{ccc.id}+' : '+${caseId}+' - '+#{ccc.msg}+' #'+${Message.lineSeq}"></a>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+			<div class="col-md-6 ">
+				<div class="col-sm-4 text-right">
+					<b>[[#{ccc.workDetails}]]</b>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+			<div class="col-md-6">
+				<table class="table table-withoutBorder">
+					<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_VIEWMSG'])}">							
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.MS2SS_statementId}]]</b>
+						</td>
+						<td>
+							
+								<div th:if="${Message.ms2ssStatementId == null}">
+ 									
+										<span th:if="${Message.isFreeOfCharge eq true }">
+											n/a
+										</span>
+										<span th:unless="${Message.isFreeOfCharge eq true }">
+											(TBD)	
+										</span>
+																								 
+								</div>
+								<div th:unless="${Message.ms2ssStatementId == null}">
+									
+										<span th:if="${Message.isFreeOfCharge eq true }">
+											n/a
+										</span>												
+										<span th:unless="${Message.isFreeOfCharge eq true }">
+											<a th:href="@{(/MS2SS-Statements/{mSId}(mSId=${Message.ms2ssStatementId})}">[[${Message.ms2ssStatementId}]]</a>																							
+										</span>
+																										
+								</div>
+							
+						</td>
+					</tr>
+					</div>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.SS2SP_statementId}]]</b>
+						</td>
+						<td>
+							
+								<div th:if="${ Message.ss2spStatementId == null}">
+ 									
+										<span th:if="${Message.isFreeOfCharge eq true }">
+											n/a
+										</span>
+										<span th:unless="${Message.isFreeOfCharge eq true }">
+											(TBD)	
+										</span>
+															 
+								</div>
+								<div th:unless="${Message.ss2spStatementId == null}">
+									
+										<span th:if="${Message.isFreeOfCharge eq true }">
+											n/a	
+										</span>
+										<span th:unless="${Message.isFreeOfCharge eq true }">
+											<a th:href="@{/{Url}/{sSId}(Url=${statementRootUrl},sSId=${Message.ss2spStatementId})}">[[${Message.ss2spStatementId}]]</a>																						
+										</span>
+																																			
+								</div>
+							
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right"><b>[[#{ccc.endTime}]]</b></td>
+						<td>[[${Message.endDate}]]</td>
+					</tr>
+					<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_VIEWMSG'])}">																
+					<tr>
+						<td class="text-right"><b>[[#{ccc.timeTaken}]]</b></td>
+						<td>[[${Message.timeTaken}]]</td>
+					</tr>
+					</span>
+					<tr>
+						<td class="text-right"><b>[[#{ccc.relatedSku}]]</b></td>
+						<td><div th:if="${productBaseCodeToSupplierNameMap == null}">
+							<a th:text="${Message.chargeToSKU}+' '+${productSkuCodeToSupplierNameMap[Message.chargeToSKU]}"></a>
+							</div> 
+							<div th:if="${productSkuCodeToSupplierNameMap == null}">
+							<a th:text="${Message.chargeToSKU}+' '+${productBaseCodeToSupplierNameMap[Message.chargeToSKU]}"></a>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<table class="table table-withoutBorder">					
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.wordCount}]]</b>
+						</td>
+						<td>[[${Message.wordCount}]]</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.standardAction}]]</b>
+						</td>
+						<td>[[${Message.standardActionCount}]]</td>
+					</tr>
+					<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_VIEWMSG'])}">												
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.chargeByWord}]]</b>
+						</td>
+						<td>[[${Message.DRSChargeByWord}]]</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.costPerHour}]]</b>
+						</td>
+						<td>[[${Message.costPerHour}]]</td>
+					</tr>
+					</span>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.handledBy}]]</b>
+						</td>
+						<td>[[${Message.createBy}]]</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.translationFee}]]</b>
+						</td>
+						<td>
+							
+								<div th:if="${Message.includesTranslationFee eq true }">
+									[[#{ccc.yes}]]
+								</div>
+								<div th:unless="${Message.includesTranslationFee eq true }">
+									[[#{ccc.no}]]	
+								</div>
+							
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b>[[#{ccc.freeOfCharge}]]</b>
+						</td>
+						<td>
+							
+								<div th:if="${Message.isFreeOfCharge eq true }">
+									[[#{ccc.yes}]]
+								</div>
+								<div th:unless="${Message.isFreeOfCharge eq true }">
+									[[#{ccc.no}]]	
+								</div>
+							
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

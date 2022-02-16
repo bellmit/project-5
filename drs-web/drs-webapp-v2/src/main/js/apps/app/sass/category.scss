@@ -1,0 +1,113 @@
+$fontFamily: 'Roboto','Poppins',"-apple-system", "Noto Sans TC","Segoe UI", "Segoe UI Semibold", 
+"微軟正黑體","Microsoft JhengHei", "Lucida Grande", 
+Helvetica, Arial, Verdana, BlinkMacSystemFont,"PingFang SC",
+Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",  "sans-serif";
+$shortShadow: 0 1px 2px 0 rgba(9,30,66,.25);
+.product-category-list {
+    width: 100%;
+    // box-shadow: $shortShadow;
+    // border-radius: 4px;
+    // border: 1px solid #053763;
+    // box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+    // padding:1%;
+    // height: 450px;
+    // overflow-y: scroll;
+}
+.product-category-info {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 1%;
+}
+.product-category-li {
+    margin: 4px 0;
+    display: flex;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    // padding: 2%;
+    width: 100%;
+    background-color: #fefefe;
+    // cursor: pointer;
+    // cursor: auto;
+    align-items: center;
+    justify-content: space-between;
+    font-family: $fontFamily;
+}
+.product-category-li:hover {
+    // background-color: #efefef;
+    background-color: #e6e7ed;
+}
+.product-category-li-last {
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    width: 100%;
+    text-align: left;
+}
+.category-btn {
+    height: 37px;
+    /* min-width: 120px; */
+    padding: 2px 16px;
+    // color: #fff;
+    color: #053763;
+    border-radius: 4px;
+    border: 1px solid #053763;
+    box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+    /* font-size: 16px; */
+    // margin-right: 12px;
+    background-color: #fff;
+}
+.category-btn:hover {
+    color: #fff;
+    background-color: #053763;
+}
+
+// breadcrumbs
+.breadcrumbs-container  {
+    background-color: #f5f6fa;
+    padding: 1% 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    // border: 1px solid #053763;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.breadcrumbs-btn {
+    cursor: pointer
+}
+.breadcrumbs-btn:hover {
+    border-bottom: 1px solid #053763;
+    // padding-bottom: 2px;
+}
+.breadcrumbs-btn-li {
+    margin: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+.breadcrumbs-btn-text {
+    font-size: 15px;
+    line-height: 1.5rem;
+    font-weight: 500;
+    color: #053763;
+    font-family: $fontFamily;
+}
+.breadcrumbs-text-placeholder {
+    font-size: 15px;
+    line-height: 1.5rem;
+    font-weight: 500;
+    color: #053763;
+    font-family: $fontFamily;
+    display: flex;
+    padding: 8px;
+    margin: 0 6px;
+    font-style: italic;
+}
+.page-loading-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}

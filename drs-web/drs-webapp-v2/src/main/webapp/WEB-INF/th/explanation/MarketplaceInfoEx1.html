@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>主要產品標題說明</title>
+
+<style>
+
+.ex_text{
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    line-height: 2.5rem;
+}
+.list_block{
+    justify-content: center;
+    display: block;
+    border-radius: 3px;
+    margin-top: 50px;
+}
+.list {
+    list-style-type: disc;
+    padding: 30px;
+    font-weight: 600;
+    background-color: #e4e4e4;
+    font-size: 18px;
+    border-radius: 3px;
+    line-height: 2.5rem;
+}
+.list_line{
+    margin-left: 30px;
+}
+.list_title {
+    text-align: center;
+    background-color: #0e6296;
+    font-size: 26px;
+    font-weight: 800;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-radius: 3px;
+    color: white;
+}
+.list_content {
+    background-color: #e4e4e4;
+}
+
+</style>    
+</head>
+<body>
+<section layout:fragment="custom-content">
+    <div style="margin: 2% 15% 5% 15%;">
+
+        <div class="page-heading" style="margin-bottom: 40px; font-weight: 600 !important;">主要產品標題說明</div>
+
+
+        <div class="ex_text">產品標題除了顯示產品名稱，也建議您依照消費者可能考慮購買的因素，增加更多吸引人的資訊；例如：產品名稱為「 Rechargeable Hand Warmer」的產品，
+            經由市場調查發現，消費者對於產品的顏色、電池容量及發熱位置特別在意，因此我們將產品標題改為
+            「EnergyFlux 4400mAh Rechargeable Double-Sided Hand Warmer / USB External Battery Pack - Silver/Black」。</div>
+        <br/>
+        <br/>
+        <div class="ex_text">當消費者透過搜尋功能在銷售平台上搜尋，可能透過產品標題而搜尋到您的產品，因此您可以考慮將消費者常使用的搜尋字加入到產品標題，
+            但應避免太冗長，若文字太長首先會讓產品頁面看起來比較凌亂，消費者不容易找到重要訊息，可能影響購買意願，也降低產品的專業形象。</div>
+            <br/>
+            <br/>
+        <div class="ex_text">以下為您提供亞馬遜平台對於產品標題的限制要求：</div>
+
+        <div class="list_block">
+        <div class="list_title">必要內容</div>
+        <span class="list_content">
+            <ul class="list">
+                <li class="list_line">每個單字的第一個字母須大寫（有例外情形，請見下方「禁止內容」）</li>
+                <li class="list_line">請使用阿拉伯數字，例如「2」，而非「two」</li>
+                <li class="list_line">請將測量單位完整表達，例如「inch」；應拼寫完整單字「inch」而非使用單位符號「”」</li>
+                <li class="list_line">請運用變體名稱表達子產品之尺寸及顏色等資訊</li>
+                <li class="list_line">請盡量保持簡潔並包含重要的資訊</li>
+                <li class="list_line">請盡量維持文字長度在二十個到四十個英文字元（含空格及符號）之間，最多使用五十個字元</li>
+                <li class="list_line">僅支援標準字元。請避免產​敘述包含Type 1 High ASCII 字元(美國標準信息交換碼)，例如：® - 註冊商標、© - 版權符號、 ™ 或其他特殊字元</li>
+                <li class="list_line">產品標題閱讀起來須合邏輯、語句通順、文法及標點符號正確</li>
+                <li class="list_line">每個產品標題都應加入品牌名或產品專屬名稱 ，並將品牌名稱放在標題的最前面</li>
+                <li class="list_line">請運用規格、特色或短句描述產品</li>
+
+            </ul>
+        </span>    
+        </div>
+
+        <div class="list_block">
+            <div class="list_title">禁止內容</div>
+            <span class="list_content">
+                <ul class="list">
+                    <li class="list_line">請勿全部字母使用大寫</li>
+                    <li class="list_line">以下這些詞彙請勿使用大寫：
+                        <ul style="padding: 10px; font-weight: 600; font-size: 16px;">
+                            <li style="margin-left: 15px;">連接詞，例如：and, or, for</li>
+                            <li style="margin-left: 15px;">冠詞，例如：the, a, an</li>
+                            <li style="margin-left: 15px;">五個字元以下的介係詞，例如：in, on, over, with 等</li>   
+                        </ul>
+                    </li>
+                    <li class="list_line">請勿包含賣家資訊</li>
+                    <li class="list_line">請勿使用與產品無關的文字，例如：競爭對手的產品名稱</li>
+                    <li class="list_line">請勿使用價格、促銷、優惠的訊息，例如：「sale」或「free shipping」</li>
+                    <li class="list_line">請勿使用自己的賣家名稱當作品牌或製造商資訊，除非您的產品使用的品牌即為您的賣家名稱</li>
+                    <li class="list_line">請勿加入符號，例如「~ ! * $ ?」</li>
+                    <li class="list_line">請勿加入主觀的評論，例如：「Hot Item」、「Best Seller」</li>
+                    <li class="list_line">請勿使用過長的產品標題</li>
+    
+                </ul>
+            </span>    
+            </div>
+
+            <div class="ex_text" style="margin-top: 30px;">違規的範例：</div>   
+            <div style="border: 2px solid #d4d4d4; font-size: 16px; padding: 10px;">
+                BLOWOUT SALE! 2012 Fitness Gear HEAVY DUTY Exercise Resistance Bands by MY STORE © - 
+                Bands are interchangeable so you can get a different workout every day! GREAT WORKOUT, FAST SHIPPING, BEST DEAL!
+            </div>
+
+            <div style="font-size: 18px; margin-top: 25px; line-height: 2.5rem;">
+                <div><i class="fas fa-times" aria-hidden="true" style="color: red; margin-right: 10px;"></i>部分詞彙全部大寫</div>
+                <div><i class="fas fa-times" aria-hidden="true" style="color: red; margin-right: 10px;"></i>提及銷售及運費促銷</div>
+                <div><i class="fas fa-times" aria-hidden="true" style="color: red; margin-right: 10px;"></i>提及賣家資訊</div>
+                <div><i class="fas fa-times" aria-hidden="true" style="color: red; margin-right: 10px;"></i>使用版權標誌及驚嘆號</div>
+            </div>
+
+            <div class="ex_text" style="margin-top: 30px;">修正範例：</div>  
+            <div style="border: 2px solid #d4d4d4; font-size: 16px; padding: 10px; margin-top: 30px;">
+               <del style="color: red;"> BLOWOUT SALE! 2012 Fitness Gear HEAVY DUTY </del>
+                Heavy Duty Exercise Resistance Bands
+            <del style="color: red;"> by MY STORE © - Bands are interchangeable so you can get a different workout every day! GREAT WORKOUT, FAST SHIPPING, BEST DEAL! </del>
+            </div>
+            <div style="font-size: 18px; margin-top: 25px; line-height: 2.5rem;">
+                <div><i class="fas fa-check" aria-hidden="true" style="margin-right: 10px;" ></i>只保留您販賣的產品資訊</div>
+                <div><i class="fas fa-check" aria-hidden="true" style="margin-right: 10px;"></i>將描述產品功能的資訊；例如：「great workout」，改放在產品敘述或是關鍵字裡，而非放在產品標題</div>
+            </div>
+
+            <div class="list_block">
+                <div class="list_title"  style="background-color: #1EA737 !important;">DRS 加分提示</div>
+                <span class="list_content">
+                    <ul class="list">
+                        <li class="list_line">
+                            <div>
+                                <div style="line-height: 2rem;">除了使用品牌名稱作為產品標題的開頭，您也可以選擇創造「產品專屬的品牌名稱」，以幫助消費者記憶或介紹您的產品給其他人。
+                                    當產品擁有自己的名稱時，如同擁有自己的個性，使消費者一開始就能認識產品的用途及特點。
+                                    產品專屬品牌名稱可使產品更有親和力，消費者也容易對產品產生興趣。擁有專屬名稱的產品相較沒有專屬名稱的產品，更容易受人注意及推薦。
+                                </div>
+                                <div style="margin-top: 20px; margin-bottom: 20px; line-height: 2rem;">
+                                    創造產品專屬品牌名稱是一個有趣也有效的行銷策略，但請注意，您的產品專屬品牌名稱必須降低語言及文化的隔閡。
+                                </div>
+                                產品專屬品牌名稱的實際範例：
+                                <ul style="padding: 10px; font-weight: 600; font-size: 16px;">
+                                    <li style="margin-left: 15px;">旅行用手持蒸燙機「Steam-2-Go」：運用「To go」諧音，讓人輕鬆了解產品為方便攜帶（To go）的蒸燙機。</li>
+                                    <li style="margin-left: 15px;">涼墊「Gel'O」：描述涼墊材質內含凝膠，並且音似英文的「果凍」。</li>
+                                    <li style="margin-left: 15px;">「EnergyFlux」：來自於科學上的專有名詞「Energy Flux」。</li>   
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="list_line">可以加入您認為消費者最關注的特色資訊，例如：顏色、尺寸、數量、功能（無線、藍芽、太陽能、可折疊）及使用場合（旅行用、露營、室內或戶外用）等，特色通常會以逗號（Comma）隔開。</li>
+                        <li class="list_line">也可使用「推特式標題」簡單描述您的產品，敬請把握「簡潔有力、具體明確、對使用者的好處」這三個要點，用一個短句點出與競爭對手的不同。
+                            例如：販售涼墊時，以「soft, odorless, no water filling!」傳達出「我們的涼墊不會像其他產品一樣有臭味、不需裝水更不會漏水！」的概念，若您的產品與現存熱銷競爭對手相較下，具有大幅改善的特色，此方式較適合您。</li>
+                        <li class="list_line">當產品標題較長時，消費者於閱讀時便可能忽略細節，因此，將重要資訊放在比較顯眼的地方，例如：標題的開頭及結尾，消費者較容易注意到。</li>
+                        <li class="list_line">重要提醒：若您的產品標籤上的產品標題與銷售頁面上的產品標題不同，亞馬遜可能會拒絕接收您的產品，或將之視為不可供發貨的存貨，因此請維持一致。</li>
+                        
+        
+                    </ul>
+                </span>    
+                </div>
+
+                <div class="ex_text" style="margin-top: 40px; margin-bottom: 40px;">其他提醒：產品配件的命名方式</div>   
+                <div class="ex_text">若您除了產品本身，同時有銷售產品配件，在為產品配件命名標題的時候，配件名稱可以放在標題的最前面，後用「for」描述該配件是搭配哪一項產品主體使用的，品牌名稱可以放在主體產品的產品標題前面即可。
+                    例如：有一項產品配件為泳池水處理器用螺絲，其標題則為「Replacement Wing Screw for the Human Creations Solar Pool Purifier」。</div>  
+
+</div>
+</section>
+</body>    
+</html>

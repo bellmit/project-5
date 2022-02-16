@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>thome.html</title>
+    <script>
+
+          var sse = new EventSource('http://localhost:8080/sse');
+  console.log("CCCC")
+  sse.onmessage = function (evt) {
+    console.log("BBBB")
+    console.log(evt.data)
+    var el = document.getElementById('sse');
+    el.appendChild(document.createTextNode(evt.data));
+    el.appendChild(document.createElement('br'))
+  };
+
+    </script>
+</head>
+<body>
+
+<div id="sse"></div>
+
+
+<h2 th:text="${welcome}+ 'AAAAA'" ></h2>
+<p th:text="'現在時間 AAA bbbbb： ' +${today}"></p>
+</body>
+</html>

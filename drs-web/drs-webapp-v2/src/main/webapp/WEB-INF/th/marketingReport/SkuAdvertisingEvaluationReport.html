@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title	th:text="#{marketingReport.skuAdvertisingEvaluationReport}+ ' - DRS'" >
+</title>
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>	
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.2/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link th:href="@{/resources/css/awesome-bootstrap-checkbox.css}" type="text/css" rel="stylesheet">	
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/absolute.js"></script>
+<script>
+var numbersType = $.fn.dataTable.absoluteOrderNumber( [
+	{ value: 'N/A', position: 'bottom' }
+] );
+$(function() {	
+	$('[data-toggle="tooltip"]').tooltip();				
+	var report = $('#skuAdEvaluation').DataTable({
+		searching: false,
+	    paging: false,
+	    info: false,
+	    responsive: true,
+	    fixedHeader: true,
+	    autoWidth: false,
+        columnDefs: [{
+    		"targets":0,
+    	},{
+    		"targets":1,
+    	},{
+    		"type":numbersType,
+    		"targets":2,
+    	},{
+    		"type":numbersType,
+    		"targets":3,
+    	},{
+    		"targets":4,
+    	},{
+    		"targets":5,
+    	},{
+    		"targets":6,
+    	},{
+    		"targets":7,
+    	},{
+    		"targets":8,
+    	},{
+    		"targets":9,
+    	},{
+    		"type":numbersType,
+    		"targets":10,
+    	},{
+    		"type":numbersType,
+    		"targets":11,
+    	}],
+        buttons: [{
+        	extend: 'csv',
+            text: '<i class="fas fa-cloud-download-alt"></i>[[#{skuAdvertisingEvaluationReport.export}]] '
+        }]
+	});	
+	report.column(4).visible(true);
+	report.column(5).visible(true);
+	report.column(6).visible(true);
+	report.column(7).visible(true);
+	report.column(8).visible(true);
+	report.column(9).visible(true);
+	report.column(10).visible(true);
+	report.column(11).visible(true);
+	report.buttons().container().appendTo($('#btnExport'));
+	$('#btnExport > .dt-buttons > a').addClass('btn btn-default');
+	$('input[type="checkbox"]').click(function(){
+		report.column($(this).val()).visible($(this).prop('checked'));
+	});
+	$('#supplierSelector').select2({
+	    theme: "bootstrap"
+	});	
+});
+</script>
+<style>
+
+</style>
+</head>
+<body>
+	<section layout:fragment="custom-content">		
+	
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading"><a th:text="#{marketingReport.skuAdvertisingEvaluationReport}"></a> </div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+			<form method="POST" class="form-inline" action="/sku-adv-eval-report">
+			<div class="form-inline">
+				<div sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT_FILTER'])}">
+				
+				<a class="mt-2 mt-md-0 mr-md-2" th:text="#{campaignPerformance.supplier}"></a> 
+				<select id="supplierSelector" class="form-control" name="supplierKcode">
+					<option value="">--- Select ---</option>
+					<th:block th:each="supplierKcodeName : ${supplierKcodeNameMap}" >
+						<option th:value="${supplierKcodeName.key}" th:selected="${supplierKcodeName.key} == ${supplierKcode}"
+							th:text="${supplierKcodeName.key}+' '+${supplierKcodeName.value}" >
+						</option>
+					</th:block>
+				</select>
+				</div>
+				<label class="mt-2 mt-md-0 mr-md-2 ml-md-2"><a th:text="#{skuAdvertisingEvaluationReport.marketPlace}"></a> </label>
+					<select class="form-control" name="marketplaceId" >
+					<th:block th:each="marketplace : ${marketplaces}" >
+						<option th:value="${marketplace.key}" th:selected="${marketplace.key} == ${marketplaceId}" 
+						th:text="${marketplace.name}">
+					</option>
+					</th:block>
+				</select>
+				<label class="mt-2 mt-md-0 mr-2 ml-md-2"><a th:text="#{skuAdvertisingEvaluationReport.period}" ></a></label>
+				<select class="form-control mt-2-md mt-md-0" name="periodId">
+					<th:block th:each="settlementPeriod : ${settlementPeriodList}" >
+						<option th:value="${settlementPeriod.id}" th:selected="${settlementPeriod.id} == ${settlementPeriodId}"
+							th:text="${settlementPeriod.startDate}+' ~ '+${settlementPeriod.endDate}">
+						</option>
+					</th:block>
+				</select>
+				<button class="btn btn-primary mt-2 mt-md-0 ml-md-2" type="submit"><i class="fas fa-search"></i> <a th:text="#{skuAdvertisingEvaluationReport.search}"></a> </button>
+				</div>
+			</form>
+			</div>
+		</div>		
+		<div style="padding-bottom: 10px"></div>		
+		<div class="row">
+			<div class="col-md-12">
+				<label class="control-label enhancement">
+					<a th:text="#{skuAdvertisingEvaluationReport.description}"></a> 
+				</label>
+			</div>
+		</div>				
+		<div style="padding-bottom: 10px"></div>
+		<div class="row">
+			<div class="col-md-12 text-right mb-3">
+				<button type="button" class="btn btn-default" style="margin-left:10px;float:right;" data-toggle="collapse" data-target="#ConfigColumns" aria-expanded="false" >
+					<i class="fas fa-th-list"></i> <a th:text="#{campaignPerformance.configColumns}"></a>
+				</button>
+				<span id="btnExport" style="float:right;"></span>
+			</div>
+		</div>
+		<div class="row">	
+			<div class="col-md-12 text-center">
+				<div id="ConfigColumns" class="collapse">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="adClicks" style="display: inline;" value="2"  id="adClicks" />
+						<label class="form-check-label" for="adClicks" ><a th:text="#{skuAdvertisingEvaluationReport.adClicks}"></a> </label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="adSpend" style="display: inline;" value="3"  id="adSpend" />
+						<label class="form-check-label" for="adSpend" ><a th:text="#{skuAdvertisingEvaluationReport.adSpend}"></a> </label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="sessions" style="display: inline;" value="4"  id="sessions"  checked />
+						<label class="form-check-label" for="sessions" ><a th:text="#{skuAdvertisingEvaluationReport.sessions}"></a> </label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="pageViews" style="display: inline;" value="5"  id="pageViews"  checked />
+						<label class="form-check-label" for="pageViews" ><a th:text="#{skuAdvertisingEvaluationReport.pageViews}"></a> </label>
+					</div>	
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="buyBoxPercentage" style="display: inline;" value="6"  id="buyBoxPercentage"  checked />
+						<label class="form-check-label" for="buyBoxPercentage" ><a th:text="#{skuAdvertisingEvaluationReport.buyBoxPercentage}"></a> </label>
+					</div>																									
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="unitsOrdered" style="display: inline;" value="7"  id="unitsOrdered"  checked />
+						<label class="form-check-label" for="unitsOrdered" ><a th:text="#{skuAdvertisingEvaluationReport.unitsOrdered}"></a> </label>
+					</div>									
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="orderedProductSales" style="display: inline;" value="8"  id="orderedProductSales" checked  />
+						<label class="form-check-label" for="orderedProductSales" ><a th:text="#{skuAdvertisingEvaluationReport.orderedProductSales}"></a> </label>
+					</div>		
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="unitSessionPercentage" style="display: inline;" value="9"  id="unitSessionPercentage"  checked />
+						<label class="form-check-label" for="unitSessionPercentage" ><a th:text="#{skuAdvertisingEvaluationReport.unitSessionPercentage}"></a> </label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="acos" style="display: inline;" value="10"  id="acos" checked />
+						<label class="form-check-label" for="acos" ><a th:text="#{skuAdvertisingEvaluationReport.acos}"></a> </label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="pageTrafficThroughAdvertising" style="display: inline;" value="11"  id="pageTrafficThroughAdvertising" checked />
+						<label class="form-check-label" for="pageTrafficThroughAdvertising" ><a th:text="#{skuAdvertisingEvaluationReport.pageTrafficThroughAdvertising}"></a> </label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table" id="skuAdEvaluation" style="border-spacing:0;width:100%">
+					<thead>
+						<tr>
+							<th><a th:text="#{skuAdvertisingEvaluationReport.skuCode}"></a> </th>
+							<th data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{skuAdvertisingEvaluationReport.skuNameDesc}" ><a th:text="#{skuAdvertisingEvaluationReport.skuName}"></a></th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.adClicks}"></a> </th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.adSpend}"></a> (<span th:if="${report != null}"><a th:text="${report.currency}"></a></span>) </th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{skuAdvertisingEvaluationReport.sessionsDesc}" ><a th:text="#{skuAdvertisingEvaluationReport.sessions}"></a> </th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.pageViews}"></a> </th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.buyBoxPercentage}" ></a></th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.unitsOrdered}"></a> </th>
+							<th class="text-right"><a th:text="#{skuAdvertisingEvaluationReport.orderedProductSales}" ></a> (<span th:if="${report != null}"><a th:text="${report.currency}"></a></span>)</th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{skuAdvertisingEvaluationReport.unitSessionPercentageDesc}" ><a th:text="#{skuAdvertisingEvaluationReport.unitSessionPercentage}"></a> </th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{skuAdvertisingEvaluationReport.acosDesc}"><a th:text="#{skuAdvertisingEvaluationReport.acos}"></a> </th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{skuAdvertisingEvaluationReport.pageTrafficThroughAdvertisingDesc}" ><a th:text="#{skuAdvertisingEvaluationReport.pageTrafficThroughAdvertising}" ></a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<div th:if="${report != null}">
+					<th:block  th:each="item : ${report.lineItems}">
+						<tr>
+							<td th:text="${item.sku}"></td>
+							<td th:text="${item.skuName}"></td>
+							<td class="text-right" th:text="${item.totalAdClicks}"></td>
+							<td class="text-right" th:text="${item.totalAdSpend}"></td>
+							<td class="text-right" th:text="${item.totalSessions}"></td>
+							<td class="text-right" th:text="${item.totalPageViews}"></td>
+							<td class="text-right" th:text="${item.buyBoxPercentage}"></td>
+							<td class="text-right" th:text="${item.totalUnitOrdered}"></td>
+							<td class="text-right" th:text="${item.totalOrderedProductSales}"></td>
+							<td class="text-right" th:text="${item.conversionRate}"></td>
+							<td class="text-right" th:text="${item.acos}"></td>
+							<td class="text-right" th:text="${item.totalClicksOverTotalPageViews}"></td>
+						</tr>
+					</th:block>
+						</div>
+					</tbody>
+					<tfoot>
+						<div th:if="${report != null}">
+						<tr>
+							<td class="text-center"><b th:text="#{skuAdvertisingEvaluationReport.total}" ></b></td>
+							<td class="text-right"></td>
+							<td class="text-right" th:text="${report.grandTotalAdClicks}"></td>
+							<td class="text-right" th:text="${report.grandTotalAdSpend}"></td>
+							<td class="text-right" th:text="${report.grandTotalSessions}"></td>
+							<td class="text-right" th:text="${report.grandTotalPageViews}"></td>
+							<td class="text-right" th:text="${report.grandBuyBoxPercentage}"></td>
+							<td class="text-right" th:text="${report.grandTotalUnitOrdered}"></td>
+							<td class="text-right" th:text="${report.grandTotalOrderedProductSales}"></td>
+							<td class="text-right" th:text="${report.grandConversionRate}"></td>
+							<td class="text-right" th:text="${report.grandAcos}"></td>
+							<td class="text-right" th:text="${report.grandTotalClicksOverTotalPageViews}"></td>
+						</tr>
+					</div>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+</section>	
+</body>

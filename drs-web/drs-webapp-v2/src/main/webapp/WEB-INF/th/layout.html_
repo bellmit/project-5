@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate, no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="/resources/images/drs-favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+
+    <!-- design_control -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-71702187-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-71702187-2');
+    </script>
+    <!-- Begin Inspectlet Embed Code -->
+    <script type="text/javascript" id="inspectletjs">
+        window.__insp = window.__insp || [];
+        __insp.push(['wid', 1371674819]);
+        (function() {
+            function ldinsp(){if(typeof window.__inspld != "undefined") return; window.__inspld = 1; var insp = document.createElement('script'); insp.type = 'text/javascript'; insp.async = true; insp.id = "inspsync"; insp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://cdn.inspectlet.com/inspectlet.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(insp, x); };
+            setTimeout(ldinsp, 500); document.readyState != "complete" ? (window.attachEvent ? window.attachEvent('onload', ldinsp) : window.addEventListener('load', ldinsp, false)) : ldinsp();
+        })();
+    </script>
+    <!-- End Inspectlet Embed Code -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="/resources/css/drsV2.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <!-- Start of drs Zendesk Widget script -->
+    <script type="text/javascript">
+        window.zESettings = {
+            webWidget: {
+                contactForm: {
+                    fields: [
+                        { id: 360012745273, prefill: { '*': window.location.href } }
+                    ],
+                    tags: ['[[${user.companyKcode}]]']
+                }
+            }
+        };
+    </script>
+    <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=a555fe59-4104-4a83-af14-e4fa478f17db"> </script>
+    <script>
+        zE(function() {
+            zE.setLocale('[[${userLocaleZendesk}]]');
+            zE.identify({
+                name: '[[${user.userDisplayName}]] - ([[${user.companyKcode}]])',
+                email: '[[${userEmail}]]',
+                organization: '[[${user.companyKcode}]]'
+            });
+        });
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<!--marketing report
+	
+
+-->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" ></script>
+<link th:href="@{/resources/css/tooltip.css}" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js" ></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js" ></script>
+<script  type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js" ></script>
+<script th:src="@{/resources/js/accounting.min.js}"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link th:href="@{/resources/css/awesome-bootstrap-checkbox.css}" rel="stylesheet">
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js" ></script>
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js" > </script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js" ></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/absolute.js" ></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+   
+    
+<!--header-->
+    <script>
+        $(document).ready(function() {
+            var  mn = $(".main-nav");
+            mns = "main-nav-scrolled";
+            hdr = $('header').height();
+            $(window).scroll(function() {
+                if( $(this).scrollTop() > hdr ) {
+                    mn.addClass(mns);
+                } else {
+                    mn.removeClass(mns);
+                }
+            });
+        });
+    </script>
+    <script>
+
+        function toggleDropdown (e) {
+            let _d = $(e.target).closest('.dropdown'),
+                _m = $('.dropdown-menu', _d);
+            setTimeout(function(){
+                let shouldOpen = e.type !== 'click' && _d.is(':hover');
+                _m.toggleClass('show', shouldOpen);
+                _d.toggleClass('show', shouldOpen);
+                $('[data-toggle="dropdown"]', _d).attr('aria-expanded', shouldOpen);
+            }, e.type === 'mouseleave' ? 300 : 0);
+        }
+
+        $('body')
+            .on('mouseenter mouseleave','.dropdown',toggleDropdown)
+            .on('click', '.dropdown-menu a', toggleDropdown);
+
+    </script>
+    <style>
+
+        .main-nav {
+            position: relative;
+            z-index: 150;
+
+        }
+        .main-nav-scrolled {
+            position: fixed;
+            width: 100%;
+            top: 0;
+
+        }
+
+        #navbar {
+
+            width: 1200px;
+            margin: auto;
+        }
+
+        #logo {
+            height:45px;
+            margin: 5px 30px 5px 0;
+        }
+
+        .nav-link, .dropdown-item {
+            font-family: Montserrat, Arial, Helvetica, sans-serif;
+        }
+
+        .nav-item {
+
+            padding-left: 5px;
+            padding-right: 5px;
+
+        }
+
+        #header {
+            box-shadow: 0px 1px 15px rgb(182, 179, 179);
+            width: 100%;
+            margin: auto;
+            background-color: #fff;
+        }
+
+
+        #s5_menu_wrap {
+            padding:0;
+
+        }
+
+        .dropdown-menu {
+            box-shadow: 0px 15px 20px rgb(182, 179, 179);
+            -moz-box-shadow: 0px 15px 20px rgb(182, 179, 179);
+            -webkit-box-shadow: 0px 15px 20px rgb(182, 179, 179);
+            border-radius: 0px;
+            border: 0px;
+            clear: both;
+            font-size: 1rem;
+            margin-top: 0px;
+        }
+
+        .show > .dropdown-menu {
+            max-height: 900px;
+            visibility: visible;
+
+        }
+
+    </style>
+    <!-- end header-->
+
+</head>
+<body>
+<header id="header" class="main-nav">
+
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light" id="s5_menu_wrap">
+            <a href="/"><img class="navbar-brand" id="logo" src="/resources/images/drs_logo2.png"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false" th:text="#{header.products}">
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['PRODUCTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/Products"
+                               th:text="#{header.ProductsInformationMaintenance}" ></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['PRODUCTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/NewDevelopingProductList"
+                               th:text="#{header.manageProducts}" ></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['ASIN_MAPPING'])}"
+                               class="dropdown-item" href="/asin"
+                               th:text="#{header.asinMapping}" ></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/pd">
+                                Product Dashboard (Internal)</a>
+                            <a sec:authorize="${hasAnyRole(@authProperties['DRS_1_2_X'])}"
+                               class="dropdown-item" href="/product">
+                                Mange Product (RC 1.2.x)</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a sec:authorize ="${hasAnyRole(@authProperties['CUSTOMER_ORDER_NAVIGATION'])}"
+                           class="nav-link" href="/CustomerOrderList" th:text="#{header.orders}" ></a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                           th:text="#{header.logistics}" >
+                        </a>
+
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                            <a  sec:authorize = "${hasAnyRole(@authProperties['REPLENISHMENT_PREDICTION'])}"
+                                class="dropdown-item" href="/ReplenishmentPlanning"
+                                th:text="#{header.replenishmentPrediction}" ></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/InventoryShipments"
+                               th:text="#{header.inventoryShipments}" ></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['UNIFIED_SHIPMENTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/UnifiedShipments"
+                               th:text="#{header.unifiedShipments}" ></a>
+
+                            <a sec:authorize = "${hasAnyRole(@authProperties['REPLENISHMENT_INFORMATION'])}"
+                               class="dropdown-item" href="/replenishment-information"
+                               th:text="#{header.replenishmentInformation}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['AMAZON_INVENTORY_AVAILABILITY'])}"
+                               class="dropdown-item" href="/updateProductSkuFBAInventoryAvailability"
+                               th:text="#{header.inventoryAvailability}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/afi">
+                                FBA Inventory (beta - internal)</a>
+
+                            <a  sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                                class="dropdown-item" href="/bwinv">
+                                Biweekly Inventory (beta - internal)</a>
+
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                           th:text="#{header.customerCare}" />
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+
+                            <a  sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_NAVIGATION'])}"
+                                class="dropdown-item" href="/CustomerCareCases"
+                                th:text="#{header.customerCareCase}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['ISSUES_NAVIGATION'])}"
+                               class="dropdown-item" href="/Issues"
+                               th:text="#{header.issues}" />
+                            </a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/cci">
+                                Customer Care Cases Issues (beta - internal)
+                            </a>
+
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                           th:text="#{header.accounting}"/>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SS2SP_STATEMENTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/statements"
+                               th:text="#{header.ss2spStatements}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['MS2SS_STATEMENTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/MS2SS-Statements/received"
+                               th:text="#{header.intercompanyStatementsReceived}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['MS2SS_STATEMENTS_NAVIGATION'])}"
+                               class="dropdown-item" href="/MS2SS-Statements/issued"
+                               th:text="#{header.intercompanyStatementsIssued}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['REMITTANCE_LIST'])}"
+                               class="dropdown-item" href="/Remittance"
+                               th:text="#{header.remittance}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DOMESTIC_TRANSACTION'])}"
+                               class="dropdown-item" href="/DomesticTransactions"
+                               th:text="#{header.domesticTransaction}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['INTERNATIONAL_TRANSACTION'])}"
+                               class="dropdown-item" href="/InternationalTransactions"
+                               th:text='header.internationalTransaction' /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['IMPORT_DUTY_TRANSACTION'])}"
+                               class="dropdown-item" href="/ImportDutyTransaction"
+                               th:text="#{header.importDutyTransaction}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SS2SP_DRAFT_STATEMENTS'])}"
+                               class="dropdown-item" href="/draft-statements"
+                               th:text="#{header.draftStatements}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['PROFIT_COST_SHARE_STATEMENTS'])}"
+                               class="dropdown-item" href="/ProfitCostShareStatements"
+                               th:text="#{header.profitCostShareStatements}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['PROCESS_COUPON_REDEMPTION'])}"
+                               class="dropdown-item" href="/ProcessCouponRedemptionFee"
+                               th:text="#{header.processCouponRedemptionFee}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['PROCESS_AD_SPEND'])}"
+                               class="dropdown-item" href="/ProcessAdSpend">Process Ad Spend (Internal)</a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/accinv">Invoice (beta - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/amzse">Amazon Settlement Report (beta - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/araging">AR Aging (internal)</a>
+
+
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                           th:text="#{header.report}" />
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+
+                            <a  sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT'])}"
+                                class="dropdown-item" href="/customer-satisfaction"
+                                th:text="#{customerSatisfaction.title}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SALES_AND_PAGE_TRAFFIC_REPORT'])}"
+                               class="dropdown-item" href="/SalesAndPageTrafficReport"
+                               th:text="#{header.salesAndPageTrafficReport}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['VIEW_MONTHLY_STOREAGE_FEE_REPORT'])}"
+                               class="dropdown-item" href="/storage-fee"
+                               th:text="#{header.storageFee}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['AMAZON_INVENTORY_HEALTH_REPROT_VIEW'])}"
+                               class="dropdown-item" href="/inventory-health-report"
+                               th:text="#{inventoryHealthReport.title}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['IMPORT_AMAZON_REPORT'])}"
+                               class="dropdown-item" href="/ImportAmazonReport"
+                               th:text="#{header.importInventoryReport}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['EMAIL_REMINDER'])}"
+                               class="dropdown-item" href="/emailReminder"
+                               th:text="#{header.emailReminder}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/sdb">Sales Dashboard (beta - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/cpdb">Campaign Performance Dashboard (beta - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/rv">Amazon Review (beta - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/re">Amazon Return (beta - internal)</a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/sab">Sales Board (alpha - internal)</a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DASH_BOARD_DRS_STAFF'])}"
+                               class="dropdown-item" href="/sks">Supplier key Stats (internal)</a>
+
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false"
+                           th:text="#{header.marketingActivities}" />
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT'])}"
+                               class="dropdown-item" href="/sku-adv-performance-report"
+                               th:text="#{marketingReport.skuAdvertisingPerformanceReport}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SEARCH_TERM_REPORT'])}"
+                               class="dropdown-item" href="/SearchTermReport"
+                               th:text="#{marketingReport.searchTermReport}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SKU_ADV_EVAL_REPORT'])}"
+                               class="dropdown-item" href="/sku-adv-eval-report"
+                               th:text="#{marketingReport.skuAdvertisingEvaluationReport}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SPONSORED_BRANDS_CAMPAIGN_REPORT'])}"
+                               class="dropdown-item" href="/AmazonSponsoredBrandsCampaignReport"
+                               th:text="#{header.sponsoredBrandsCampaign}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['SPONSORED_BRANDS_CAMPAIGN'])}"
+                               class="dropdown-item" href="/AmazonSponsoredBrandsCampaign"
+                               th:text="#{header.sponsoredBrandsCampaignCP}" /></a>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['CAMPAIGN_PERFORMANCE_REPORT_NAVIGATION'])}"
+                               class="dropdown-item" href="/MarketingReports"
+                               th:text="#{header.importMarketingReport}" /></a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i id="user_icon" class="fas fa-user-circle fa-lg"></i>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="#" th:text="${user.userDisplayName}"></a>
+                            <div class="dropdown-divider"></div>
+                            <div sec:authorize="${hasAnyRole(@authProperties['COMPANIES_NAVIGATION'])}">
+                                <a  sec:authorize="${hasAnyRole(@authProperties['COMPANIES_VIEW_BY_ONE'])}"
+                                    class="dropdown-item" href="/Company/view"
+                                    th:text="#{header.companyInfoMaintenance}" /> </a>
+
+                                <a sec:authorize="${hasAnyRole(@authProperties['COMPANIES_EDIT_BY_ONE'])}"
+                                   class="dropdown-item" href="/Company/edit"
+                                   th:text="#{header.companyInfoMaintenance}" /></a>
+                            </div>
+
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['ARTICLE_MANAGEMENT'])}"
+                               class="dropdown-item" href="th:text='Joomla_root_link' />/account/article-management"
+                               th:text="#{header.article-management}" /></a>
+
+                            <a class="dropdown-item" href="esources/files/DRSChannelParticipationAgreement-zh_TW.pdf"
+                               th:text="#{header.agreement}" /></a>
+
+                            <a sec:authorize="${hasAnyRole(@authProperties['DRS_TYPOGRAPHY'])}"
+                               class="dropdown-item" href="Joomla_root_link/account/drs_typography"
+                               th:text="#{header.drs-typography}" /></a>
+
+                            <a class="dropdown-item"
+                               href="/logout"
+                               th:text="#{header.logout}" /></a>
+                        </div>
+                    </li>
+                    
+                </ul>
+
+
+            </div>
+
+
+        </nav>
+    </div>
+
+
+
+
+</header>
+<section layout:fragment="custom-content">
+</section>
+<div class="max-width">
+<footer>
+    <div class="container-fluid" style="border-top:lightgray 1px solid;padding-top:10px;">
+        <div class="row">
+            <div class="col-md-3">
+                <a href="/ecom_knowledge" th:text="#{header.amazon-guide}" /></a><br/>
+                <a href="/blog" th:text="#{header.blog}" /></a><br/>
+                <!-- <a href="<spring:message code='Joomla_root_link' />/faq"><spring:message code='header.question' /></a><br/> -->
+            </div>
+            <div class="col-md-3">
+
+                <a sec:authorize="${hasAnyRole(@authProperties['COMPANIES_LIST'])}"
+                   href="/Companies" th:text="#{header.companies}" /></a><br/>
+                <a href="/SupplementalLinks" th:text="#{header.links}" /></a><br/>
+
+                <a sec:authorize="${hasAnyRole(@authProperties['SPECIALIST_CONTACT'])}"
+                    href="https://docs.google.com/document/d/1B_Sy3g-uNqiUq5OojcC57ihqrLkR6beR1zksFqmCpTs/pub"
+                   th:text="#{header.specialist-contact}" /></a>
+            </div>
+            <div class="col-md-6">
+                <address>
+                    善恩創新股份有限公司  KindMinds Innovations, Inc.<br>
+                    電話: +886-2-2837-8995 | 傳真: +886-2-2837-6257<br>
+                    Email: info@tw.drs.network | 地址: 11158 台北市士林區德行西路45號6樓<br><br>
+                    Copyright © 2019. KindMinds Innovations, Inc.<br>
+                </address>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</body>
+</html>

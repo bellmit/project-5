@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<title th:text="#{marketingReport.searchTermReport}+' - DRS'">
+</title>	
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>	
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<link th:href="@{/resources/css/awesome-bootstrap-checkbox.css}" type="text/css" rel="stylesheet">		
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css">	
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">	
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js"></script>	
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>	
+<script src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/absolute.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.2/css/responsive.bootstrap4.min.css">
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/responsive.bootstrap4.min.js"></script>
+<script>
+
+var numbersType = $.fn.dataTable.absoluteOrderNumber( [
+	{ value: 'N/A', position: 'bottom' }
+] );
+$(document).ready(function() {
+	$('[data-toggle="tooltip"]').tooltip();			
+	var report = $('#searchTermReport').DataTable({
+		searching: true,
+		paging: true,
+		lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+		info: false,
+		responsive: true,
+		fixedHeader: true,
+		language: {
+		      "emptyTable": '[[#{searchTermReport.noData}]]'
+		},		
+		drawCallback: function() {
+	        var pageInfo = this.api().page.info();
+			$('.total-displayed').text((pageInfo.start+1) + ' - ' + pageInfo.end + ' of ' + pageInfo.recordsDisplay);
+	    },
+		dom: "<'row'<'col-sm-1'><'col-sm-2'l><'col-sm-2 total-displayed'><'col-sm-6'p>>" +
+		"<'row'<'col-sm-12'tr>>" +
+		"<'row'<'col-sm-5'i><'col-sm-6'p>>",
+		buttons: [{
+			extend: 'csv',
+		    text: '<i class="fas fa-cloud-download-alt"></i> [[#{searchTermReport.export}]]'
+		}],
+		columnDefs: [ {
+				"targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+		    	"visible": false
+		    },{
+		    	"targets":0,
+		    	"width":"80px"
+		    },{
+		        "targets":1,
+		        "width":"90px"
+		    },{
+		       	"targets":2,
+		        "width":"70px"
+		    },{
+		       	"targets":3,
+		       	"width":"70px"
+		    },{
+		        "targets":4,
+		       	"width":"70px"
+		    },{
+		       	"targets":5,
+		       	"width":"70px"
+		    },{
+		       	"targets":6,
+		        "width":"70px"
+		    },{
+		       	"targets":7,
+		        "width":"70px"
+		    },{
+	    		"type":numbersType,
+		        "targets":8,
+		       	"width":"70px"
+		    },{
+		        "targets":9,
+		        "width":"70px"
+		    },{
+	    		"type":numbersType,
+		    	"targets":10,
+		        "width":"80px"
+		    },{
+		       	"targets":11,
+		       	"width":"80px"
+		    },{
+		       	"targets":12,
+		       	"width":"80px"
+		    },{
+	    		"type":numbersType,
+		       	"targets":13,
+		        "width":"80px"
+		    }]
+	});			
+	$('#searchTermReport_filter').hide();			
+	report.column(0).visible(true);
+	report.column(1).visible(true);
+	report.column(2).visible(true);
+	report.column(6).visible(true);
+	report.column(7).visible(true);
+	report.column(8).visible(true);
+	report.column(9).visible(true);
+	report.column(10).visible(true);
+	report.column(11).visible(true);
+	report.column(12).visible(true);
+	report.column(13).visible(true);			
+	report.buttons().container().appendTo($('#btnExport'));
+	$('#btnExport > .dt-buttons > a').addClass('btn btn-default');			
+	$('input[type="checkbox"]').click(function(){					
+		for(i=1;i<14;i++){
+			report.column(i).visible(false);
+		}
+		$('input[type="checkbox"]').each(function(){
+			report.column($(this).val()).visible($(this).prop('checked'));
+		});
+	});			
+	$('input[type="checkbox"]').each(function(){
+		$(this).prop('checked',(($(this).val()!=3)&&($(this).val()!=4)&&($(this).val()!=5)));
+	});
+	
+	var campaignNamefullList ='[[${campaignNameList}]]'.replace(/&quot;/g,'');
+	var c1 =campaignNamefullList.substring(1,campaignNamefullList.length-1);
+	var campaignNameList=c1.split(",");
+	
+	$.each(campaignNameList,function(index,value){
+		var c = '<span class="btn btn-pill btn-default">'+value+'</span>&nbsp;';				
+		$('#campaignList').append(c);
+	});
+	
+	if(campaignNameList.length>0){
+		$('span.btn-pill').eq(0).removeClass('btn-default').addClass('btn-success');	
+	}
+	
+	$('span.btn-pill').click(function(){
+		$('span.btn-pill').removeClass('btn-success').addClass('btn-default');
+		$(this).removeClass('btn-default').addClass('btn-success');
+			
+		var supplierKcode = '[[${supplierKcode}]]';
+		var assignedMarketplace = '[[${assignedMarketplace}]]';		
+		var campaignName = $(this).text();
+		
+		$.ajax({
+			type : 'get',
+			url : '/SearchTermReport/getReportByCampaignName',
+			contentType : "application/json; charset=utf-8",
+			data : {
+				supplierKcode : supplierKcode,
+				assignedMarketplace : assignedMarketplace,
+				campaignName : campaignName										
+			},
+			dataType : "json",
+			success : function(data) {
+
+				var campaignReport = data;																								
+				report.rows().remove().draw();																																									
+				var items = campaignReport.lineItems					
+													
+				$('#totalSpendDescCurrency').text("("+items[0].currency+")");
+				$('#averageCpcDescCurrency').text("("+items[0].currency+")");
+				$('#productSalesWithinOneWeekOfAClickDescCurrency').text("("+items[0].currency+")");
+								
+				var itemArray = new Array();
+				
+				items.forEach(function(item){
+					
+					itemArray.push(		                    
+		                    [
+		                    item.adGroupName,
+		                    item.customerSearchTerm,
+		                    item.keyword,
+		                    item.matchType,
+		                    item.firstDayOfImpression,
+		                    item.lastDayOfImpression,
+		                    item.impressions,
+		                    item.clicks,
+		                    item.ctr,
+		                    item.totalSpend,
+		                    item.averageCpc,
+		                    item.ordersPlacedWithinOneWeekOfAClick,
+		                    item.productSalesWithinOneWeekOfAClick,
+		                    item.acos]		                    
+		            );
+																
+				});
+								
+				report.rows.add(itemArray).draw();				
+				$('#searchTermReport tbody tr').find('td:eq(0), td:eq(1), td:eq(2), td:eq(3), td:eq(4), td:eq(5)').addClass('text-center');								
+				$('#searchTermReport tbody tr').find('td:eq(6), td:eq(7), td:eq(8), td:eq(9), td:eq(10), td:eq(11), td:eq(12), td:eq(13)').addClass('text-right');
+								
+			}															
+		});
+			
+	});
+			
+	$('#supplierSelector').select2();
+	$('.dataTables_empty').attr('colspan',11);
+
+});
+</script>
+<style>
+
+</style>
+</head>
+
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-heading"><a th:text="#{marketingReport.searchTermReport}"></a> </div>
+				</div>						
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+				<form method="POST" action="/SearchTermReport">
+				<div class="form-inline">
+					<div sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT_FILTER'])}">
+						<div th:if="${supplierKcodeNameMap != null}">
+							<a class="mt-2 mt-md-0 mr-md-2" th:text="#{campaignPerformance.supplier}" ></a>
+							<select id="supplierSelector" class="form-control" name="supplierKcode" >
+								<option value="">--- Select ---</option>
+								<th:block th:each="supplierKcodeName:  ${supplierKcodeNameMap}" >
+									<option th:value="${supplierKcodeName.key}" th:selected="${supplierKcodeName.key} == ${supplierKcode}"
+										th:text="${supplierKcodeName.key}+' '+${supplierKcodeName.value}" >
+
+									</option>
+								<th:block>
+							</select>
+						</div>
+					</div>
+					<a class="mt-2 mt-md-0 mr-md-2 ml-md-2" th:text="#{searchTermReport.marketPlace}"> </a>
+					<select class="form-control" name="assignedMarketplace">
+						<option value="">--- Select ---</option>
+						<th:block th:each="marketplace : ${marketplaces}">
+							<option th:value="${marketplace.name()}" th:selected="${marketplace.name()} == ${assignedMarketplace}" 
+								th:text="${marketplace.name}">
+							</option>
+						</th:block>
+					</select>
+					<input class="btn btn-primary mt-2 mt-md-0 ml-md-2" type="submit" value="Search">
+					</div>
+				</form>
+				</div>
+			</div>						
+		<div class="row">
+			<div class="col-md-12 my-1">
+				<label class="control-label enhancement">
+					<a th:text="#{searchTermReport.description}" ></a>
+				</label>
+			</div>
+		</div>		
+		<div class="row">
+			 
+			<div class="col-md-12 mb-1" id="campaignList" th:if="${campaignNameList != '[]'}">
+				<label class="control-label"><i class="fas fa-tags"></i> <a  th:text="#{searchTermReport.campaignName}"></a>:</span>&nbsp;&nbsp;</label>
+			</div>
+		</div>				
+		<div class="row">
+			<div class="col-md-12 text-right mb-1">
+				<button type="button" class="btn btn-default" style="margin-left:10px;float:right;" data-toggle="collapse" data-target="#ConfigColumns" aria-expanded="false" >
+					<i class="fas fa-th-list"></i> <a th:text="#{searchTermReport.configColumns}" ></a> </button>	
+				<span id="btnExport" style="float:right;"></span>
+			</div>
+		</div>
+
+		<div class="row">	
+			<div class="col-md-5">
+			</div>
+			<div class="col-md-7">
+				<div id="ConfigColumns" class="collapse" style="border-top:1px dotted #333; border-bottom:1px dotted #333;padding:5px 5px 10px 5px;margin-top:5px;">
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="adGroupName" style="display: inline;" value="0"  id="adGroupName"  checked />
+						<label for="adGroupName" ><a th:text="#{searchTermReport.adGroupName}" ></a></label>
+					</span>									
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="customerSearchTerm" style="display: inline;" value="1"  id="customerSearchTerm"  checked />
+						<label for="customerSearchTerm" ><a th:text="#{searchTermReport.customerSearchTerm}"></a> </label>
+					</span>																								
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="keyword" style="display: inline;" value="2"  id="keyword"  checked />
+						<label for="keyword" ><a th:text="#{searchTermReport.keyword}"></a> </label>
+					</span>																	
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="matchType" style="display: inline;" value="3"  id="matchType" />
+						<label for="matchType" ><a th:text="#{searchTermReport.matchType}"></a> </label>
+					</span>	
+					<br>
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="firstDayOfImpression" style="display: inline;" value="4"  id="firstDayOfImpression" />
+						<label for="firstDayOfImpression" ><a th:text="#{searchTermReport.firstDayOfImpression}"></a> </label>
+					</span>									
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="lastDayOfImpression" style="display: inline;" value="5"  id="lastDayOfImpression" />
+						<label for="lastDayOfImpression" ><a th:text="#{searchTermReport.lastDayOfImpression}"></a></label>
+					</span>																									
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="impressions" style="display: inline;" value="6"  id="impressions"  checked />
+						<label for="impressions" ><a th:text="#{searchTermReport.impressions}"></a> </label>
+					</span>									
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="clicks" style="display: inline;" value="7"  id="clicks" checked  />
+						<label for="clicks" ><a th:text="#{searchTermReport.clicks}" ></a></label>
+					</span>		
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="ctr" style="display: inline;" value="8"  id="ctr"  checked />
+						<label for="ctr" ><a th:text="#{searchTermReport.ctr}" ></a></label>
+					</span>	
+					<br>
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="totalSpend" style="display: inline;" value="9"  id="totalSpend" checked  />
+						<label for="totalSpend" ><a th:text="#{searchTermReport.totalSpend}"></a> </label>
+					</span>		
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="averageCpc" style="display: inline;" value="10"  id="averageCpc" checked  />
+						<label for="averageCpc" ><a th:text="#{searchTermReport.averageCpc}"></a> </label>
+					</span>	
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="ordersPlacedWithinOneWeekOfAClick" style="display: inline;" value="11"  id="ordersPlacedWithinOneWeekOfAClick"  checked />
+						<label for="ordersPlacedWithinOneWeekOfAClick" ><a th:text="#{searchTermReport.ordersPlacedWithinOneWeekOfAClick}" ></a></label>
+					</span>								
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="productSalesWithinOneWeekOfAClick" style="display: inline;" value="12"  id="productSalesWithinOneWeekOfAClick" checked  />
+						<label for="productSalesWithinOneWeekOfAClick" ><a th:text="#{searchTermReport.productSalesWithinOneWeekOfAClick}" ></a></label>
+					</span>								
+					<span class="checkbox checkbox-success checkbox-inline" style="padding-top:15px;">
+						<input type="checkbox" name="acos" style="display: inline;" value="13"  id="acos"  checked />
+						<label for="acos" ><a th:text="#{searchTermReport.acos}" ></a></label>
+					</span>
+
+				</div>
+			</div>
+		</div>
+		<div style="padding-bottom: 10px"></div>
+		<div class="row text-center" style="">
+			<div class="col-md-12">			 
+				<div class="search-table-outter wrapper">			
+					<table id="searchTermReport" class="table" style="border-spacing:0;diaplay:inline-block; width:100%">
+						<thead>
+							<tr>						
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.adGroupNameDesc}" ><a th:text="#{searchTermReport.adGroupName}" ></a></th>
+								<th class="text-center"><a th:text="#{searchTermReport.customerSearchTerm}"></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.keywordDesc}" ><a th:text="#{searchTermReport.keyword}"></a></th>					
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.matchTypeDesc}"> <a th:text="#{searchTermReport.matchType}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.firstDayOfImpressionDesc}" ><a th:text="#{searchTermReport.firstDayOfImpression}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.lastDayOfImpressionDesc}" ><a th:text="#{searchTermReport.lastDayOfImpression}" ></a></th>														
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.impressionsDesc}"><a th:text="#{searchTermReport.impressions}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.clicksDesc}"><a th:text="#{searchTermReport.clicks}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.ctrDesc}" ><a th:text="#{searchTermReport.ctr}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.totalSpendDesc}" ><a th:text="#{searchTermReport.totalSpend}" ></a> <span id="totalSpendDescCurrency" th:if="${report != null and report.lineItems.size() != 0}"><a th:text="${report.lineItems[0].currency}"></a></span></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.averageCpcDesc}" ><a th:text="#{searchTermReport.averageCpc}" ></a> <span id="averageCpcDescCurrency" th:if="${report != null and report.lineItems.size() != 0}"><a th:text="${report.lineItems[0].currency}"></a></span></th>						
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.ordersPlacedWithinOneWeekOfAClickDesc}" ><a th:text="#{searchTermReport.ordersPlacedWithinOneWeekOfAClick}" ></a></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.productSalesWithinOneWeekOfAClickDesc}" ><a th:text="#{searchTermReport.productSalesWithinOneWeekOfAClick}" ></a> 
+									<span id="productSalesWithinOneWeekOfAClickDescCurrency"th:if="${report != null and report.lineItems.size() != 0}"><a th:text="${report.lineItems[0].currency}"></a></span></th>
+								<th class="text-center" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{searchTermReport.acosDesc}" ><a th:text="#{searchTermReport.acos}"></a> </th>
+							</tr>
+						</thead>
+						<tbody>
+						<div th:if="${report != null}">
+							<th:block th:each="lineItem : ${report.lineItems}" >
+								<tr>
+									<td class="text-center" th:text="${lineItem.adGroupName}">${lineItem.adGroupName}</td>
+									<td class="text-center" th:text="${lineItem.customerSearchTerm}">${lineItem.customerSearchTerm}</td>
+									<td class="text-center" th:text="${lineItem.keyword}">${lineItem.keyword}</td>
+									<td class="text-center" th:text="${lineItem.matchType}">${lineItem.matchType}</td>
+							    	<td class="text-center" th:text="${lineItem.firstDayOfImpression}">${lineItem.firstDayOfImpression}</td>
+							    	<td class="text-center" th:text="${lineItem.lastDayOfImpression}">${lineItem.lastDayOfImpression}</td>
+									<td class="text-right" th:text="${lineItem.impressions}">${lineItem.impressions}</td>
+									<td class="text-right" th:text="${lineItem.clicks}">${lineItem.clicks}</td>
+									<td class="text-right" th:text="${lineItem.ctr}">${lineItem.ctr}</td>
+									<td class="text-right" th:text="${lineItem.totalSpend}">${lineItem.totalSpend}</td>
+									<td class="text-right" th:text="${lineItem.averageCpc}">${lineItem.averageCpc}</td>														
+									<td class="text-right" th:text="${lineItem.ordersPlacedWithinOneWeekOfAClick}">${lineItem.ordersPlacedWithinOneWeekOfAClick}</td>
+									<td class="text-right" th:text="${lineItem.productSalesWithinOneWeekOfAClick}">${lineItem.productSalesWithinOneWeekOfAClick}</td>
+									<td class="text-right" th:text="${lineItem.acos}">${lineItem.acos}</td>
+								</tr>
+							</th:block>
+						</div>
+						</tbody>
+					</table>			  	
+				</div>			
+			</div>
+		</div>
+		</div>
+	</div>
+	</section>
+</body>	
+
+</html>

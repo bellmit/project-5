@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>
+	
+</title>
+<link th:href="@{/resources/css/newstyle.css}" type="text/css" rel="stylesheet">
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>		
+<script th:src="@{/resources/js/ng-file-upload/ng-file-upload.min.js}" type='text/javascript'></script>
+<script th:src="@{/resources/js/ng-file-upload/ng-file-upload-shim.min.js}" type='text/javascript'></script>
+<script>
+
+
+
+$(document).ready(function() {
+	
+	var t ='[[${type}]]';
+	var iss ='[[${InventoryShipment.status}]]';
+	var isn ='[[${InventoryShipment.name}]]';
+	var supplierKcode ='[[${SupplierKcode}]]';
+	if(t != 'Create'){
+		if(iss == 'SHPT_DRAFT' || iss == 'SHPT_AWAIT_PLAN' || iss =='SHPT_PLANNING' || iss == 'SHPT_FC_BOOKING_CONFIRM'){
+			document.title='[[#{inventoryShipment.inventoryShipment}]]'+': '+isn+' - DRS';
+		}else{
+			document.title='[[#{inventoryShipment.inventoryPurchaseOrder}]]'+': '+isn+' - DRS';
+		}
+	}else{
+		document.title='[[#{inventoryShipment.createInventoryShipment}]]'+' - DRS';
+	}
+
+    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+	$(".sku-selector" ).select2({
+		    theme: "bootstrap"
+		});
+});
+
+	function select2SKU() {
+		$(".sku-selector" ).select2({
+		    theme: "bootstrap"
+		});
+	}
+
+	function submitConfirm(){
+					
+			$("#dialog-confirm").html('[[#{inventoryShipment.submitISWarning}]]');
+			$("#dialog-confirm").dialog({
+			open : function() {$('.ui-dialog-buttonset button[name="no"]').focus();},
+			resizable : false,
+			modal : true,
+			title : "Confirmation",
+			height : 250,
+			width : 400,
+			buttons : [
+				{text:'[[#{inventoryShipment.yes}]]',
+				name:"yes",	
+				click: function() {					
+					$(this).dialog('close');
+					switch(document.pressed){
+					case 'createSubmit':		
+					document.InventoryShipment.action = "/InventoryShipments/saveAndSubmitDraft";
+					break;
+					case 'updateSubmit':		
+					document.InventoryShipment.action = "/InventoryShipments/updateAndSubmitDraft";
+					break;
+					}
+					document.InventoryShipment.submit();
+										      					
+					}					
+				},				
+				{text:'[[#{inventoryShipment.no}]]',
+				name:"no",	
+				click: function() {
+					$(this).dialog('close');										      					
+					}						
+				}				           				           				           
+			]
+		});		
+	}
+		
+	function onSubmit(){	
+		switch(document.pressed){	
+		case 'saveDraft':
+		 	document.InventoryShipment.action = "/InventoryShipments/saveDraft";		   
+			break;	
+		case 'updateDraft':
+			document.InventoryShipment.action ="/InventoryShipments/updateDraft";
+			break;
+		case 'update':
+			document.InventoryShipment.action ="/InventoryShipments/update";
+			break;
+		default:		
+		}		
+		return true;  
+	}
+
+	var cartonDimensionsClipboard =[0,0,0];
+	
+
+
+
+	var app = angular.module('inventoryShipment', ['ngFileUpload']);
+	app.controller('MyCtrl', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {}]);
+
+
+	app.controller('inventoryShipmentCtrl',function($scope) {
+		
+
+	var isn ='[[${InventoryShipment.name}]]';
+	$scope.ivsName=isn;
+	var supplierKcode = '[[${SupplierKcode}]]';
+	$scope.Kcode=supplierKcode;
+
+
+	$scope.itSize = function( sIdx , idx , isMixed){
+		
+		if(!isMixed)
+			return idx;
+		else{
+			var mixBoxsItemLength = 0;
+			for(var i = 0; i < Object.keys($scope.mixedContentBoxes).length;i++){	
+				if(i < sIdx){
+					mixBoxsItemLength +=Object.keys($scope.mixedContentBoxes[i]).length;
+				}
+			}
+			return $scope.lineItems.length + mixBoxsItemLength + idx;	
+		}
+			
+	}
+
+
+	
+		$('[data-toggle="tooltip"]').tooltip();
+	  	
+		$('#expectedExportDate,#fcaDeliveryDate,#boxesNeedRepackaging').attr('readonly', true);
+		
+		$scope.mixedContentBoxCartonCountFirst = 1;
+		$scope.mixedContentBoxCartonCountOther = 0;			
+		$scope.isDrsUser = [(${isDrsUser})]
+		$scope.isSupplier =[(${isSupplier})]
+				
+		$scope.addMixedContentBox = function(){
+			async function func() {
+			await $scope.mixedContentBoxes.push([{id:0,boxNum:0,mixedBoxLineSeq:1,requireRepackaging:false,cartonDimensionCm1:null,cartonDimensionCm2:null,cartonDimensionCm3:null,cartonCounts:null,quantity:0,amountUntaxed:0,cartonNumberStart:0,cartonNumberEnd:0,isGUIInvoiceIsRequired:false,guifileName:null}]);
+			await $scope.assignMixedContentBoxNumber();
+			await $scope.calculateTotalCartonCount();
+			await $scope.calculateTotalCBM();
+			await $scope.calculateTotalWeightKg();
+			await $scope.isAtLeastOneSKU();
+			select2SKU()
+		
+			}
+			func()
+		};
+
+		
+
+		$scope.removeMixedContentBox = function(item){
+					
+			var idx = $scope.mixedContentBoxes.indexOf(item);
+			$scope.mixedContentBoxes.splice(idx,1);
+			$scope.assignMixedContentBoxNumber();
+			$scope.calculateTotalCartonCount();
+			$scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			$scope.calculateTotalQuantity();
+			$scope.subtractAmount();
+			$scope.calculateRepackgingFee();
+			$scope.isAtLeastOneSKU();
+				
+		};
+
+	
+		$scope.addLineItem = function(){
+			async function func() {
+				await $scope.lineItems.push({id:0 ,boxNum:$scope.lineItems.length+1,mixedBoxLineSeq:0,requireRepackaging:false,cartonCounts:null,quantity:0,amountUntaxed:0,cartonNumberStart:0,cartonNumberEnd:0,isGUIInvoiceIsRequired:false,isGUIInvoiceEnable:false,guifileName:null});
+				await $scope.assignMixedContentBoxNumber();
+				await $scope.isAtLeastOneSKU();
+		 
+				select2SKU()
+
+			}
+			func()
+			
+		};
+		 	 		
+		$scope.addMixedContentBoxLineItem = function(mixedContentBox){			
+			async function func() {	
+			await $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].push({id:0,boxNum:0,mixedBoxLineSeq:mixedContentBox.length+1,requireRepackaging:false,cartonDimensionCm1:null,cartonDimensionCm2:null,cartonDimensionCm3:null,cartonCounts:null,quantity:0,amountUntaxed:0,cartonNumberStart:0,cartonNumberEnd:0,isGUIInvoiceIsRequired:false,isGUIInvoiceEnable:false,guifileName:null});
+			await $scope.assignMixedContentBoxNumber();
+			await $scope.assignRequireRepackaging(mixedContentBox);
+			await $scope.assignCartonNumber(mixedContentBox);
+			await $scope.assignCartonDimension(mixedContentBox);
+			await $scope.assignPerCartonGrossWeightKg(mixedContentBox);
+			await $scope.isAtLeastOneSKU();
+			select2SKU()
+		
+			
+		}
+			func()
+		};
+				
+		$scope.removeLineItem = function(item){			 	
+						 		     
+			var idx = $scope.lineItems.indexOf(item);	 				 
+			$scope.lineItems.splice(idx,1);
+			$scope.assignUnMixedContentBoxNumber();
+			$scope.assignMixedContentBoxNumber();
+			$scope.calculateTotalCartonCount();
+			$scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			$scope.calculateTotalQuantity();
+			$scope.subtractAmount();
+			$scope.calculateRepackgingFee();
+			$scope.isAtLeastOneSKU();
+			$scope.verifySKUDuplicateForUnMixedBox();
+			$scope.verifyFCAprice();
+			 				 
+		};
+		
+		$scope.removeMixedContentBoxLineItem = function(mixedContentBox,item){
+			
+			var idx = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].indexOf(item);
+			$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].splice(idx,1);	
+			$scope.assignMixedContentBoxLineSeq(mixedContentBox,item);
+			$scope.calculateTotalCartonCount();
+			$scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			$scope.calculateTotalQuantity();
+			$scope.subtractAmount();
+			$scope.calculateRepackgingFee();
+			$scope.isAtLeastOneSKU();
+			$scope.verifySKUDuplicateForMixedBox(mixedContentBox);
+			$scope.verifyFCAprice();
+			
+		};
+		
+		$scope.calculateRepackgingFee = function() {		        
+												
+			var totalUnmixedContentBoxCartonCounts = 0;
+			for(var i = 0; i < $scope.lineItems.length;i++){								
+				if($scope.lineItems[i].requireRepackaging == true)totalUnmixedContentBoxCartonCounts += Number($scope.lineItems[i].cartonCounts);
+			}
+						
+			var totalMixedContentBoxCartonCounts = 0;			
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){								
+				if($scope.mixedContentBoxes[i].length > 0){				
+					if($scope.mixedContentBoxes[i][0].requireRepackaging == true)totalMixedContentBoxCartonCounts += Number($scope.mixedContentBoxes[i][0].cartonCounts);
+				}			
+			}
+									
+			$scope.boxesNeedRepackaging = totalUnmixedContentBoxCartonCounts + totalMixedContentBoxCartonCounts;
+			$scope.repackagingFee = $scope.boxesNeedRepackaging*100;
+						
+		};
+				
+		$scope.removePONumber = function() {
+			
+			if($scope.requiredPO==false)$scope.PONumber = null;
+			
+		};
+		
+		$scope.assignUnMixedContentBoxNumber = function() {
+			
+			for(var i = 0; i < $scope.lineItems.length;i++){
+				$scope.lineItems[i].boxNum = i+1;
+			}
+			
+		};
+				
+		$scope.assignMixedContentBoxNumber = function() {
+						
+			var boxNumStart = $scope.lineItems.length;
+			
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){				
+				for(var j = 0; j < $scope.mixedContentBoxes[i].length;j++){										
+					$scope.mixedContentBoxes[i][j].boxNum = boxNumStart+1;
+				}
+				boxNumStart++;
+			}
+											
+		};
+		
+		$scope.assignMixedContentBoxLineSeq = function(mixedContentBox,item) {
+									
+			var mixedContentBoxLineItems = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)];
+			for(var i = 0; i < mixedContentBoxLineItems.length;i++){
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].mixedBoxLineSeq = i+1;
+			}
+						
+		};
+								
+		$scope.assignRequireRepackaging = function(mixedContentBox){
+			
+			for(var i = 0; i < $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].length;i++){
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].requireRepackaging = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].requireRepackaging;
+			}
+			$scope.calculateRepackgingFee();
+		};
+		
+		
+		$scope.assignCartonNumber = function(mixedContentBox){
+			
+			for(var i = 0; i < $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].length;i++){
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].cartonNumberStart = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].cartonNumberStart;
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].cartonNumberEnd = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].cartonNumberEnd;
+			}
+
+		};
+				
+		$scope.assignCartonDimension = function(mixedContentBox){
+			for(var i = 0; i < $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].length;i++){				
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].cartonDimensionCm1 = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].cartonDimensionCm1;
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].cartonDimensionCm2 = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].cartonDimensionCm2;
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].cartonDimensionCm3 = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].cartonDimensionCm3;								
+			}
+													
+		};
+			
+		$scope.assignPerCartonGrossWeightKg = function(mixedContentBox){
+			
+			for(var i = 0; i < $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].length;i++){			
+				$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].perCartonGrossWeightKg = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][0].perCartonGrossWeightKg;
+			}	
+						
+		};
+				
+		$scope.calculateQuantity = function(scope) {		        
+			var quantity = Number(scope.item.perCartonUnits)*Number(scope.item.cartonCounts) 	 			 
+			scope.item.quantity = isNaN(quantity) ? 0 : quantity;			 
+			scope.calculateAmount(scope);
+			scope.calculateTotalCartonCount();
+			$scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			scope.calculateTotalQuantity();
+			scope.calculateSubtotal();		 			 			
+			scope.calculateTaxAmount();
+			scope.calculateTotalAmount();
+			scope.calculateRepackgingFee();
+		 };
+	
+		 $scope.calculateMixedContentBoxQuantity = function(scope) {
+			 var quantity = Number(scope.mixedContentBoxItem.perCartonUnits)*1; 
+			 scope.mixedContentBoxItem.quantity = isNaN(quantity) ? 0 : quantity;
+			 scope.calculateMixedContentBoxAmount(scope)
+			 scope.calculateTotalCartonCount();
+			 $scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			 scope.calculateTotalQuantity();			 		 
+		 };
+			 			 
+		 $scope.calculateAmount = function(scope){				
+			var amount = Number(scope.item.quantity)*Number(scope.item.unitAmount);			 
+			scope.item.amountUntaxed = isNaN(amount) ? 0 : Math.round(amount * Math.pow(10, 6)) / Math.pow(10, 6);			 
+			scope.calculateSubtotal();	 	
+			scope.calculateTaxAmount();
+			scope.calculateTotalAmount();
+			$scope.verifyFCAprice();
+		 };
+		 	 
+		 $scope.calculateMixedContentBoxAmount = function(scope){				
+			var amount = Number(scope.mixedContentBoxItem.quantity)*Number(scope.mixedContentBoxItem.unitAmount);			 
+			scope.mixedContentBoxItem.amountUntaxed = isNaN(amount) ? 0 : Math.round(amount * Math.pow(10, 6)) / Math.pow(10, 6);			 
+			scope.calculateSubtotal();	 	
+			scope.calculateTaxAmount();
+			scope.calculateTotalAmount();
+			$scope.verifyFCAprice();
+		 };
+		 		 
+		 $scope.calculateSubtotal = function(){			 
+						
+			var unmixedContentBoxSubtotal = 0;
+			for(var i = 0; i < $scope.lineItems.length;i++){		
+				unmixedContentBoxSubtotal += Number($scope.lineItems[i].amountUntaxed);
+			}
+										
+			var mixedContentBoxSubtotal = 0;						
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){								
+				for(var j = 0; j < $scope.mixedContentBoxes[i].length;j++){
+					mixedContentBoxSubtotal += Number($scope.mixedContentBoxes[i][j].amountUntaxed);
+				}											
+			}
+			
+			var subtotal = unmixedContentBoxSubtotal + mixedContentBoxSubtotal;
+			$scope.subtotal = Math.round(subtotal);
+											 
+		 };
+		 
+		 $scope.calculateTaxAmount = function(){			 			 
+			var amountTax = (Number($scope.subtotal)*Number($scope.salesTaxPercentage)) / 100;														
+			$scope.taxAmount = isNaN(amountTax) ? 0 : Math.round(amountTax);				 			 
+		 };
+	
+		 $scope.calculateTotalCartonCount = function (){
+			 
+			var totalUnmixedContentBoxCartonCounts = 0;
+			for(var i = 0; i < $scope.lineItems.length;i++){								
+				totalUnmixedContentBoxCartonCounts += Number($scope.lineItems[i].cartonCounts);									
+			}
+				
+			var totalMixedContentBoxCartonCounts = 0;
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){								
+				if($scope.mixedContentBoxes[i].length > 0){
+					totalMixedContentBoxCartonCounts += 1;
+				}							
+			}
+	
+			$scope.totalCartonCount = totalUnmixedContentBoxCartonCounts + totalMixedContentBoxCartonCounts;
+									 
+		 };
+
+		 $scope.calculateTotalCBM = function(){
+			var totalCBM = 0;
+			for(var i = 0; i<$scope.lineItems.length;i++){
+				totalCBM += Number(Number($scope.lineItems[i].cartonDimensionCm1) * Number($scope.lineItems[i].cartonDimensionCm2) 
+				* Number($scope.lineItems[i].cartonDimensionCm3) * parseInt($scope.lineItems[i].cartonCounts));
+			}
+			for(var i = 0; i<$scope.mixedContentBoxes.length;i++){
+				totalCBM += Number(Number($scope.mixedContentBoxes[i][0].cartonDimensionCm1) * Number($scope.mixedContentBoxes[i][0].cartonDimensionCm2) 
+				* Number($scope.mixedContentBoxes[i][0].cartonDimensionCm3) * parseInt($scope.mixedContentBoxes[i][0].cartonCounts));
+			}
+
+			$scope.totalCBMs = totalCBM;
+			 
+		 }
+
+		 $scope.calculateTotalWeightKg = function(){
+			
+			var totalWeightKg = 0;
+			for(var i = 0; i<$scope.lineItems.length;i++){
+				totalWeightKg += Number($scope.lineItems[i].perCartonGrossWeightKg * parseInt($scope.lineItems[i].cartonCounts));
+			}
+			for(var i = 0; i<$scope.mixedContentBoxes.length;i++){
+				totalWeightKg += Number($scope.mixedContentBoxes[i][0].perCartonGrossWeightKg * parseInt($scope.mixedContentBoxes[i][0].cartonCounts));
+			}
+			var totalWeightKgAddDecimal=totalWeightKg.toFixed(3);
+			$scope.totalWeightKgs = totalWeightKgAddDecimal;
+			
+
+		 }
+		 		 
+		 $scope.calculateTotalQuantity = function(){			
+						 
+			var totalUnmixedContentBoxQuantity = 0;
+			for(var i = 0; i < $scope.lineItems.length;i++){	
+				var unmixedContentBoxQuantity = Number($scope.lineItems[i].perCartonUnits)*Number($scope.lineItems[i].cartonCounts);
+				unmixedContentBoxQuantity = isNaN(unmixedContentBoxQuantity) ? 0 : Number($scope.lineItems[i].perCartonUnits)*Number($scope.lineItems[i].cartonCounts);
+				totalUnmixedContentBoxQuantity += unmixedContentBoxQuantity;
+			}
+									
+			var totalMixedContentBoxQuantity = 0;			
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){								
+				for(var j = 0; j < $scope.mixedContentBoxes[i].length;j++){
+					var mixedContentBoxQuantity = Number($scope.mixedContentBoxes[i][j].perCartonUnits)*1;
+					mixedContentBoxQuantity = isNaN(mixedContentBoxQuantity) ? 0 : Number($scope.mixedContentBoxes[i][j].perCartonUnits)*1;
+					totalMixedContentBoxQuantity += mixedContentBoxQuantity;
+				}											
+			}
+			
+			$scope.totalQuantity = totalUnmixedContentBoxQuantity + totalMixedContentBoxQuantity;
+											 
+		 };
+		 		 
+		 $scope.calculateTotalAmount = function(){			 
+			var totalAmount = Number($scope.subtotal) + Number($scope.taxAmount);			 
+			$scope.totalAmount = Math.round(totalAmount);			 			 
+		 };
+		 
+		 $scope.changeSalesTaxPercentage = function(){			 
+			$scope.calculateTaxAmount();
+			$scope.calculateTotalAmount();			 
+		 };
+		 		 
+		 $scope.subtractAmount = function(){	 
+		 	$scope.calculateSubtotal();
+		 	$scope.calculateTaxAmount();
+		 	$scope.calculateTotalAmount();			 
+		 };
+				 
+		 $scope.verifySKUForUnMixedBox = function(item){
+			$scope.verifySKUDuplicateForUnMixedBox();
+			$scope.verifyFCAprice();
+			$scope.isGUIInvoiceIsRequiredForUnMixedBox(item);
+		 };
+		 
+		 $scope.verifySKUForMixedBox = function(item,mixedContentBox){
+			$scope.verifySKUDuplicateForMixedBox(mixedContentBox);
+			$scope.verifyFCAprice();
+			$scope.isGUIInvoiceIsRequiredForMixedBox(item);
+		 };
+		
+		 $scope.isAtLeastOneSKU = function (){
+
+			var skuCount = 0; 
+			skuCount = $scope.lineItems.length			
+			for(var i = 0; i < $scope.mixedContentBoxes.length;i++){												
+				skuCount += $scope.mixedContentBoxes[i].length;
+			}
+			skuCount < 1 ?$scope.atLeastOneSKUWarning = false:$scope.atLeastOneSKUWarning = true;
+			skuCount==0?$scope.noSKU = false:$scope.noSKU = true;
+			
+		 };
+		 		 
+		 $scope.verifySKUDuplicateForUnMixedBox = function(){
+		 
+			var sorted, i, j;
+			var currentSKUs = [];			 
+			sorted = $scope.lineItems.concat(); 			 			 
+			for(i = 0; i < $scope.lineItems.length;i++){				 
+				currentSKUs.push($scope.lineItems[i].skuCode); 				 
+			}			 						 
+			var duplicatedIndex = []; 
+			var noneDuplicatedIndex  = [];	 						 
+			for(i=0; i < currentSKUs.length;i++){				
+				for(j=0; j < currentSKUs.length;j++){					
+					if (i != j) {						 
+						if( typeof currentSKUs[i] !== 'undefined' && typeof currentSKUs[j] !== 'undefined'){						 
+							if(currentSKUs[i] == currentSKUs[j]){							 
+								if(duplicatedIndex.indexOf(i) === -1) duplicatedIndex.push(i);							 
+							}else{							 
+								if(noneDuplicatedIndex.indexOf(i) === -1) noneDuplicatedIndex.push(i);						 
+							}					 
+						}						 
+				    }										
+				}																				
+			}			
+			var k, m, n;			
+			for(k = 0 ; k < noneDuplicatedIndex.length; k++){				
+				sorted[noneDuplicatedIndex[k]].isDuplicate = false;				
+			}			
+			for(m = 0 ; m < duplicatedIndex.length; m++){				
+				sorted[duplicatedIndex[m]].isDuplicate = true;										
+			}			
+			if(duplicatedIndex.length == 0){				
+				for(n = 0; n < currentSKUs.length;n++){
+					sorted[n].isDuplicate = false;																			
+				}				
+				$scope.duplicated = false;				
+			}else{								 
+				$scope.duplicated = true;				
+			}
+				
+		 };	 
+		 
+		 $scope.verifySKUDuplicateForMixedBox = function(mixedContentBox){
+		 
+			 var sorted, i, j;
+			 var currentSKUs = [];
+			 sorted = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].concat();
+			 for(i = 0; i < $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].length;i++){				 
+				currentSKUs.push($scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][i].skuCode); 				 
+			 }
+			 var duplicatedIndex = []; 
+			 var noneDuplicatedIndex  = [];
+			 for(i=0; i < currentSKUs.length;i++){				
+				for(j=0; j < currentSKUs.length;j++){					
+					if (i != j) {						 
+						if( typeof currentSKUs[i] !== 'undefined' && typeof currentSKUs[j] !== 'undefined'){						 
+							if(currentSKUs[i] == currentSKUs[j]){							 
+								if(duplicatedIndex.indexOf(i) === -1) duplicatedIndex.push(i);							 
+							}else{							 
+								if(noneDuplicatedIndex.indexOf(i) === -1) noneDuplicatedIndex.push(i);						 
+							}					 
+						}						 
+				   }										
+				}																				
+			 }
+			 var k, m, n;			
+			 for(k = 0 ; k < noneDuplicatedIndex.length; k++){				
+				sorted[noneDuplicatedIndex[k]].isDuplicate = false;				
+			 }			
+			 for(m = 0 ; m < duplicatedIndex.length; m++){				
+				sorted[duplicatedIndex[m]].isDuplicate = true;										
+			 }			
+			 if(duplicatedIndex.length == 0){				
+			 	for(n = 0; n < currentSKUs.length;n++){
+					sorted[n].isDuplicate = false;																			
+				}				
+				$scope.duplicated = false;				
+			 }else{								 
+				$scope.duplicated = true;				
+			 }
+			 
+		 };
+		 
+		 $scope.verifyFCAprice = function (){
+			 
+			var SKUtoFCAprice = []; 
+		 	for(i = 0; i < $scope.lineItems.length;i++){	
+		 		SKUtoFCAprice.push({skuCode:$scope.lineItems[i].skuCode,FCAprice:Number($scope.lineItems[i].unitAmount)});
+		 	}			 
+		 	for(var j = 0; j < $scope.mixedContentBoxes.length;j++){								
+				for(var k = 0; k < $scope.mixedContentBoxes[j].length;k++){			
+					SKUtoFCAprice.push({skuCode:$scope.mixedContentBoxes[j][k].skuCode,FCAprice:Number($scope.mixedContentBoxes[j][k].unitAmount)});
+				}											
+			} 
+						 			 	
+			for(var m = 0; m < SKUtoFCAprice.length;m++){
+										
+				for(var n = 0; n < SKUtoFCAprice.length;n++){
+															
+					if (m != n) {
+																	
+						if(typeof SKUtoFCAprice[m].skuCode !== 'undefined' && typeof SKUtoFCAprice[n].skuCode !== 'undefined' && !isNaN(SKUtoFCAprice[m].FCAprice) && !isNaN(SKUtoFCAprice[n].FCAprice)){
+														
+							if(SKUtoFCAprice[m].skuCode == SKUtoFCAprice[n].skuCode && SKUtoFCAprice[m].FCAprice != SKUtoFCAprice[n].FCAprice){	
+								$scope.FCAPriceNoneEqual = true;
+								break;						
+							}else if(SKUtoFCAprice[m].skuCode == SKUtoFCAprice[n].skuCode && SKUtoFCAprice[m].FCAprice == SKUtoFCAprice[n].FCAprice){
+								$scope.FCAPriceNoneEqual = false;														
+							}
+						
+						}
+						
+					}
+					
+										
+				}					
+				
+			} 
+		 				 
+		 };
+		 
+		
+		 
+		 function emptyList(id) {
+
+		    var element =  document.getElementById(id);
+		    if(	typeof(element) != 'undefined' && element != null ){
+		       if(typeof(element.options) != 'undefined' && element.options != null){
+		        element.options.length = 0;
+		       }
+		    }
+		 }
+		 
+		 function getShippingMethodList(){			 
+			 var destinationCountry = $("#destinationCountry").val();
+			 var ajaxUrl = '/InventoryShipments/getShippingMethodList/';			    
+			 var shippingMethodList = null;
+			 $.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {destinationCountry : destinationCountry},
+				dataType : "json",
+				success : function(data) {								
+					emptyList("shippingMethod");								
+					var springMessage = new Array();
+					springMessage["EXPRESS"] = '[[#{EXPRESS}]]';
+					springMessage["AIR_CARGO"] = '[[#{AIR_CARGO}]]';
+					springMessage["SEA_FREIGHT"] = '[[#{SEA_FREIGHT}]]';								
+					shippingMethodList = data;														
+					var selectShippingMethod = document.getElementById("shippingMethod");
+					var optShippingMethod = document.createElement("option");			    			    				    				    			    			    
+					optShippingMethod.value = "";
+					optShippingMethod.textContent = "--- Select ---";
+					selectShippingMethod.appendChild(optShippingMethod);							    						
+					for(var shippingMethod in shippingMethodList){							    
+						if (shippingMethodList.hasOwnProperty(shippingMethod)) {							    							    	
+							optShippingMethod = document.createElement("option");
+							optShippingMethod.value = shippingMethodList[shippingMethod];
+							optShippingMethod.textContent = springMessage[shippingMethodList[shippingMethod]];
+							selectShippingMethod.appendChild(optShippingMethod);							    	
+						}							    	
+					}									
+					$("#shippingMethod").val($scope.shippingMethod);							    
+				}											
+			});
+		}
+		 
+		function getFCADeliveryLocations(){
+			var ajaxUrl = '/InventoryShipments/getFcaDeliveryLocationIdToLocationMap/';
+			var FCADeliveryLocations = null; 				
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				success : function(data) {
+					emptyList("fcaDeliveryLocation")						
+					FCADeliveryLocations = data;					
+					var selectFCADeliveryLocation = document.getElementById("fcaDeliveryLocation");
+					var optFCADeliveryLocation = document.createElement("option");			    			    				    				    			    			    
+					optFCADeliveryLocation.value = "";
+					optFCADeliveryLocation.textContent = "--- Select ---";
+					if(selectFCADeliveryLocation != null)selectFCADeliveryLocation.appendChild(optFCADeliveryLocation);
+					for(var location in FCADeliveryLocations){		
+						optFCADeliveryLocation = document.createElement("option");
+					    optFCADeliveryLocation.value = location;
+					    optFCADeliveryLocation.textContent = FCADeliveryLocations[location];
+					    if(selectFCADeliveryLocation != null)selectFCADeliveryLocation.appendChild(optFCADeliveryLocation);
+					}							
+					$("#fcaDeliveryLocation").val($scope.fcaDeliveryLocationId);											    
+				}									
+			});				
+		 }
+		 
+		 function getDaysToPrepare(){
+			var shippingMethod = $scope.shippingMethod;
+			var fcaDeliveryLocationId= $scope.fcaDeliveryLocationId;
+		    if (shippingMethod == null || shippingMethod == "" || fcaDeliveryLocationId == null || fcaDeliveryLocationId == 0 ) {
+				$("#expectedExportDate").attr( "disabled", true );
+			    $("#expectedExportDate").css({"cursor": "default", "background-color": "#e9ecef"});
+		    	return;
+		    }else{		 					
+			 if($scope.fcaDeliveryLocationId != 4){
+				$("#expectedExportDate").attr( "disabled", false );
+			    $("#expectedExportDate").css({"cursor": "default", "background-color": "white"});				    	
+			    $('#expectedExportDate').datepicker('destroy');				
+				var ajaxUrl = '/InventoryShipments/getDaysToPrepare/';			
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : { shippingMethod : shippingMethod },
+					dataType : "json",
+					success : function(data) {			    	
+						jQuery("#expectedExportDate").datepicker({
+							beforeShow: function() {
+								setTimeout(function(){
+									$('.ui-datepicker').css('z-index', 200);
+					    	    }, 0);
+					    	},
+					    	dateFormat : 'yy-mm-dd',
+					    	minDate: data      
+					    });																	
+					}				
+				});
+			}else{
+				$("#expectedExportDate").attr( "disabled", false );
+				$("#expectedExportDate").css({"cursor": "default", "background-color": "white"});	
+				jQuery("#expectedExportDate").datepicker({
+					beforeShow: function() {
+						setTimeout(function(){
+							$('.ui-datepicker').css('z-index', 200);
+			    	    }, 0);
+			    	},
+			    	dateFormat : 'yy-mm-dd'      
+			    });
+				/*
+				$("#fcaDeliveryDate").prop( "disabled", false );
+				$("#fcaDeliveryDate").css({"cursor": "default", "background-color": "white"});
+				jQuery("#fcaDeliveryDate").datepicker({
+					beforeShow: function() {
+						setTimeout(function(){
+							$('.ui-datepicker').css('z-index', 200);
+			    	    }, 0);
+			    	},
+			    	dateFormat : 'yy-mm-dd'      
+			    });*/
+			}	 
+		}			 
+		 }
+		 		 
+		 $scope.getFCADeliveryLocations = function (){							 				 
+			$scope.fcaDeliveryLocationId = "";
+			$scope.expectedExportDate = "";
+			var ajaxUrl = '/InventoryShipments/getFcaDeliveryLocationIdToLocationMap/';
+			var FCADeliveryLocations = null;
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				dataType : "json",
+				success : function(data) {
+					emptyList("fcaDeliveryLocation")
+					$("#fcaDeliveryDate").val("");						
+					FCADeliveryLocations = data;																							
+					var selectFCADeliveryLocation = document.getElementById("fcaDeliveryLocation");
+				    var optFCADeliveryLocation = document.createElement("option");			    			    				    				    			    			    
+				    optFCADeliveryLocation.value = "";
+				    optFCADeliveryLocation.textContent = "--- Select ---";
+				    selectFCADeliveryLocation.appendChild(optFCADeliveryLocation);					    									    
+				    for(var location in FCADeliveryLocations){		
+						optFCADeliveryLocation = document.createElement("option");
+				    	optFCADeliveryLocation.value = location;
+				    	optFCADeliveryLocation.textContent = FCADeliveryLocations[location];
+				    	selectFCADeliveryLocation.appendChild(optFCADeliveryLocation);					    						
+				    }											   					    												
+				}									
+			});		    
+			if(shippingMethod !="" && destinationCountry !=""){						
+				$("#expectedExportDate").attr( "disabled", false );			    
+			    $("#expectedExportDate").removeAttr("style");
+			    $("#expectedExportDate").css({"display": "inline"});			    
+			    $('#expectedExportDate').datepicker('destroy');    				    				    
+			    $('#fcaDeliveryDate').attr('readonly', true);
+			    $("#fcaDeliveryDate").removeAttr("style");
+			    $("#fcaDeliveryDate").css({"display": "inline"});  
+			    $('#fcaDeliveryDate').datepicker('destroy');			
+			}else{
+			    $("#expectedExportDate").attr( "disabled", true );			    	
+			    $("#expectedExportDate").removeAttr("style");
+			    $("#expectedExportDate").css({"display": "inline"});	    	
+			    $('#expectedExportDate').datepicker('destroy');
+			    $('#expectedExportDate').val("");			    	
+			    $("#fcaDeliveryDate").val("");
+			    $('#fcaDeliveryDate').attr('readonly', true);
+			    $("#fcaDeliveryDate").datepicker('destroy');			    
+			}						 
+		 };
+		 
+		 $scope.getShippingMethodList = function(){
+			emptyList("shippingMethod");
+			$scope.shippingMethod = undefined;			 
+			$("#expectedExportDate").attr( "disabled", true );			    	
+		    $("#expectedExportDate").removeAttr("style");
+		    $("#expectedExportDate").css({"display": "inline"});	    	
+		    $('#expectedExportDate').datepicker('destroy');
+		    $('#expectedExportDate').val("");		    
+		    $('#fcaDeliveryDate').attr('readonly', true);
+		    $("#fcaDeliveryDate").removeAttr("style");
+		    $("#fcaDeliveryDate").css({"display": "inline"});  
+		    $('#fcaDeliveryDate').datepicker('destroy');
+		    $('#fcaDeliveryDate').val("");
+			
+		    $scope.expectedExportDate = "";			 
+			$("#fcaDeliveryDate").val("");			 						 
+			var destinationCountry = $("#destinationCountry").val();
+			var ajaxUrl = '/InventoryShipments/getShippingMethodList/';			    
+			var shippingMethodList = null;			
+			//$("#shipping-rates").html("");
+			$(".sr").hide();
+			$('#sr'+destinationCountry).show();
+
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {
+					destinationCountry : destinationCountry											
+				},
+				dataType : "json",
+				success : function(data) {												
+					var springMessage = new Array();
+					springMessage["EXPRESS"] = '[[#{EXPRESS}]]';
+					springMessage["AIR_CARGO"] = '[[#{AIR_CARGO}]]';
+					springMessage["SEA_FREIGHT"] = '[[#{SEA_FREIGHT}]]';						
+					shippingMethodList = data;												
+					var selectShippingMethod = document.getElementById("shippingMethod");
+					var optShippingMethod = document.createElement("option");			    			    				    				    			    			    
+					optShippingMethod.value = "";
+					optShippingMethod.textContent = "--- Select ---";
+					selectShippingMethod.appendChild(optShippingMethod);					    						
+					for(var shippingMethod in shippingMethodList){					    
+						if (shippingMethodList.hasOwnProperty(shippingMethod)) {					    							    	
+					    	optShippingMethod = document.createElement("option");
+					    	optShippingMethod.value = shippingMethodList[shippingMethod];
+					    	optShippingMethod.textContent = springMessage[shippingMethodList[shippingMethod]];
+					    	selectShippingMethod.appendChild(optShippingMethod);					    	
+					    }					    	
+					}
+					// $scope.shippingMethod="";			
+					$("#shippingMethod").val("");					
+					//$("#shipping-rates").html($scope.shippingRates[destinationCountry]);
+					
+										    
+				}									
+			});	 			 
+		 };
+
+		 $scope.getSkuList = function(){
+			var destinationCountry = $("#destinationCountry").val();
+			var ajaxUrl = '/InventoryShipments/getSkuList/';
+			$scope.skuList=[];
+			for( e in $scope.lineItems){
+				$scope.lineItems[e].skuCode="";
+			}
+
+			for( box in  $scope.mixedContentBoxes){
+				let mixedContentBox=$scope.mixedContentBoxes[box];
+				for( e in mixedContentBox){
+				mixedContentBox[e].skuCode="";
+			}
+			}
+					
+			 $.ajax({
+				async:false,
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {
+					destinationCountry : destinationCountry,
+					kcode : supplierKcode										
+				},
+				dataType : "json",
+				success : function(data) {
+					appliedSku = new Array(data.length);
+					for(e in data){
+						appliedSku[e]= data[e];
+					}
+					$scope.skuList=appliedSku;
+										    
+				}									
+			});
+			// $('.sku-selector').val("");	
+			
+		
+		 };
+
+		 $scope.resetShippingDate =function(){
+			//$('#fcaDeliveryLocation').val("");
+			$('#expectedExportDate').val("");
+			$('#fcaDeliveryDate').val("");
+			//$scope.resetSelectOptions(); 
+		 }
+		 
+		 $scope.resetSelectOptions = function (){
+			
+			//$("#shippingMethod").val("");
+		    $('#expectedExportDate').attr('readonly', true);
+			$("#expectedExportDate").removeAttr("style");
+		    $("#expectedExportDate").css({"display": "inline"});  
+		    $('#expectedExportDate').datepicker('destroy');
+		    $('#expectedExportDate').val("");
+		    $('#fcaDeliveryDate').attr('readonly', true);
+			$("#fcaDeliveryDate").removeAttr("style");
+		    $("#fcaDeliveryDate").css({"display": "inline"});  
+		    $('#fcaDeliveryDate').datepicker('destroy');
+		    $('#fcaDeliveryDate').val("");
+			$scope.expectedExportDate = "";
+			
+			var FCADeliveryLocationId = $("#fcaDeliveryLocation").val();
+			var defaultSalesTaxPercentage = '[[${defaultSalesTaxPercentage}]]';
+			var salesTaxPercentage = '[[${InventoryShipment.salesTaxPercentage}]]';
+			 if (FCADeliveryLocationId == 4) {
+				 $("#shipping-rates").fadeTo(0, 0);
+				 $("#exportDateDesc").fadeTo(0, 0);
+				 $("#salesTaxPercentage").val(0);
+				 $scope.salesTaxPercentage=0;
+				 
+				 
+				 
+			 } else {
+				 $("#shipping-rates").fadeTo(200, 1);
+				 $("#exportDateDesc").fadeTo(200, 1);
+				if(defaultSalesTaxPercentage == 'null'){
+				 $("#salesTaxPercentage").val(salesTaxPercentage);
+				 $scope.salesTaxPercentage=salesTaxPercentage;
+				}else{ 
+				 $("#salesTaxPercentage").val(defaultSalesTaxPercentage);
+				 $scope.salesTaxPercentage=defaultSalesTaxPercentage;
+				}
+			 }
+			$scope.changeSalesTaxPercentage();
+			
+		 };
+		 
+		 $scope.getDaysToPrepare = function () {
+			getDaysToPrepare();	
+		 }
+		 		 
+		 $scope.getFCADeliveryDate = function (){
+			 
+			var destinationCountry = $("#destinationCountry").val();
+			var shippingMethod = $("#shippingMethod").val();
+			var FCADeliveryLocationId = $("#fcaDeliveryLocation").val();
+			var expectedExportDate = $("#expectedExportDate").val();
+			var ajaxUrl = '/InventoryShipments/getFcaDeliveryDate/';			    
+			var FCADeliveryDate = null;
+			//333						
+			$("#fcaDeliveryDate").val("");			 
+			
+			if(FCADeliveryLocationId != 4){
+				
+				if (expectedExportDate == "") {
+					
+					return;
+				}
+			    $('#fcaDeliveryDate').attr('readonly', true);
+				$("#fcaDeliveryDate").removeAttr("style");
+			    $("#fcaDeliveryDate").css({"display": "inline"});  
+			    $('#fcaDeliveryDate').datepicker('destroy');
+				$.ajax({
+					type : 'get',
+					url : ajaxUrl,
+					contentType : "application/json; charset=utf-8",
+					data : {
+						destinationCountry : destinationCountry,
+						shippingMethod : shippingMethod,
+						FCADeliveryLocationId : FCADeliveryLocationId,
+						expectedExportDate : expectedExportDate						
+					},
+					dataType : "json",
+					success : function(data) {					
+						FCADeliveryDate = data;						
+						$("#fcaDeliveryDate").val(FCADeliveryDate);						
+					}									
+				});
+						
+			} else {
+				
+				if (expectedExportDate == "") {
+					
+					return;
+				}
+			    $('#fcaDeliveryDate').attr('readonly', true);
+				$("#fcaDeliveryDate").removeAttr("style");
+			    $("#fcaDeliveryDate").css({"display": "inline"});  
+			    $('#fcaDeliveryDate').datepicker('destroy');
+			    $("#fcaDeliveryDate").val(expectedExportDate);
+				
+			    
+		}	
+						
+		 };
+		 
+		$scope.isGUIInvoiceIsRequiredForUnMixedBox = function (item){
+
+			var sku = item.skuCode;
+			$.ajax({
+				type : 'get',
+				url : '/InventoryShipments/isGUIInvoiceIsRequired',
+				contentType : "application/json; charset=utf-8",
+				data : {
+					sku : sku						
+				},
+				dataType : "json",
+				success : function(data) {
+					item.isGUIInvoiceEnable = data;
+					var FCADeliveryLocationId = $("#fcaDeliveryLocation").val();
+					if(FCADeliveryLocationId == 4){
+						item.isGUIInvoiceEnable = true
+						
+					}
+
+					item.isGUIInvoiceIsRequired = false;
+					if(item.isGUIInvoiceEnable == true && $scope.status=="SHPT_PLANNING") item.isGUIInvoiceIsRequired = true;
+					
+					
+					$scope.$apply();
+				}									
+			});							 
+		};
+		 		 
+		$scope.isGUIInvoiceIsRequiredForMixedBox = function (mixedContentBoxItem){			 
+			var sku = mixedContentBoxItem.skuCode;
+			$.ajax({
+				type : 'get',
+				url : '/InventoryShipments/isGUIInvoiceIsRequired',
+				contentType : "application/json; charset=utf-8",
+				data : {
+					sku : sku						
+				},
+				dataType : "json",
+				success : function(data) {					
+					mixedContentBoxItem.isGUIInvoiceEnable = data;
+					var FCADeliveryLocationId = $("#fcaDeliveryLocation").val();
+					if(FCADeliveryLocationId == 4){
+						mixedContentBoxItem.isGUIInvoiceEnable = true
+						
+					}
+					mixedContentBoxItem.isGUIInvoiceIsRequired = false;
+					if(mixedContentBoxItem.isGUIInvoiceEnable == true && $scope.status=="SHPT_PLANNING") mixedContentBoxItem.isGUIInvoiceIsRequired = true;
+					
+					$scope.$apply();
+				}									
+			});							 
+		};
+		
+		$scope.uploadGUIInvoiceFile = function (item){
+			if(item.GUIInvoiceFile.length != 0){
+			var fileData = item.GUIInvoiceFile[0]
+			var form_data = new FormData();
+			form_data.append("file", fileData)
+								
+			$.ajax({
+				url : "/InventoryShipments/uploadGUIInvoiceFile/" +supplierKcode,
+				dataType : 'script',
+				cache : false,
+				contentType : false,
+				processData : false,
+				data : form_data,
+				type : 'POST',
+				success : function(data) {
+					var uuid = data.substring(1,data.length-1);
+					var idx = $scope.lineItems.indexOf(item);			
+					 $scope.lineItems[idx].guifileName = fileData['name'];
+					 $scope.lineItems[idx].guiuuid=uuid;
+					 $scope.$apply();
+				}
+			});	
+			}			
+		};
+
+		$scope.uploadGUIInvoiceFileInMixedBox = function (mixedContentBox,item ){
+
+			if(item.GUIInvoiceFile.length != 0){
+			var fileData = item.GUIInvoiceFile[0]
+			var form_data = new FormData();
+			form_data.append("file", fileData)
+								
+			$.ajax({
+				url : "/InventoryShipments/uploadGUIInvoiceFile/" +supplierKcode,
+				dataType : 'script',
+				cache : false,
+				contentType : false,
+				processData : false,
+				data : form_data,
+				type : 'POST',
+				success : function(data) {
+					var uuid = data.substring(1,data.length-1);
+					var idx = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].indexOf(item);	
+					$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][idx].guifileName = fileData['name'];
+					$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][idx].guiuuid=uuid;
+					$scope.$apply();
+				}
+			});			
+			}
+		};
+
+
+		
+		$scope.downloadGUIInvoiceFile = function (uuid,guifileName){
+			window.open("/InventoryShipments/downloadGUIInvoiceFile?SupplierKcode="+supplierKcode+"&GUIuuid="+uuid+"&GUIInvoiceFileName="+guifileName);
+		}
+	
+		$scope.removeGUIInvoiceFile = function (GUIInvoiceFileName,item){
+					
+					$.ajax({
+						type : 'POST',
+						url : "/InventoryShipments/removeGUIInvoiceFile/"+ supplierKcode,
+						data : {
+							GUIInvoiceFileName : GUIInvoiceFileName,
+							GUIuuid : item.guiuuid 											
+						},
+						success : function(data) {
+							var result = JSON.parse(data);
+							var idx = $scope.lineItems.indexOf(item);
+							$scope.lineItems[idx].guifileName = null;
+							$scope.lineItems[idx].guiuuid = null;
+							$scope.$apply();
+							
+						}
+										
+					});
+											
+		};
+
+		$scope.removeGUIInvoiceFileInMixedBox = function (GUIInvoiceFileName,mixedContentBox,item){
+			
+			$.ajax({
+				type : 'POST',
+				url : "/InventoryShipments/removeGUIInvoiceFile/"+ supplierKcode,
+				data : {
+					GUIInvoiceFileName : GUIInvoiceFileName,
+					GUIuuid : item.guiuuid											
+				},
+				success : function(data) {
+					var result = JSON.parse(data);
+					var idx = $scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)].indexOf(item);	
+					$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][idx].guifileName = null;
+					$scope.mixedContentBoxes[$scope.mixedContentBoxes.indexOf(mixedContentBox)][idx].guiuuid = null;
+					$scope.$apply();
+				}
+								
+			});
+					
+		};
+
+				
+		var currentURL = document.URL;
+		getFCADeliveryLocations();
+
+
+		if(currentURL.indexOf("edit") > -1){
+			$scope.duplicated = false;
+			//$scope.atLeastOneSKU = false;
+			$scope.FCAPriceNoneEqual = false;
+			var InventoryShipmentJson = [(${InventoryShipmentJson})]
+
+			$scope.skuList=[(${skuList})]
+            $scope.name = InventoryShipmentJson.name
+			$scope.destinationCountry = InventoryShipmentJson.destinationCountry;						
+			// $("#shipping-rates").attr($scope.shippingRates[$scope.destinationCountry]);
+			$(".sr").hide();
+			$('#sr'+$scope.destinationCountry).show();
+			$scope.shippingMethod = InventoryShipmentJson.shippingMethod;			
+			$scope.invoiceNumber = InventoryShipmentJson.invoiceNumber;
+			$scope.expectedExportDate = InventoryShipmentJson.expectedExportDate;
+			$scope.fcaDeliveryLocationId = InventoryShipmentJson.fcaDeliveryLocationId;						
+			getShippingMethodList();
+						
+			 getDaysToPrepare();
+			
+			$scope.boxesNeedRepackaging = InventoryShipmentJson.boxesNeedRepackaging;
+			$scope.repackagingFee = InventoryShipmentJson.repackagingFee;
+			$scope.requiredPO = InventoryShipmentJson.requiredPO;
+			$scope.PONumber = InventoryShipmentJson.ponumber;
+			
+			$scope.lineItems = [];
+			$scope.mixedContentBoxes = [];
+			var lineItems = InventoryShipmentJson.lineItems;
+										
+			for(i = 0; i < lineItems.length; i++){				
+				if(lineItems[i].mixedBoxLineSeq == 0){
+					$scope.lineItems.push(lineItems[i]);
+					$scope.isGUIInvoiceIsRequiredForUnMixedBox(lineItems[i]);
+				}					
+			}
+			
+			for(i = 0; i < lineItems.length; i++){
+				if(lineItems[i].mixedBoxLineSeq != 0){
+					if(typeof $scope.mixedContentBoxes[lineItems[i].boxNum] == "undefined") $scope.mixedContentBoxes[lineItems[i].boxNum] = [];				
+					$scope.mixedContentBoxes[lineItems[i].boxNum].push(lineItems[i]);
+					$scope.isGUIInvoiceIsRequiredForMixedBox(lineItems[i]);				
+				}
+			}
+							
+			$scope.mixedContentBoxes = $scope.mixedContentBoxes.filter(function(el) { return el; });
+			
+			$scope.calculateTotalCartonCount();
+			$scope.calculateTotalCBM();
+			$scope.calculateTotalWeightKg();
+			$scope.calculateTotalQuantity();
+			$scope.isAtLeastOneSKU();
+			$scope.subtotal = InventoryShipmentJson.subtotal;
+			$scope.salesTaxPercentage = InventoryShipmentJson.salesTaxPercentage;
+			$scope.taxAmount = InventoryShipmentJson.salesTax;
+			$scope.totalAmount = InventoryShipmentJson.total;
+			$scope.status = InventoryShipmentJson.status;
+		}else{
+		    $scope.name = "create";
+			$scope.duplicated = true;
+			$scope.boxesNeedRepackaging = 0;
+			$scope.repackagingFee = 0;
+			$scope.requiredPO = false;
+			$scope.atLeastOneSKUWarning = false;
+			$scope.noSKU = true;
+			$scope.FCAPriceNoneEqual = false;
+			var defaultSalesTaxPercentage = '[[${defaultSalesTaxPercentage}]]';		
+			$scope.lineItems = [{id:0,boxNum:1,mixedBoxLineSeq:0,requireRepackaging:false,cartonCounts:null,quantity:0,amountUntaxed:0,cartonNumberStart:0,cartonNumberEnd:0,isGUIInvoiceIsRequired:false,isGUIInvoiceEnable:false,guifileName:null}];
+			$scope.mixedContentBoxes = [];
+			$scope.totalCartonCount = 0;
+			$scope.totalCBMs = 0;
+			$scope.totalWeightKgs = 0;
+			$scope.totalQuantity = 0;
+			$scope.subtotal = 0;
+			$scope.salesTaxPercentage = defaultSalesTaxPercentage;
+			$scope.taxAmount = 0;
+			$scope.totalAmount = 0;
+			$scope.status = null;
+			$(".sr").hide();			
+		}
+
+		$scope.copyCartonDimensions = function ($scope){
+			
+			cartonDimensionsClipboard[0]=Number($scope.item.cartonDimensionCm1);
+			cartonDimensionsClipboard[1]=Number($scope.item.cartonDimensionCm2);
+			cartonDimensionsClipboard[2]=Number($scope.item.cartonDimensionCm3);
+			
+		};
+
+		$scope.pasteCartonDimensions = function ($scope){
+			$scope.item.cartonDimensionCm1=cartonDimensionsClipboard[0];
+			$scope.item.cartonDimensionCm2=cartonDimensionsClipboard[1];
+			$scope.item.cartonDimensionCm3=cartonDimensionsClipboard[2];
+			$scope.calculateTotalCBM($scope);
+		}
+		
+		$scope.copyMixedContentBoxCartonDimensions = function (mixedContentBox){
+			cartonDimensionsClipboard[0]=Number(mixedContentBox[0].cartonDimensionCm1);
+			cartonDimensionsClipboard[1]=Number(mixedContentBox[0].cartonDimensionCm2);
+			cartonDimensionsClipboard[2]=Number(mixedContentBox[0].cartonDimensionCm3);
+			
+		};
+
+		$scope.pasteMixedCartonDimensions = function (mixedContentBox){
+			mixedContentBox[0].cartonDimensionCm1=cartonDimensionsClipboard[0];
+			mixedContentBox[0].cartonDimensionCm2=cartonDimensionsClipboard[1];
+			mixedContentBox[0].cartonDimensionCm3=cartonDimensionsClipboard[2];
+			$scope.assignCartonDimension(mixedContentBox);
+			$scope.calculateTotalCBM(mixedContentBox);
+
+		};
+
+	
+	});
+	
+</script>
+
+<style>
+.text-right{
+	text-align: left !important;
+		
+}
+
+.tt{
+	text-align: right !important;
+}
+
+.sku-selector{
+	width: 193px;
+}
+
+.cp-btn{
+	border-radius:0.25rem;
+	border: none;
+	/* background-color: black;
+	color: #52FEFE; */
+}
+
+.copy-btn{
+	background-color: #428bca;
+	color: white;	
+}
+
+.paste-btn{
+	background-color: #3D8C3D;
+	color: white;
+}
+
+.removeGUI-btn{
+	background-color: #428bca;
+	color: white;
+	 
+}
+
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dotted #DDD;
+    width: 200px;
+	height: 31px;
+    text-align: center;
+    margin: 5px;
+}
+.dragover {
+    border: 5px dotted #a5e233;
+}
+
+.gui-download {
+	color: #007bff  !important;
+	cursor: pointer;
+}
+
+</style>
+
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width" style="max-width:1600px !important;padding-left:20px;padding-right:20px;" ng-app="inventoryShipment" ng-controller="inventoryShipmentCtrl">
+	<div class="container-fluid">		
+		<div class="row max-width" style="max-width: none !important;" >
+			<div >
+				<div class="page-heading">
+					
+						<th:block th:if="${type ne 'Create'}">
+							
+								<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_DRAFT') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PLAN') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									[[#{inventoryShipment.inventoryShipment}]]		
+								</th:block>
+								<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_DRAFT') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PLAN') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									[[#{inventoryShipment.inventoryPurchaseOrder}]]					
+								</th:block>
+							
+						</th:block>
+						<th:block th:unless="${type ne 'Create'}">			
+							[[#{inventoryShipment.createInventoryShipment}]]				
+						</th:block>
+					
+	  					<a style="font-size:13pt;" href="/resources/files/HelpIVS.pdf" target="_blank">
+							<span class="fas fa-question-circle"></span>	[[#{inventoryShipment.help}]]								   						
+						</a>  				
+	  							
+				</div>
+				<span class="text-danger">[[#{inventoryShipment.validation}]]</span>
+				
+				
+			</div>
+		</div>
+	<form name="InventoryShipment"  modelAttribute="InventoryShipment" th:action="'/InventoryShipments/'+${InventoryShipment.name}+'/edit'"
+	 onsubmit="return onSubmit();" novalidate="novalidate" enctype="multipart/form-data" method="POST">
+		<div class="row max-width justify-content-center" style="max-width: none !important; margin-bottom: 2%;">
+			<div class="left-table" style="width:37%; padding-right: 2%">
+				<div class="new-left-class">
+					
+						<th:block th:if="${type ne 'Create'}">
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.inventoryShipmentId}]]</b>
+								</div>
+								<div  class="active col-md-8">
+									[[${InventoryShipment.name}]]<input type="hidden" th:field="*{InventoryShipment.name}" />
+								</div>
+							</div>
+						</th:block>
+							
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.destination}]]</b><span class="text-danger">*</span>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									<div  class="active col-md-8">	
+										<a th:text="#{${InventoryShipment.destinationCountry}}"></a> 
+										<input type="hidden" th:field="*{InventoryShipment.destinationCountry}" />
+										<div id="shipping-rates"  th:switch="${InventoryShipment.destinationCountry}">
+											<span th:case="'US'" th:utext="#{inventoryShipment.shippingRatesUS}"></span>
+											<span th:case="'UK'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+											<span th:case="'CA'" th:utext="#{inventoryShipment.shippingRatesCA}"></span>
+											<span th:case="'DE'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+											<span th:case="'FR'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+											<span th:case="'EU'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+										
+										</div>
+									</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div  class="active col-md-8">	
+												<a th:text="#{${InventoryShipment.destinationCountry}}"></a>
+												<input type="hidden" th:field="*{InventoryShipment.destinationCountry}" />
+												<div id="shipping-rates"  th:switch="${InventoryShipment.destinationCountry}">
+													<span th:case="'US'" th:utext="#{inventoryShipment.shippingRatesUS}"></span>
+													<span th:case="'UK'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+													<span th:case="'CA'" th:utext="#{inventoryShipment.shippingRatesCA}"></span>
+													<span th:case="'DE'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+													<span th:case="'FR'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+													<span th:case="'EU'" th:utext="#{inventoryShipment.shippingRatesUK}"></span>
+												
+												</div>
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">
+												<select id="destinationCountry" class="form-control" style="display: inline;" name="destinationCountry" 
+												ng-model="destinationCountry" ng-change="getShippingMethodList()" required="required">									
+													<option value="">--- Select ---</option>
+													<th:block th:each="destinationCountry : ${destinationCountryList}">
+                                                        <option th:value="${destinationCountry}" th:text="#{${destinationCountry}}"></option>
+													</th:block>									
+												</select>
+												<div class="text-danger" ng-show="InventoryShipment.destinationCountry.$error.required && InventoryShipment.destinationCountry.$dirty">
+      	 											<a th:text="#{inventoryShipment.destination_req}"></a>
+												</div>									
+											</div>
+										</th:block>
+									</th:block>				
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<div class="col-md-8">
+											<select id="destinationCountry" class="form-control" style="display: inline;" name="destinationCountry" 
+												ng-model="destinationCountry" ng-change="getShippingMethodList(); getSkuList()" required="required">									
+												<option value="">--- Select ---</option>
+												<th:block th:each="destinationCountry : ${destinationCountryList}">
+												    <option th:value="${destinationCountry}" th:text="#{${destinationCountry}}"></option>
+												</th:block>									
+											</select>
+											<div class="text-danger" ng-show="InventoryShipment.destinationCountry.$error.required && InventoryShipment.destinationCountry.$dirty">
+      	 										<a th:text="#{inventoryShipment.destination_req}"></a>
+											</div>
+											
+												<span class="sr" id="srUS"  th:utext="#{inventoryShipment.shippingRatesUS}" ></span>
+												<span class="sr" id="srUK"  th:utext="#{inventoryShipment.shippingRatesUK}" ></span>
+												<span class="sr" id="srCA"  th:utext="#{inventoryShipment.shippingRatesCA}" ></span>
+												<span class="sr" id="srDE"  th:utext="#{inventoryShipment.shippingRatesUK}" ></span>
+												<span class="sr" id="srFR"  th:utext="#{inventoryShipment.shippingRatesUK}" ></span>
+												<span class="sr" id="srEU"  th:utext="#{inventoryShipment.shippingRatesUK}" ></span>
+											
+																	 
+										</div>
+										
+									</th:block>		
+											
+								
+							</div>
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.shippingMethod}]]</b><span class="text-danger">*</span>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div  class="active col-md-8">	
+											<a th:utext="#{${InventoryShipment.shippingMethod}}"></a>
+											<input type="hidden" th:field="*{InventoryShipment.shippingMethod}" />
+										</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div  class="active col-md-8">	
+												<a th:utext="#{${InventoryShipment.shippingMethod}}"></a>
+												<input type="hidden" th:field="*{InventoryShipment.shippingMethod}" />
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">
+												<select id="shippingMethod" class="form-control" style="display: inline;" name="shippingMethod" 
+												ng-model="shippingMethod" ng-change="resetShippingDate(); getDaysToPrepare()"  required="required">									
+												</select>
+												<div class="text-danger" ng-show="InventoryShipment.shippingMethod.$error.required && InventoryShipment.shippingMethod.$dirty">
+      	 											<a th:text="#{inventoryShipment.shippingMethod_req}"></a>
+												</div>	
+											</div>
+										</th:block>
+									</th:block>
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<div class="col-md-8">
+											<select id="shippingMethod" class="form-control" style="display: inline;" name="shippingMethod" 
+											ng-model="shippingMethod" ng-change="resetShippingDate(); getDaysToPrepare()" required="required">									
+											</select>
+											<div class="text-danger" ng-show="InventoryShipment.shippingMethod.$error.required && InventoryShipment.shippingMethod.$dirty">
+      	 										<a th:text="#{inventoryShipment.shippingMethod_req}"></a>
+											</div>	
+										</div>
+									</th:block>		
+																									
+							</div>
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.FCADeliveryLocation}]]</b><span class="text-danger">*</span>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or  #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div class="col-md-8" >	
+											[[${FCADeliveryLocationIdToLocationMap[InventoryShipment.fcaDeliveryLocationId]}]]
+											<input type="hidden" th:field="*{InventoryShipment.fcaDeliveryLocationId}" />
+										</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div class="active col-md-8">	
+												[[${FCADeliveryLocationIdToLocationMap[InventoryShipment.fcaDeliveryLocationId]}]]
+												<input id="fcaDeliveryLocation"  type="hidden" th:field="*{InventoryShipment.fcaDeliveryLocationId}" />
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">
+												<select id="fcaDeliveryLocation" class="form-control" style="display: inline;" name="fcaDeliveryLocationId" 
+												ng-model="fcaDeliveryLocationId" ng-change="resetSelectOptions(); getDaysToPrepare()" required="required">								
+												</select>
+												<div class="text-danger" ng-show="InventoryShipment.fcaDeliveryLocationId.$error.required && InventoryShipment.fcaDeliveryLocationId.$dirty">
+      	 											<a th:text="#{inventoryShipment.FCADeliveryLocation_req}"></a>
+												</div>
+											</div>
+										</th:block>
+									</th:block>		
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') 
+									or  #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT')
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING')
+									or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<div class="col-md-8" >
+											<select id="fcaDeliveryLocation" class="form-control" style="display: inline;" name="fcaDeliveryLocationId" 
+											ng-model="fcaDeliveryLocationId" ng-change="resetSelectOptions(); getDaysToPrepare()" required="required">								
+											</select>
+											<div class="text-danger" ng-show="InventoryShipment.fcaDeliveryLocationId.$error.required && InventoryShipment.fcaDeliveryLocationId.$dirty">
+      	 										<a th:text="#{inventoryShipment.FCADeliveryLocation_req}"></a>
+											</div>
+										</div>
+									</th:block>		
+								
+							</div>
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.expectedExportDate}]]</b></b><span class="text-danger">*</span>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div  class="active col-md-8">	
+											[[${InventoryShipment.expectedExportDate}]]
+											<input type="hidden"th:field="*{InventoryShipment.expectedExportDate}" />
+											<div><a th:utext="#{inventoryShipment.referToShippingSchedule}"></a></div>
+										</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div  class="active col-md-8">	
+												[[${InventoryShipment.expectedExportDate}]]
+												<input type="hidden" th:field="*{InventoryShipment.expectedExportDate}" />
+												<div><a th:utext="#{inventoryShipment.referToShippingSchedule}"></a></div>
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">
+												<input id="expectedExportDate" class="form-control" style="display: inline;" th:field="*{InventoryShipment.expectedExportDate}" 
+												ng-model="expectedExportDate" ng-change="getFCADeliveryDate()" required="required" disabled="true"/>														
+												<div class="text-danger" ng-show="InventoryShipment.expectedExportDate.$error.required && InventoryShipment.expectedExportDate.$dirty">
+      	 											<a th:text="#{inventoryShipment.expectedExportDate_req}"></a>
+												</div>
+											</div>
+										</th:block>
+									</th:block>
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">				  
+										<div class="col-md-8" >
+											<input id="expectedExportDate" class="form-control" style="display: inline;" th:field="*{InventoryShipment.expectedExportDate}" 
+											ng-model="expectedExportDate" ng-change="getFCADeliveryDate()" required="required" disabled="true"/>														
+											<div class="text-danger" ng-show="InventoryShipment.expectedExportDate.$error.required && InventoryShipment.expectedExportDate.$dirty">
+      	 										<a th:text="#{inventoryShipment.expectedExportDate_req}"></a>
+											</div>
+											<a th:utext="#{inventoryShipment.referToShippingSchedule}"></a>	
+										</div>
+																	
+																	
+															
+									</th:block>		
+																						
+								<!-- <div id="exportDateDesc">							
+									<a th:utext="#{inventoryShipment.referToShippingSchedule}"></a>							
+								</div> -->
+							</div>							
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.FCADeliveryDate}]]</b><span class="text-danger">*</span>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div  class="active col-md-8">	
+											[[${InventoryShipment.fcaDeliveryDate}]]
+											<input type="hidden" th:field="*{InventoryShipment.fcaDeliveryDate}" />
+										</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div  class="active col-md-8">	
+												[[${InventoryShipment.fcaDeliveryDate}]]
+												<input type="hidden" th:field="*{InventoryShipment.fcaDeliveryDate}" />
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">			
+												<input id="fcaDeliveryDate" class="form-control" style="display:inline;" th:field="*{InventoryShipment.fcaDeliveryDate}" />
+											</div>
+										</th:block>
+									</th:block>					
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT')
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING')
+									or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<div class="col-md-8" >			
+											<input id="fcaDeliveryDate" class="form-control" style="display:inline;" th:field="*{InventoryShipment.fcaDeliveryDate}" />
+										</div>
+									</th:block>		
+													
+							</div>
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.specialRequest}]]</b>
+									<label class="col-sm-4 col-form-label" data-html="true" data-toggle="tooltip" data-placement="top" 
+									th:title="#{inventoryShipment.special_request_hint}" >
+										<span class="fas fa-info-circle fa-1x" style="color:#428bca;"></span>
+									</label>
+
+								</div>
+								<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									<div class="active col-md-8" >
+										[[${InventoryShipment.specialRequest}]]
+										<input type="hidden" th:field="*{InventoryShipment.specialRequest}" />
+									</div>
+								</th:block>
+								<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+									
+										<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<div class="active col-md-8" >
+												[[${InventoryShipment.specialRequest}]]
+												<input type="hidden" th:field="*{InventoryShipment.specialRequest}" />
+											</div>		
+										</th:block>
+										<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<div class="col-md-8" >
+												<textarea class="form-control" th:field="*{InventoryShipment.specialRequest}" rows="5" cols="30"></textarea>										
+											</div>
+										</th:block>		
+																		
+								</th:block>
+							</div>
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.boxesNeedRepackaging}]] / [[#{inventoryShipment.repackagingFee}]]</b>
+								</div>
+								
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div class="active col-md-8" >
+											[[${InventoryShipment.boxesNeedRepackaging}]] [[#{inventoryShipment.boxes}]] / NT$ [[${InventoryShipment.repackagingFee}]] 
+											<input type="hidden" th:field="*{InventoryShipment.boxesNeedRepackaging}" />
+											<input type="hidden" th:field="*{InventoryShipment.repackagingFee}" />
+										</div>
+									</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div class="active col-md-8" >
+												[[${InventoryShipment.boxesNeedRepackaging}]] [[#{inventoryShipment.boxes}]] / NT$ [[${InventoryShipment.repackagingFee}]]
+												<input type="hidden" th:field="*{InventoryShipment.boxesNeedRepackaging}" />
+												<input type="hidden" th:field="*{InventoryShipment.repackagingFee}" />
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">															
+												<input type="hidden" id="boxesNeedRepackaging" class="form-control" style="display:inline;text-align:left;width: 60px;" 
+												name="boxesNeedRepackaging" value="{{boxesNeedRepackaging}}"/>
+												{{boxesNeedRepackaging}} [[#{inventoryShipment.boxes}]] / NT$
+												<input id="repackagingFee" class="form-control" style="display:inline;text-align:left;width: auto;" 
+											th:field="*{InventoryShipment.repackagingFee}" ng-model="repackagingFee" ng-readonly="isSupplier"/>																										
+											</div>
+										</th:block>
+									</th:block>
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">		
+										<div  class="col-md-8">							
+											<input type="hidden" id="boxesNeedRepackaging" class="form-control" style="display:inline;text-align:left;width: 60px;" 
+												name="boxesNeedRepackaging" value="{{boxesNeedRepackaging}}"/>
+												{{boxesNeedRepackaging}} [[#{inventoryShipment.boxes}]] / NT$
+											<input id="repackagingFee" class="form-control" style="display:inline;text-align:left;width: auto;" 
+											th:field="*{InventoryShipment.repackagingFee}" ng-model="repackagingFee" ng-readonly="isSupplier"/>																										
+										</div>
+									</th:block>		
+								
+							</div>
+							
+							<div class="row py-2" >
+								<div class="text-right col-md-4">
+									<b>[[#{inventoryShipment.requiredPO}]]</b>
+								</div>
+								
+								<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										<div class="active col-md-8" >
+											<a th:text="#{'inventoryShipment.'+${InventoryShipment.requiredPO}}"></a>
+											<input type="hidden" th:field="*{InventoryShipment.requiredPO}" />
+										</div>
+								</th:block>
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											<div class="active col-md-8" >
+												<a th:text="#{'inventoryShipment.'+${InventoryShipment.requiredPO}}"></a>
+												<input type="hidden" th:field="*{InventoryShipment.requiredPO}" />
+											</div>
+										</th:block>
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+											<div class="active col-md-8">									
+												<input type="checkbox" id="requiredPO" th:field="*{InventoryShipment.requiredPO}" ng-model="requiredPO" ng-change="removePONumber()" />																																			
+											</div>
+										</th:block>
+									</th:block>			
+									<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+									or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+										<div class="col-md-8">									
+											<input type="checkbox" id="requiredPO" th:field="*{InventoryShipment.requiredPO}" ng-model="requiredPO" ng-change="removePONumber()" />																																			
+										</div>
+									</th:block>
+															
+							</div>
+							<div class="row py-2" >
+								<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.PONumber}]]</b>
+									</div>
+									
+										<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status eq 'SHPT_EXCEPTION')}">
+											<div class="active col-md-8" >
+												[[${InventoryShipment.PONumber}]]
+												<input type="hidden" th:field="*{InventoryShipment.PONumber}" />
+											</div>
+										</th:block>
+										<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											<div class="col-md-8">
+												<input id="PONumber" class="form-control" th:field="*{InventoryShipment.PONumber}" ng-model="PONumber" ng-required="requiredPO" ng-disabled="!requiredPO" />
+												<div class="text-danger" ng-show="InventoryShipment['PONumber'].$error.required && InventoryShipment['PONumber'].$dirty">
+													<a th:text="#{inventoryShipment.PONumber_req}">
+												</div>
+											</div>
+										</th:block>
+									
+								</th:block>
+								<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+									
+										<th:block th:if="${type ne 'Create'}">
+											<div class="text-right col-md-4">
+												<b>[[#{inventoryShipment.PONumber}]]</b>
+											</div>	
+											<div class="active col-md-8" >	
+												[[${InventoryShipment.PONumber}]]
+												<input type="hidden"th:field="*{InventoryShipment.PONumber}" />
+											</div>
+										</th:block>
+																		
+								</th:block>																														
+								<th:block sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_PURCHASE_ORDER'])}">									
+									<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PLAN') or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')
+									or #strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										
+									<div ng-if="PONumber != null && PONumber !=''">
+											<a class="btn btn-primary" target="_blank" th:href="@{/InventoryShipments/{name}/{PONumber}/PurchaseOrder
+											(name=${InventoryShipment.name},PONumber=${InventoryShipment.PONumber})}"
+											th:text="#{inventoryShipment.printPO}" >
+											</a> 
+   										</div>   
+									</th:block>																																																
+								</th:block>
+							</div>							
+				</div>
+			</div>
+				
+					<th:block th:if="${type ne 'Create'}">
+						<div class="right-table" style="width:37%; padding-left: 2%;" >
+							<div class="new-right-class">
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.status}]]</b>
+									</div>
+									
+									<th:block th:if="${status eq 'noDRAFT'}">						
+										<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">	
+											<div class="col-md-8">	
+										<select id="status" class="form-control" th:field="*{InventoryShipment.status}">
+											
+												<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED')}">													
+													<option value="SHPT_CONFIRMED" >
+														[[#{SHPT_CONFIRMED}]]
+													</option>																										
+													<option value="SHPT_AWAIT_PICK_UP">
+														[[#{SHPT_AWAIT_PICK_UP}]]
+													</option>													
+													<option value="SHPT_IN_TRANSIT">
+														[[#{SHPT_IN_TRANSIT}]]
+													</option>													
+													<option value="SHPT_RECEIVING">
+														[[#{SHPT_RECEIVING}]]													
+													</option>																										
+													<option value="SHPT_RECEIVED">
+														[[#{SHPT_RECEIVED}]]
+													</option>													
+													<option value="SHPT_EXCEPTION">
+														[[#{SHPT_EXCEPTION}]]																										
+													</option>
+												</th:block>
+												<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PLAN')}">													
+													<option value="SHPT_AWAIT_PLAN">
+														[[#{SHPT_AWAIT_PLAN}]]													
+													</option>
+												</th:block>
+												<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+													<option value="SHPT_FC_BOOKING_CONFIRM">
+														[[#{SHPT_FC_BOOKING_CONFIRM}]]
+													</option>
+													<option value="SHPT_PLANNING">
+														[[#{SHPT_PLANNING}]]													
+													</option>
+												</th:block>
+												<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING')}">													
+													<option value="SHPT_PLANNING">
+														[[#{SHPT_PLANNING}]]													
+													</option>
+												</th:block>
+												<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_INITIAL_VERIFIED')}">
+                                                    <option value="SHPT_INITIAL_VERIFIED">
+                                                	    [[#{SHPT_INITIAL_VERIFIED}]]
+                                                    </option>
+												</th:block>
+												<th:block th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PLAN') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')
+												or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED')}">
+													<option value="SHPT_AWAIT_PICK_UP">
+														[[#{SHPT_AWAIT_PICK_UP}]]
+													</option>
+													<option value="SHPT_IN_TRANSIT">
+														[[#{SHPT_IN_TRANSIT}]]																								
+													</option>													
+													<option value="SHPT_RECEIVING">
+														[[#{SHPT_RECEIVING}]]
+													</option>																										
+													<option value="SHPT_RECEIVED">
+														[[#{SHPT_RECEIVED}]]
+													</option>																										
+													<option value="SHPT_EXCEPTION">
+														[[#{SHPT_EXCEPTION}]]
+													</option>
+												</th:block>
+											
+										</select>
+										</div>
+										</th:block>
+									
+										
+										<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">	
+									<div class="active col-md-8">
+										<a th:text="#{${InventoryShipment.status}}"></a>
+									</div>
+										</th:block>
+									
+									</th:block>
+								<th:block th:unless="${status eq 'noDRAFT'}">
+									<div class="active col-md-8">
+										<a th:text="#{${InventoryShipment.status}}"></a>
+									</div>
+								</th:block>
+							
+								</div>
+								<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									
+								<th:block th:if="${type ne 'Create' and status ne 'DRAFT' and status ne 'null'}">
+									<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.seller}]]</b>
+									</div>
+									<div class="active col-md-8">
+										<a th:text="${InventoryShipment.sellerCompanyKcode}+' '+${AllCompanyKcodeToNameMap[InventoryShipment.sellerCompanyKcode]}"></a>
+										<input type="hidden" th:field="*{InventoryShipment.sellerCompanyKcode}" />
+									</div>
+									</div>
+								</th:block>
+									
+									
+										<th:block th:if="${type ne 'Create' and status ne 'DRAFT' and status ne 'null'}">
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.buyer}]]</b>
+									</div>
+									<div class="active col-md-8">
+										<a th:text="${InventoryShipment.buyerCompanyKcode}+' '+${AllCompanyKcodeToNameMap[InventoryShipment.buyerCompanyKcode]}"></a>
+										<input type="hidden" th:field="*{InventoryShipment.buyerCompanyKcode}" />
+									</div>
+								</div>
+										</th:block>
+									
+								</th:block>
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.dateCreated}]]</b>
+									</div>
+									<div class="active col-md-8">
+										[[${InventoryShipment.dateCreated}]]
+									</div>
+								</div>
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.invoiceNumber}]]</b>
+									</div>
+									
+										<th:block th:if="${status eq 'noDRAFT'}">
+											<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">	
+										<div class="danger col-md-8">
+										<input id="invoiceNumber" class="form-control" th:field="*{InventoryShipment.invoiceNumber}" ng-model="invoiceNumber" ng-pattern="/^[a-zA-Z0-9]+$/"/>
+										<span class="text-danger" ng-show="InventoryShipment['invoiceNumber'].$error.pattern">
+											<a th:text="#{inventoryShipment.InvoiceNumber_format}"></a>
+										</span>						
+										</div>
+											</th:block>
+											<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												<div class="active col-md-8">
+												[[${InventoryShipment.invoiceNumber}]]
+												</div>												
+											</th:block>
+										</th:block>
+										<th:block th:unless="${status eq 'noDRAFT'}">
+									<div class="active col-md-8">
+										[[${InventoryShipment.invoiceNumber}]]
+									</div>
+										</th:block>
+									
+								</div>
+								<div sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+								
+								<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED')}">								
+								<div class="row py-2">
+									<div class="col-md-4"></div>
+									<div style="color: #2A6496;" class="col-md-8">
+										[[#{inventoryShipment.invoiceNumber_hint}]]
+									</div>
+								</div>
+								</th:block>		
+								
+								</div>
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.datePurchased}]]</b>
+									</div>
+									<div class="active col-md-8">
+										[[${InventoryShipment.datePurchased}]]
+									</div>
+								</div>
+								<th:block sec:authorize access="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+								<div class="row py-2">
+									<td colspan="2">
+										<input type="hidden" th:field="*{InventoryShipment.internalNote}" />
+									</td>
+								</div>
+								</th:block>
+								<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">	
+								<div class="row py-2">
+									<div class="text-right col-md-4">
+										<b>[[#{inventoryShipment.internalNote}]]</b>
+									</div>				    	
+									<div class="danger col-md-8">
+										<textarea  th:field="*{InventoryShipment.internalNote}" class="form-control" rows="5" cols="30"></textarea>
+									</div>
+								</div>														
+								</th:block>
+									<th:block sec:authorize="${hasAnyRole(@authProperties['ADMIN_ONLY'])}">
+								
+				    				<th:block th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+									or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+				    					<div class="row py-2">
+				    						<div class="text-right col-md-4">
+				    							<b>[[#{inventoryShipment.shippingCost}]]</b>
+											</div>
+				    						<div class="col-md-8"><a th:utext="${shippingCost}"></a></div>
+				    					</div>
+				    				</th:block>
+				    					
+									</th:block>																																							
+								</div>
+								
+						</div>
+					</th:block>
+			</div>			
+			<div class="row text-danger" ng-show="FCAPriceNoneEqual">			
+				<div class="col-md-12">
+					<a th:text="#{inventoryShipment.FCAPriceNoneEqual}"></a>
+				</div>
+			</div>
+			<div class="row">			
+				<div class="col-md-12">
+					<table class="table">
+						<thead>
+							<tr id="newSKU">
+								<th style="width: 15%;">
+									[[#{inventoryShipment.sku}]]<span class="text-danger">*</span>
+								</th>
+								<th style="width: 5%;">
+									[[#{inventoryShipment.requireRepackaging}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-center" style="width: 5%;">
+									[[#{inventoryShipment.cartonNumber}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-center" style="width: 20%;">
+									[[#{inventoryShipment.cartonDimensions}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-center" style="width: 5%;">
+									[[#{inventoryShipment.grossWeightPerCarton}]]<span class="text-danger">*</span>
+								</th>								
+								<th class="text-center" style="width: 5%;">
+									[[#{inventoryShipment.unitsPerCarton}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-center" style="width: 5%;">
+									[[#{inventoryShipment.numberOfCartons}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-right" style="width: 5%;">
+									[[#{inventoryShipment.quantity}]]
+								</th>
+								<th class="text-center" style="width: 5%;">
+									[[#{inventoryShipment.uniPrice}]]<span class="text-danger">*</span>
+								</th>
+								<th class="text-right" style="width: 5%;">
+									[[#{inventoryShipment.amount}]]
+								</th>
+								<th style="width: 10%;">
+									[[#{inventoryShipment.GUIInvoiceNumber}]]
+								</th>
+								<th style="width: 10%;">
+									[[#{inventoryShipment.GUIInvoice}]]
+								</th>																													  								
+								<th style="width: 5%;"></th>	
+							</tr>
+						</thead>
+					<tbody>
+					<tr id="newSKU{{itSize(0 , $index , false)}}" ng-repeat="item in lineItems">				   				    				    				   						   		
+				   		<td>
+				   		<input type="text" style="display:none" id="id{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].id" ng-model="item.id" value="{{item.id}}"  ></input>
+				   			
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].boxNum" ng-model="item.boxNum" value="{{item.boxNum}}" ></input>
+				   					<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].mixedBoxLineSeq" ng-model="item.mixedBoxLineSeq" value="{{item.mixedBoxLineSeq}}"></input>									
+									{{item.skuCode}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].skuCode" value="{{item.skuCode}}" />
+									{{item.nameBySupplier}}
+								</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<th:block sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].boxNum" ng-model="item.boxNum" value="{{item.boxNum}}" ></input>
+				   						<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].mixedBoxLineSeq" ng-model="item.mixedBoxLineSeq" value="{{item.mixedBoxLineSeq}}"></input>									
+										{{item.skuCode}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].skuCode" value="{{item.skuCode}}" />
+										{{item.nameBySupplier}}
+									</th:block>
+									<th:block sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].boxNum" ng-model="item.boxNum" value="{{item.boxNum}}"  ></input>
+				   						<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].mixedBoxLineSeq" ng-model="item.mixedBoxLineSeq" value="{{item.mixedBoxLineSeq}}"  ></input>				   		
+										<select id ="SKU{{$id}}" class="form-control sku-selector" name ="lineItem[{{itSize(0 , $index , false)}}].skuCode" ng-model="item.skuCode" ng-change="verifySKUForUnMixedBox(item)" required>
+										<option value="">--- Select ---</option>									
+										<option ng-repeat="sku in skuList" ng-value="sku">{{sku}}</option>
+															
+										
+									</select>							
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].skuCode'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].skuCode'].$dirty">
+											<a th:text="#{inventoryShipment.SKU_req}"></a>
+										</div>																					
+										<div class="text-danger"  ng-if="item.isDuplicate">
+                    						<a th:text="#{inventoryShipment.SKU_dup}"></a>
+                						</div>
+									</th:block>
+								</div>
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].boxNum" ng-model="item.boxNum" value="{{item.boxNum}}"  ></input>
+				   					<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].mixedBoxLineSeq" ng-model="item.mixedBoxLineSeq" value="{{item.mixedBoxLineSeq}}"  ></input>				   		
+									<select id ="SKU{{$id}}" class="form-control sku-selector" name ="lineItem[{{itSize(0 , $index , false)}}].skuCode" ng-model="item.skuCode" ng-change="verifySKUForUnMixedBox(item)" required>
+									<option value="">--- Select ---</option>
+									<option ng-repeat="sku in skuList" ng-value="sku">{{sku}}</option>
+									
+									
+									</select>
+													
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].skuCode'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].skuCode'].$dirty">
+										<a th:text="#{inventoryShipment.SKU_req}"></a>
+									</div>																					
+									<div class="text-danger"  ng-if="item.isDuplicate">
+                    					<a th:text="#{inventoryShipment.SKU_dup}"></a>
+                					</div>
+								</div>		
+							
+						</td>	
+							
+						<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+						or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+						or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									<td class="text-center">
+										<span ng-if="item.requireRepackaging == true"><a th:text="#{inventoryShipment.true}"></a></span>
+										<span ng-if="item.requireRepackaging == false"><a th:text="#{inventoryShipment.false}"></a></span>
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].requireRepackaging" value="{{item.requireRepackaging}}" />
+									</td>		
+						</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">										  
+										<td class="text-center">
+											<span ng-if="item.requireRepackaging == true"><a th:text="#{inventoryShipment.true}"></a></span>
+											<span ng-if="item.requireRepackaging == false"><a th:text="#{inventoryShipment.false}"></a></span>
+											<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].requireRepackaging" value="{{item.requireRepackaging}}" />
+										</td>
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<td class="text-center">
+											<input id="requireRepackaging{{$id}}" type="checkbox" name="lineItem[{{itSize(0 , $index , false)}}].requireRepackaging" ng-model="item.requireRepackaging" ng-change="calculateRepackgingFee()">
+										</td>
+									</span>
+								</div>			
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<td class="text-center">
+										<input id="requireRepackaging{{$id}}" type="checkbox" name="lineItem[{{itSize(0 , $index , false)}}].requireRepackaging" ng-model="item.requireRepackaging" ng-change="calculateRepackgingFee()">
+									</td>	
+								</div>		
+							
+						<td class="text-center active"> 
+							{{item.cartonNumberStart}} ~ {{item.cartonNumberEnd}}
+						</td>						
+						<td class="text-center">
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.cartonDimensionCm1}} x {{item.cartonDimensionCm2}} x {{item.cartonDimensionCm3}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1" value="{{item.cartonDimensionCm1}}" />
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2" value="{{item.cartonDimensionCm2}}" />
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3" value="{{item.cartonDimensionCm3}}" />							
+							</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										{{item.cartonDimensionCm1}} x {{item.cartonDimensionCm2}} x {{item.cartonDimensionCm3}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1" value="{{item.cartonDimensionCm1}}" />
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2" value="{{item.cartonDimensionCm2}}" />
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3" value="{{item.cartonDimensionCm3}}" />
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm1" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required> x
+										<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm2" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required> x
+										<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm3" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required>
+										<div class="text-danger" ng-show="(InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$dirty) || (InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$dirty) || (InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$dirty)">
+											<a th:text="#{inventoryShipment.cartonDimensions_req}"></a>
+										</div>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$error.pattern || InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$error.pattern || InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$error.pattern">
+            								<a th:text="#{inventoryShipment.cartonDimensions_format}"></a>
+        								</div>
+									</span>
+								</div>		
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}" style="text-align: left;">
+									<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm1" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required> x
+									<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm2" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required> x
+									<input name="lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonDimensionCm3" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateTotalCBM(this)" value="" type="text" size="3" required>
+									
+									<span style="display: inline-grid;vertical-align: middle;">
+									<button type="button" class="cp-btn copy-btn" style="margin-bottom: 4px;" ng-click="copyCartonDimensions(this)"><i class="fa fa-clone" aria-hidden="true"></i></button>
+									
+									<button type="button" class="cp-btn paste-btn" ng-click="pasteCartonDimensions(this)"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+									</span>
+									<div class="text-danger" ng-show="(InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$dirty) || (InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$dirty) || (InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$dirty)">
+										<a th:text="#{inventoryShipment.cartonDimensions_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm1'].$error.pattern || InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm2'].$error.pattern || InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonDimensionCm3'].$error.pattern">
+            							<a th:text="#{inventoryShipment.cartonDimensions_format}"></a>
+        							</div>
+								</div>		
+													
+						</td>
+						<td class="text-center">										
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.perCartonGrossWeightKg}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg" value="{{item.perCartonGrossWeightKg}}" />
+							</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										{{item.perCartonGrossWeightKg}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg" value="{{item.perCartonGrossWeightKg}}" />
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input name="lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.perCartonGrossWeightKg" ng-pattern="/^(0*[1-9][0-9]*(\.[0-9]+)?|0*\.[0-9]*[1-9][0-9]*)$/" ng-change="calculateTotalWeightKg(this)" value="" type="text" size="10" required></input>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$dirty">
+											<a th:text="#{inventoryShipment.grossWeightPerCarton_req}"></a>
+										</div>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$error.pattern">
+											<a th:text="#{inventoryShipment.grossWeightPerCarton_format}"></a>
+										</div>
+									</span>
+								</div>								
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input name="lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.perCartonGrossWeightKg" ng-pattern="/^(0*[1-9][0-9]*(\.[0-9]+)?|0*\.[0-9]*[1-9][0-9]*)$/" ng-change="calculateTotalWeightKg(this)" value="" type="text" size="10" required></input>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$dirty">
+										<a th:text="#{inventoryShipment.grossWeightPerCarton_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonGrossWeightKg'].$error.pattern">
+										<a th:text="#{inventoryShipment.grossWeightPerCarton_format}">
+									</div>
+								</div>		
+							
+						</td>																																	
+						<td class="text-center">
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.perCartonUnits}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].perCartonUnits" value="{{item.perCartonUnits}}" />
+							</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										{{item.perCartonUnits}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].perCartonUnits" value="{{item.perCartonUnits}}" />
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input id="units{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].perCartonUnits" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.perCartonUnits" ng-pattern="/^[1-9][0-9]*$/"  ng-change="calculateQuantity(this)" value="" type="text" size="3" required></input>																				
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$dirty">
+											<a th:text="#{inventoryShipment.unitsPerCarton_req}"></a>
+										</div>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$error.pattern">
+											<a th:text="#{inventoryShipment.unitsPerCarton_format}"></a>
+										</div>
+									</span>
+								</div>								
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input id="units{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].perCartonUnits" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.perCartonUnits" ng-pattern="/^[1-9][0-9]*$/"  ng-change="calculateQuantity(this)" value="" type="text" size="3" required></input>																				
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$dirty">
+										<a th:text="#{inventoryShipment.unitsPerCarton_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].perCartonUnits'].$error.pattern">
+										<a th:text="#{inventoryShipment.unitsPerCarton_format}"></a>
+									</div>
+								</div>		
+							
+						</td>					
+						<td class="text-center">
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.cartonCounts}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonCounts" value="{{item.cartonCounts}}" />
+							</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										{{item.cartonCounts}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].cartonCounts" value="{{item.cartonCounts}}" />
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input id="number{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].cartonCounts" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonCounts" ng-pattern="/^[1-9][0-9]*$/" ng-change="calculateQuantity(this)" value="" type="text" size="3" required></input>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$dirty">
+											<a th:text="#{inventoryShipment.numberOfCartons_req}"></a>
+										</div>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$error.pattern">
+											<a th:text="#{inventoryShipment.numberOfCartons_format}"></a>
+										</div>
+									</span>
+								</div>
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input id="number{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].cartonCounts" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.cartonCounts" ng-pattern="/^[1-9][0-9]*$/" ng-change="calculateQuantity(this)" value="" type="text" size="3" required></input>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$dirty">
+										<a th:text="#{inventoryShipment.numberOfCartons_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].cartonCounts'].$error.pattern">
+										<a th:text="#{inventoryShipment.numberOfCartons_format}"></a>
+									</div>
+								</div>		
+												
+						</td>
+						<td class="text-right active">
+							{{item.quantity}}
+							<input type="text" style="display:none" id="quantity{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].quantity" ng-model="item.quantity" value="{{item.quantity}}" size="3"></input>
+						</td>
+						<td class="text-center">
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.unitAmount}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].unitAmount" value="{{item.unitAmount}}" />
+							</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										{{item.unitAmount}}
+										<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].unitAmount" value="{{item.unitAmount}}" />
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input id="unitPrice{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].unitAmount" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.unitAmount" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateAmount(this)" value="" type="text" size="5" required></input>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$dirty">
+											<a th:text="#{inventoryShipment.uniPrice_req}"></a>
+										</div>
+										<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$error.pattern">
+											<a th:text="#{inventoryShipment.uniPrice_format}"></a>
+										</div>
+									</span>
+								</div>		
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input id="unitPrice{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].unitAmount" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="item.unitAmount" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateAmount(this)" value="" type="text" size="5" required></input>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$dirty">
+										<a th:text="#{inventoryShipment.uniPrice_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].unitAmount'].$error.pattern">
+										<a th:text="#{inventoryShipment.uniPrice_format}"></a>
+									</div>
+								</div>		
+													
+						</td>
+						<td class="text-right active">
+							{{item.amountUntaxed}}
+							<input type="text" style="display:none" id="amount{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].amountUntaxed" ng-model="item.amountUntaxed" value="{{item.amountUntaxed}}" size="8"></input>
+						</td>							
+						<td>
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.guiinvoiceNumber}}
+									<input type="hidden" name="lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceNumber" value="{{item.guiinvoiceNumber}}" />
+							</div>
+							<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									<input id="GUIInvoiceNumber{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceNumber" class="form-control" style="display:inline;width:100%;padding: 6px 0px 6px 0px;text-align:center;" ng-model="item.guiinvoiceNumber" ng-pattern="/^[a-zA-Z0-9]+$/" ng-required="item.isGUIInvoiceIsRequired" ng-readonly="!item.isGUIInvoiceEnable" type="text" size="5"></input><span ng-show="item.isGUIInvoiceIsRequired" class="text-danger">*</span>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceNumber'].$error.required && InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceNumber'].$dirty">
+										<a th:text="#{inventoryShipment.GUIInvoiceNumber_req}"></a>
+									</div>
+									<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceNumber'].$error.pattern">
+										<a th:text="#{inventoryShipment.GUIInvoiceNumber_format}"></a>
+									</div>
+							</div>		
+													
+						</td>
+						<td>
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									{{item.guifileName}}
+									<input type="text" style="display:none" id="GUIFileName{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].GUIFileName" ng-model="item.guifileName" value="{{item.guifileName}}"  size="50" ></input>
+							</div>
+							<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									
+									<input type="text" style="display:none" id="GUIFileName{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].GUIFileName" ng-model="item.guifileName" value="{{item.guifileName}}"  size="50" ></input>
+									
+									<div ng-controller="MyCtrl">	
+										<div id="GUIInvoiceFile{{$id}}"  name="lineItem[{{itSize(0 , $index , false)}}].GUIInvoiceFile" ngf-drop ngf-select ng-model="item.GUIInvoiceFile"
+										class="drop-box" ngf-drag-over-class="'dragover'" ngf-multiple="true" 
+										ngf-allow-dir="true" accept="image/*,application/pdf" ngf-pattern="'image/*,application/pdf'" 
+										ng-change="uploadGUIInvoiceFile(item)" ng-required="item.isGUIInvoiceIsRequired && item.guifileName == null" 
+										ng-disabled="!item.isGUIInvoiceEnable || item.guifileName != null" ng-readonly="!item.isGUIInvoiceEnable || item.guifileName != null">
+											<a ng-if="item.guifileName == null && item.isGUIInvoiceEnable ">Drop here or click to upload</a>
+											<span style="font:smaller" ng-if="item.guifileName != null" >
+												<a th:if="${type eq 'Create'}">{{item.guifileName}}</a>
+												<a class="gui-download" th:unless="${type eq 'Create'}" ng-click="downloadGUIInvoiceFile(item.guiuuid,item.guifileName)">
+												 {{item.guifileName}}</a>
+											</span>
+											<button type="button" class="cp-btn removeGUI-btn" ng-click="removeGUIInvoiceFile(item.guifileName,item)" ng-if="item.guifileName != null">
+												<i class="fa fa-trash-o" aria-hidden="true"></i>	
+											</button>	
+										</div>
+										
+										<span ng-show="item.isGUIInvoiceIsRequired" class="text-danger">*</span>
+									</div>
+									<input type="hidden" id="GUIuuid{{$id}}" name="lineItem[{{itSize(0 , $index , false)}}].GUIuuid" ng-model="item.guiuuid" value="{{item.guiuuid}}"></input>
+							</div>		
+							
+						</td>						
+						<td>
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+							</div>
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input id="remove{{$id}}" class="btn btn-default btn-sm" type="button" th:value="#{inventoryShipment.remove}" ng-click="removeLineItem(item)" ng-mouseover="removeSKU=true" ng-mouseleave="removeSKU=false">
+									</span>
+							</div>		
+							<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input id="remove{{$id}}" class="btn btn-default btn-sm" type="button" th:value="#{inventoryShipment.remove}" ng-click="removeLineItem(item)" ng-mouseover="removeSKU=true" ng-mouseleave="removeSKU=false">
+							</div>		
+														
+							<span class="row text-danger" ng-show="!atLeastOneSKUWarning"><a th:text="#{inventoryShipment.atLeastOneSKU}"></a></span>
+						</td>															
+					</tr>
+					<tr>
+						<td colspan="13">
+							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+							</div>
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<input class="btn btn-default" id="add" type="button" th:value="#{inventoryShipment.add}" style="float: right" ng-click="addLineItem()" />
+									</span>
+							</div>								
+							<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<input class="btn btn-default" id="add" type="button" th:value="#{inventoryShipment.add}" style="float: right" ng-click="addLineItem()" />	
+							</div>		
+							
+						</td>
+					</tr>
+					<tr>
+						<td class="text-info" colspan="13">
+							---[[#{inventoryShipment.mixedContentBox}]]---
+						</td>
+					</tr>				
+					<!-- todo arthur -->						
+					<tr id="mixedContentBox{{$id}}" ng-repeat="mixedContentBox in mixedContentBoxes" ng-init="sectionIndex = $index">					
+						<td colspan="13">
+							<table class="table">
+								<thead>
+									<tr>
+										<td colspan="13">										
+											
+											<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+											or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+											or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											</div>
+											<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+													<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+													</span>
+													<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+														<input class="btn btn-default" id="removeMixedContentBox" type="button" th:value="#{inventoryShipment.removeMixedContentBox}" ng-click="removeMixedContentBox(mixedContentBox)" />
+													</span>
+											</div>
+											<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+													<input class="btn btn-default" id="removeMixedContentBox" type="button" th:value="#{inventoryShipment.removeMixedContentBox}" ng-click="removeMixedContentBox(mixedContentBox)" />
+											</div>		
+																					
+										</td>
+									</tr>
+									<tr>
+										<th style="width: 15%;">
+											[[#{inventoryShipment.sku}]]<span class="text-danger">*</span>
+										</th>
+										<th style="width: 5%;">
+											[[#{inventoryShipment.requireRepackaging}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-center" style="width: 5%;">
+											[[#{inventoryShipment.cartonNumber}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-center" style="width: 20%;">
+											[[#{inventoryShipment.cartonDimensions}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-center" style="width: 5%;">
+											[[#{inventoryShipment.grossWeightPerCarton}]]<span class="text-danger">*</span>
+										</th>								
+										<th class="text-center" style="width: 5%;">
+											[[#{inventoryShipment.unitsPerCarton}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-center" style="width: 5%;">
+											[[#{inventoryShipment.numberOfCartons}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-right" style="width: 5%;">
+											[[#{inventoryShipment.quantity}]]
+										</th>
+										<th class="text-center" style="width: 5%;">
+											[[#{inventoryShipment.uniPrice}]]<span class="text-danger">*</span>
+										</th>
+										<th class="text-right" style="width: 5%;">
+											[[#{inventoryShipment.amount}]]
+										</th>
+										<th style="width: 10%;">
+											[[#{inventoryShipment.GUIInvoiceNumber}]]
+										</th>
+										<th style="width: 10%;">
+											[[#{inventoryShipment.GUIInvoice}]]
+										</th>								
+										<th style="width: 5%;"></th>
+									</tr>
+							</thead>								
+						<tbody>		
+							<tr id="newSKU{{itSize(sectionIndex , $index , true)}}" ng-repeat="mixedContentBoxItem in mixedContentBox">
+								<td>
+								<input type="text" style="display:none" id="id{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].id" 
+								    ng-model="mixedContentBoxItem.id" value="{{mixedContentBoxItem.id}}" ></input>
+									
+									<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].boxNum" ng-model="mixedContentBoxItem.boxNum" value="{{mixedContentBoxItem.boxNum}}" ></input>
+				   							<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].mixedBoxLineSeq" ng-model="mixedContentBoxItem.mixedBoxLineSeq" value="{{mixedContentBoxItem.mixedBoxLineSeq}}" ></input>		
+											{{mixedContentBoxItem.skuCode}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode" value="{{mixedContentBoxItem.skuCode}}" />
+											{{mixedContentBoxItem.nameBySupplier}}
+									</div>
+									<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].boxNum" ng-model="mixedContentBoxItem.boxNum" value="{{mixedContentBoxItem.boxNum}}" ></input>
+				   								<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].mixedBoxLineSeq" ng-model="mixedContentBoxItem.mixedBoxLineSeq" value="{{mixedContentBoxItem.mixedBoxLineSeq}}" ></input>		
+												{{mixedContentBoxItem.skuCode}}
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode" value="{{mixedContentBoxItem.skuCode}}" />
+												{{mixedContentBoxItem.nameBySupplier}}
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].boxNum" ng-model="mixedContentBoxItem.boxNum" value="{{mixedContentBoxItem.boxNum}}" ></input>
+				   								<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].mixedBoxLineSeq" ng-model="mixedContentBoxItem.mixedBoxLineSeq" value="{{mixedContentBoxItem.mixedBoxLineSeq}}"></input>
+												<select id ="SKU{{$id}}" class="form-control sku-selector" name ="lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode" ng-model="mixedContentBoxItem.skuCode" ng-change="verifySKUForMixedBox(mixedContentBoxItem,mixedContentBox)" required>
+													<option value="">--- Select ---</option>									
+													<option ng-repeat="sku in skuList" ng-value="sku">{{sku}}</option>
+																		
+													
+												</select>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode'].$dirty">
+													<a th:text="#{inventoryShipment.SKU_req}"></a>
+												</div>																		
+												<div class="text-danger" ng-if="mixedContentBoxItem.isDuplicate">
+                    								<a th:text="#{inventoryShipment.SKU_dup}"></a>
+                								</div>
+											</span>
+									</div>				
+									<div  th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input type="text" style="display:none" id="boxNum{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].boxNum" ng-model="mixedContentBoxItem.boxNum" value="{{mixedContentBoxItem.boxNum}}" ></input>
+				   							<input type="text" style="display:none" id="mixedBoxLineSeq{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].mixedBoxLineSeq" ng-model="mixedContentBoxItem.mixedBoxLineSeq" value="{{mixedContentBoxItem.mixedBoxLineSeq}}" ></input>
+											<select id ="SKU{{$id}}" class="form-control sku-selector" name ="lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode" ng-model="mixedContentBoxItem.skuCode" 
+											ng-change="verifySKUForMixedBox(mixedContentBoxItem,mixedContentBox)" required>
+												<option value="">--- Select ---</option>									
+												<option ng-repeat="sku in skuList" ng-value="sku">{{sku}}</option>
+																	
+												
+											</select>
+											
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].skuCode'].$dirty">
+												<a th:text="#{inventoryShipment.SKU_req}"></a>
+											</div>																		
+											<div class="text-danger" ng-if="mixedContentBoxItem.isDuplicate">
+                    							<a th:text="#{inventoryShipment.SKU_dup}"></a>
+                							</div>									
+									</div>		
+															
+								</td>	
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">
+												<span ng-if="mixedContentBoxItem.requireRepackaging == true"><a th:text="#{inventoryShipment.true}"></a></span>
+												<span ng-if="mixedContentBoxItem.requireRepackaging == false"><a th:text="#{inventoryShipment.false}"></a></span>
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].requireRepackaging" value="{{mixedContentBoxItem.requireRepackaging}}" />
+											</td>											
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">									  
+												<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">
+													<span ng-if="mixedContentBoxItem.requireRepackaging == true"><a th:text="#{inventoryShipment.true}"></a></span>
+													<span ng-if="mixedContentBoxItem.requireRepackaging == false"><a th:text="#{inventoryShipment.false}"></a></span>
+													<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].requireRepackaging" value="{{mixedContentBoxItem.requireRepackaging}}" />
+												</td>					
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">
+													<input id="requireRepackaging{{$id}}" type="checkbox" name="lineItem[{{itSize(sectionIndex , $index , true)}}].requireRepackaging" ng-model="mixedContentBoxItem.requireRepackaging" ng-readonly="!$first" ng-change="assignRequireRepackaging(mixedContentBox)" >
+												</td>
+											</span>
+										</div>
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">
+												<input id="requireRepackaging{{$id}}" type="checkbox" name="lineItem[{{itSize(sectionIndex , $index , true)}}].requireRepackaging" ng-model="mixedContentBoxItem.requireRepackaging" ng-readonly="!$first" ng-change="assignRequireRepackaging(mixedContentBox)" >
+											</td>
+										</div>		
+									
+								<td class="text-center active"> 
+									{{mixedContentBoxItem.cartonNumberStart}} ~ {{mixedContentBoxItem.cartonNumberEnd}}
+								</td>
+								<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">									
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.cartonDimensionCm1}} x {{mixedContentBoxItem.cartonDimensionCm2}} x {{mixedContentBoxItem.cartonDimensionCm3}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1" value="{{mixedContentBoxItem.cartonDimensionCm1}}" />
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2" value="{{mixedContentBoxItem.cartonDimensionCm2}}" />			
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3" value="{{mixedContentBoxItem.cartonDimensionCm3}}" />
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												{{mixedContentBoxItem.cartonDimensionCm1}} x {{mixedContentBoxItem.cartonDimensionCm2}} x {{mixedContentBoxItem.cartonDimensionCm3}}
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1" value="{{mixedContentBoxItem.cartonDimensionCm1}}" />
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2" value="{{mixedContentBoxItem.cartonDimensionCm2}}" />			
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3" value="{{mixedContentBoxItem.cartonDimensionCm3}}" />
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm1" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required> x
+												<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm2" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required> x
+												<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm3" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required>						
+												<div class="text-danger" ng-show="(InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$dirty) || (InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$dirty) || (InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$dirty)">
+													<a th:text="#{inventoryShipment.cartonDimensions_req}"></a>
+												</div>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$error.pattern || InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$error.pattern || InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$error.pattern">
+            										<a th:text="#{inventoryShipment.cartonDimensions_format}"></a>
+        										</div>
+											</span>
+										</div>
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}" style="text-align: left;">
+											<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm1" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required> x
+											<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm2" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required> x
+											<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3" class="form-control" style="width:20%;display: inline;padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.cartonDimensionCm3" ng-readonly="!$first" ng-change="assignCartonDimension(mixedContentBox); calculateTotalCBM(mixedContentBox)" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" value="" type="text" size="3" required>						
+											
+											<span style="display: inline-grid;vertical-align: middle;" ng-if="mixedContentBoxItem.mixedBoxLineSeq==1">
+												<button type="button" class="cp-btn copy-btn" style="margin-bottom: 4px;" ng-click="copyMixedContentBoxCartonDimensions(mixedContentBox)"><i class="fa fa-clone" aria-hidden="true"></i></button>
+												
+												<button type="button" class="cp-btn paste-btn" ng-click="pasteMixedCartonDimensions(mixedContentBox)"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+											</span>
+											<div class="text-danger" ng-show="(InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$dirty) || (InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$dirty) || (InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$dirty)">
+												<a th:text="#{inventoryShipment.cartonDimensions_req}"></a>
+											</div>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm1'].$error.pattern || InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm2'].$error.pattern || InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].cartonDimensionCm3'].$error.pattern">
+            									<a th:text="#{inventoryShipment.cartonDimensions_format}"></a>
+        									</div>
+										</div>		
+																
+								</td>								
+								<td ng-class="{true: 'text-center', false: 'text-center active'}[mixedContentBox.indexOf(mixedContentBoxItem)==0]">
+									
+									<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.perCartonGrossWeightKg}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg" value="{{mixedContentBoxItem.perCartonGrossWeightKg}}" />
+									</div>
+									<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												{{mixedContentBoxItem.perCartonGrossWeightKg}}
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg" value="{{mixedContentBoxItem.perCartonGrossWeightKg}}" />
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.perCartonGrossWeightKg" ng-readonly="!$first" ng-change="assignPerCartonGrossWeightKg(mixedContentBox) ; calculateTotalWeightKg(this);" ng-pattern="/^(0*[1-9][0-9]*(\.[0-9]+)?|0*\.[0-9]*[1-9][0-9]*)$/" value="" type="text" size="10" required></input>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$dirty">
+													<a th:text="#{inventoryShipment.grossWeightPerCarton_req}"></a>
+												</div>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$error.pattern">
+													<a th:text="#{inventoryShipment.grossWeightPerCarton_format}"></a>
+												</div>
+											</span>
+									</div>
+									<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.perCartonGrossWeightKg" ng-readonly="!$first" ng-change="assignPerCartonGrossWeightKg(mixedContentBox); calculateTotalWeightKg(mixedContentBox);" ng-pattern="/^(0*[1-9][0-9]*(\.[0-9]+)?|0*\.[0-9]*[1-9][0-9]*)$/" value="" type="text" size="10" required></input>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$dirty">
+												<a th:text="#{inventoryShipment.grossWeightPerCarton_req}"></a>
+											</div>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonGrossWeightKg'].$error.pattern">
+												<a th:text="#{inventoryShipment.grossWeightPerCarton_format}"></a>
+											</div>
+									</div>		
+									
+								</td>																																							
+								<td class="text-center">
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.perCartonUnits}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits" value="{{mixedContentBoxItem.perCartonUnits}}" />
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												{{mixedContentBoxItem.perCartonUnits}}
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits" value="{{mixedContentBoxItem.perCartonUnits}}" />
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input id="units{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.perCartonUnits" ng-pattern="/^[1-9][0-9]*$/"  ng-change="calculateMixedContentBoxQuantity(this)" value="" type="text" size="3" required></input>																				
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$dirty">
+													<a th:text="#{inventoryShipment.unitsPerCarton_req}"></a>
+												</div>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$error.pattern">
+													<a th:text="#{inventoryShipment.unitsPerCarton_format}"></a>
+												</div>
+											</span>
+										</div>			
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input id="units{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.perCartonUnits" ng-pattern="/^[1-9][0-9]*$/"  ng-change="calculateMixedContentBoxQuantity(this)" value="" type="text" size="3" required></input>																				
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$dirty">
+												<a th:text="#{inventoryShipment.unitsPerCarton_req}"></a>
+											</div>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].perCartonUnits'].$error.pattern">
+												<a th:text="#{inventoryShipment.unitsPerCarton_format}"></a>
+											</div>
+										</div>		
+									
+								</td>
+								<td class="text-right active">
+									{{$first?  mixedContentBoxItem.cartonCounts = mixedContentBoxCartonCountFirst : mixedContentBoxItem.cartonCounts = mixedContentBoxCartonCountOther}}
+									<input type="text" style="display:none" id="number{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].cartonCounts" class="form-control" ng-model="mixedContentBoxItem.cartonCounts" value="{{mixedContentBoxItem.cartonCounts}}" ></input>
+								</td>																							
+								<td class="text-right active">
+									{{mixedContentBoxItem.quantity}}
+									<input type="text" style="display:none" id="quantity{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].quantity" ng-model="mixedContentBoxItem.quantity" value="{{mixedContentBoxItem.quantity}}" size="3"></input>
+								</td>																		
+								<td class="text-center">									
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.unitAmount}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount" value="{{mixedContentBoxItem.unitAmount}}" />
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+												{{mixedContentBoxItem.unitAmount}}
+												<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount" value="{{mixedContentBoxItem.unitAmount}}" />
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input id="unitPrice{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.unitAmount" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateMixedContentBoxAmount(this)" value="" type="text" size="5" required></input>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$dirty">
+													<a th:text="#{inventoryShipment.uniPrice_req}"></a>
+												</div>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$error.pattern">
+													<a th:text="#{inventoryShipment.uniPrice_format}"></a>
+												</div>
+											</span>
+										</div>										
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input id="unitPrice{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount" class="form-control" style="padding: 6px 2px 6px 2px;text-align:right;" ng-model="mixedContentBoxItem.unitAmount" ng-pattern="/^(?:[1-9]\d*)?(?:\.\d+)?$/" ng-change="calculateMixedContentBoxAmount(this)" value="" type="text" size="5" required></input>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$dirty">
+												<a th:text="#{inventoryShipment.uniPrice_req}"></a>
+											</div>
+											<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].unitAmount'].$error.pattern">
+												<a th:text="#{inventoryShipment.uniPrice_format}"></a>
+											</div>
+										</div>		
+									
+								</td>																	
+								<td class="text-right active">
+									{{mixedContentBoxItem.amountUntaxed}}
+									<input type="text" style="display:none" id="amount{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].amountUntaxed" ng-model="mixedContentBoxItem.amountUntaxed" value="{{mixedContentBoxItem.amountUntaxed}}" size="8"></input>
+								</td>																		
+								<td>
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.guiinvoiceNumber}}
+											<input type="hidden" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceNumber" value="{{mixedContentBoxItem.guiinvoiceNumber}}" />
+										</div>
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+										or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											<input id="GUIInvoiceNumber{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceNumber" class="form-control" style="display:inline;width:100%;padding: 6px 0px 6px 0px;text-align:center;" ng-required="mixedContentBoxItem.isGUIInvoiceIsRequired" ng-model="mixedContentBoxItem.guiinvoiceNumber" ng-pattern="/^[a-zA-Z0-9]+$/" ng-readonly="!mixedContentBoxItem.isGUIInvoiceEnable" type="text" size="5"></input><span ng-show="mixedContentBoxItem.isGUIInvoiceIsRequired" class="text-danger">*</span>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceNumber'].$error.required && InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceNumber'].$dirty">
+													<a th:text="#{inventoryShipment.GUIInvoiceNumber_req}"></a>
+												</div>
+												<div class="text-danger" ng-show="InventoryShipment['lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceNumber'].$error.pattern">
+													<a th:text="#{inventoryShipment.GUIInvoiceNumber_format}"></a>
+												</div>
+										</div>		
+									
+								</td>
+								<td>
+									
+									<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											{{mixedContentBoxItem.guifileName}}
+											<input type="text" style="display:none" id="GUIFileName{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIFileName" ng-model="mixedContentBoxItem.guifileName" value="{{mixedContentBoxItem.guifileName}}" size="50" ></input>
+									</div>
+									<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+											
+											<input type="text" style="display:none" id="GUIFileName{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIFileName" ng-model="mixedContentBoxItem.guifileName" value="{{mixedContentBoxItem.guifileName}}" size="50" ></input>
+											
+											<div ng-controller="MyCtrl">	
+												<div id="GUIInvoiceFile{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIInvoiceFile" ngf-drop ngf-select ng-model="mixedContentBoxItem.GUIInvoiceFile"
+												class="drop-box" ngf-drag-over-class="'dragover'" ngf-multiple="true" 
+												ngf-allow-dir="true" accept="image/*,application/pdf" ngf-pattern="'image/*,application/pdf'" 
+												ng-change="uploadGUIInvoiceFileInMixedBox(mixedContentBox,mixedContentBoxItem)" ng-disabled="!mixedContentBoxItem.isGUIInvoiceEnable || mixedContentBoxItem.guifileName != null" 
+												ng-readonly="!mixedContentBoxItem.isGUIInvoiceEnable || mixedContentBoxItem.guifileName != null">
+													<a ng-if="mixedContentBoxItem.guifileName == null && mixedContentBoxItem.isGUIInvoiceEnable ">Drop here or click to upload</a>
+													<span style="font:smaller" ng-if="mixedContentBoxItem.guifileName != null">
+														<a th:if="${type eq 'Create'}">{{mixedContentBoxItem.guifileName}}</a>
+														<a class="gui-download" th:unless="${type eq 'Create'}" ng-click="downloadGUIInvoiceFile(mixedContentBoxItem.guiuuid,mixedContentBoxItem.guifileName)">
+														 {{mixedContentBoxItem.guifileName}}</a>
+													</span>
+													<button type="button" class="cp-btn removeGUI-btn" ng-click="removeGUIInvoiceFileInMixedBox(mixedContentBoxItem.guifileName,mixedContentBox,mixedContentBoxItem)" ng-if="mixedContentBoxItem.guifileName != null">
+														<i class="fa fa-trash-o" aria-hidden="true"></i>	
+													</button>	
+												</div>
+												<span ng-show="mixedContentBoxItem.isGUIInvoiceIsRequired" class="text-danger">*</span>
+												
+											</div>
+											<input type="hidden" id="GUIuuid{{$id}}" name="lineItem[{{itSize(sectionIndex , $index , true)}}].GUIuuid" ng-model="mixedContentBoxItem.guiuuid" value="{{mixedContentBoxItem.guiuuid}}"></input>
+									
+									</div>		
+									
+								</td>									
+								<td>
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input id="remove{{$id}}" class="btn btn-default btn-sm" type="button" th:value="#{inventoryShipment.remove}" ng-click="removeMixedContentBoxLineItem(mixedContentBox,mixedContentBoxItem)" ng-mouseover="removeSKU=true" ng-mouseleave="removeSKU=false">
+											</span>
+										</div>	
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input id="remove{{$id}}" class="btn btn-default btn-sm" type="button" th:value="#{inventoryShipment.remove}" ng-click="removeMixedContentBoxLineItem(mixedContentBox,mixedContentBoxItem)" ng-mouseover="removeSKU=true" ng-mouseleave="removeSKU=false">
+										</div>		
+									
+									<span class="row text-danger" ng-show="!atLeastOneSKUWarning"><a th:text="#{inventoryShipment.atLeastOneSKU}"></a></span>
+								</td>
+							</tr>
+						</tbody>								
+							<tr>
+								<td colspan="13">
+									
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+										</div>
+										<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+											</span>
+											<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+												<input class="btn btn-default" id="addMixedContentBoxLineItem" type="button" th:value="#{inventoryShipment.add}" style="float: right" ng-click="addMixedContentBoxLineItem(mixedContentBox)" />
+											</span>
+										</div>
+										<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+											<input class="btn btn-default" id="addMixedContentBoxLineItem" type="button" th:value="#{inventoryShipment.add}" style="float: right" ng-click="addMixedContentBoxLineItem(mixedContentBox)" />
+										</div>		
+									
+								</td>
+							</tr>
+								
+						</table>
+					</td>
+				</tr>					
+				<tr>
+					<td colspan="13">
+						
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+							</div>							
+							<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+								<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+								</span>
+								<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+									<input class="btn btn-default" id="addMixedContentBox" type="button" th:value="#{inventoryShipment.addMixedContentBox}" style="float: right" ng-click="addMixedContentBox()" />
+								</span>
+							</div>
+							<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+								<input class="btn btn-default" id="addMixedContentBox" type="button" th:value="#{inventoryShipment.addMixedContentBox}" style="float: right" ng-click="addMixedContentBox()" />	
+							</div>		
+						
+					</td>
+				</tr>																								
+				</tbody>
+					<tr>
+						<td colspan="8"></td>
+						<td class="text-right">
+							<b>[[#{inventoryShipment.subtotal}]]</b>
+						</td>
+						<td class="text-right active">
+							{{subtotal}}
+							<input type="hidden" id="subtotal" th:field="*{InventoryShipment.subtotal}" ng-model="subtotal" size="8" value="{{subtotal}}" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="7"></td>
+						<td colspan="2" class="text-right">
+							
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+							or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')}">
+									<b><a th:text="#{inventoryShipment.taxAmount}"></a> 
+										( [[${InventoryShipment.salesTaxPercentage}]] <input type="hidden" th:field="*{InventoryShipment.salesTaxPercentage}" />%)</b>
+								</div>
+								<div th:if="${#strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<span sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_USER'])}">
+										<b><a th:text="#{inventoryShipment.taxAmount}"></a> 
+											( [[${InventoryShipment.salesTaxPercentage}]] <input type="hidden" th:field="*{InventoryShipment.salesTaxPercentage}" />%)</b>
+									</span>
+									<span sec:authorize="${hasAnyRole(@authProperties['DRS_USER'])}">
+										<b><a th:text="#{inventoryShipment.taxAmount}"></a> 
+											( <input id="salesTaxPercentage" class="form-control" style="display:inline;width:25%;padding: 6px 2px 6px 2px;text-align:right;"
+											th:field="*{InventoryShipment.salesTaxPercentage}" ng-model="salesTaxPercentage" ng-pattern="/^(?:[0-9]\d*)?(?:\.\d+)?$/" 
+											 ng-change="changeSalesTaxPercentage()" required="required" /> %)</b>
+									</span>
+								</div>
+								<div th:unless="${#strings.equals(InventoryShipment.status , 'SHPT_CONFIRMED') or #strings.equals(InventoryShipment.status , 'SHPT_AWAIT_PICK_UP') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_IN_TRANSIT') or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVING') 
+								or #strings.equals(InventoryShipment.status , 'SHPT_RECEIVED') or #strings.equals(InventoryShipment.status , 'SHPT_EXCEPTION')
+								or #strings.equals(InventoryShipment.status , 'SHPT_PLANNING') or #strings.equals(InventoryShipment.status , 'SHPT_FC_BOOKING_CONFIRM')}">
+									<b><a th:text="#{inventoryShipment.taxAmount}"></a><span class="text-danger">*</span> 
+										( <input id="salesTaxPercentage" class="form-control" style="display:inline;width:25%;padding: 6px 2px 6px 2px;text-align:right;"
+										th:field="*{InventoryShipment.salesTaxPercentage}" ng-model="salesTaxPercentage" ng-pattern="/^(?:[0-9]\d*)?(?:\.\d+)?$/" 
+										 ng-change="changeSalesTaxPercentage()" required="required" /> %)</b>
+								</div>		
+														
+							<div class="text-danger" ng-show="InventoryShipment.salesTaxPercentage.$error.required && InventoryShipment.salesTaxPercentage.$dirty">
+      	 						<a th:text="#{inventoryShipment.salesTaxPercentage_req}"></a>
+							</div>
+							<div class="text-danger" ng-show="InventoryShipment.salesTaxPercentage.$error.pattern">
+								<a th:text="#{inventoryShipment.salesTaxPercentage_format}"></a>
+							</div>
+						</td>
+						<td class="text-right active">
+							{{taxAmount}}
+							<input type="hidden" id="taxAmount" th:field="*{InventoryShipment.salesTax}" ng-model="taxAmount" size="8" value="{{taxAmount}}" /></td>
+					</tr>
+					<tr>
+						<td colspan="2"></td>
+						<td class="text-righttt">
+							<b>[[#{inventoryShipment.total}]]</b>
+						</td>
+						<td class=" active tt" style="padding-right: 50px;">
+							{{totalCBMs}}
+						</td>
+						<td class=" active tt">
+							{{totalWeightKgs}}
+						</td>
+						<td></td>
+						<td class="text-right active tt">
+							{{totalCartonCount}}
+						</td>						
+						<td class="text-right active tt">
+							{{totalQuantity}}
+						</td>												
+						<td class="active">							
+						</td>
+						<td class="text-right active">
+							{{totalAmount}}
+							<input type="hidden" id="totalAmount" th:field="*{InventoryShipment.total}" ng-model="totalAmount" size="8" value="{{totalAmount}}" />
+						</td>
+					</tr>
+				</table>				
+				</div>
+			</div>
+			<div style="padding-bottom: 20px"></div>
+			<!-- <h1>{{InventoryShipment.$invalid}}</h1> -->
+			<!--<div>
+            <h1>{{ InventoryShipment| json }}</h1>
+            </div>-->
+			<div id="dialog-confirm"></div>			
+			
+					<th:block th:if="${type eq 'Create'}">
+						<div style="float: right">
+							<input class="btn btn-success" type="button" th:value="#{inventoryShipment.requestPickup}" name="saveDraft"
+							ng-disabled='duplicated || !noSKU || FCAPriceNoneEqual || InventoryShipment.$invalid'
+							onclick="document.pressed='createSubmit' , submitConfirm();" />
+							&nbsp;
+							<input id="createDraft" class="btn btn-primary" type="submit" onclick="document.pressed=this.name , this.form.submit()" name="saveDraft" 
+							th:value="#{inventoryShipment.saveDraft}" ng-disabled='duplicated || !noSKU || FCAPriceNoneEqual || InventoryShipment.$invalid' />
+							
+						</div>
+					</th:block>
+					<th:block th:unless="${type eq 'Create'}">
+						
+							<th:block th:if="${status eq 'DRAFT'}">														
+						<div style="float: right">		
+							<input class="btn btn-success" type="button" th:value="#{inventoryShipment.requestPickup}" name="saveDraft"
+							ng-disabled='duplicated || !noSKU || FCAPriceNoneEqual || InventoryShipment.$invalid'
+							onclick="document.pressed='updateSubmit' , submitConfirm();" />
+							&nbsp;
+							<input class="btn btn-primary" type="submit"
+							onclick="document.pressed=this.name , this.form.submit()"
+							name="updateDraft" th:value="#{inventoryShipment.saveDraft}"
+							ng-disabled='duplicated || !noSKU || FCAPriceNoneEqual || InventoryShipment.$invalid' />
+							
+							<a class="btn btn-link" th:href="@{/InventoryShipments/{name}(name=${InventoryShipment.name})}"
+								th:text="#{inventoryShipment.cancel}" ></a>
+						</div>
+							</th:block>
+							<th:block th:unless="${status eq 'DRAFT'}">
+						<div style="float: right">
+							<span sec:authorize="${hasAnyRole(@authProperties['INVENTORY_SHIPMENTS_DEPOSITION'])}">
+							<a class="btn btn-link" href="/resources/files/G3-deposition-GUI.pdf" target="_blank"
+								th:text="#{inventoryShipment.deposition}" >
+							</a>
+							</span>
+							<input class="btn btn-primary" type="submit"
+							onclick="document.pressed=this.name , this.form.submit()"
+							name="update" th:value="#{inventoryShipment.submit}" ng-disabled='duplicated || !noSKU || FCAPriceNoneEqual || InventoryShipment.$invalid' />
+							<a class="btn btn-link" th:href="@{/InventoryShipments/{name}(name=${InventoryShipment.name})}"
+								th:text="#{inventoryShipment.cancel}" ></a>								
+						</div>						
+							</th:block>	
+												
+					</th:block>
+						
+		</form>
+		<div class="row">
+			<div class="col-md-12 text-danger">
+				<a th:text="#{inventoryShipment.note}"></a>
+			</div>
+		</div>	
+	</div>
+</div>
+</section>
+</body>
+</html>

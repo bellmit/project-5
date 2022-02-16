@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+<title th:text="#{sponsoredBrandsCampaignCP.title}+' - DRS'">
+
+</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>	
+<script th:src="@{/resources/js/accounting.min.js}"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.2/css/fixedHeader.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.2/css/responsive.bootstrap4.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdn.datatables.net/fixedheader/3.1.2/js/dataTables.fixedHeader.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.2/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/absolute.js"></script>
+<script>
+var numbersType = $.fn.dataTable.absoluteOrderNumber( [
+	{ value: 'N/A', position: 'bottom' }
+] );
+	$(function() {
+		jQuery("#startDateInput").datepicker({
+			beforeShow: function() {
+		        setTimeout(function(){
+		            $('.ui-datepicker').css('z-index', 200);
+		        }, 0);
+		    },
+			dateFormat : 'yy-mm-dd'	
+		});
+		jQuery("#endDateInput").datepicker({
+			beforeShow: function() {
+		        setTimeout(function(){
+		            $('.ui-datepicker').css('z-index', 200);
+		        }, 0);
+		    },
+			dateFormat : 'yy-mm-dd'
+		});						
+		jQuery("#startDateInput").datepicker('setDate','[[${defaultUtcDateStart}]]');		
+		jQuery("#endDateInput").datepicker('setDate','[[${defaultUtcDateEnd}]]');								
+		$("#startDateInput,#endDateInput").attr('readonly', true);	
+		$("#supplierSelector").select2({
+		    theme: "bootstrap"
+		});
+
+		$('[data-toggle="tooltip"]').tooltip();
+		var report = $('#sponsoredBrandsCampaign').DataTable({
+			searching: false,
+		    paging: false,
+		    info: false,
+		    responsive: true,
+		    fixedHeader: true,
+	        columnDefs: [{
+	        	"targets":0,
+				"width": "100px"
+	        },{
+	        	"targets":1,
+				"width": "50px"
+	        },{
+	        	"targets":2,
+				"width": "50px"
+	        },{
+	        	"targets":3,
+				"width": "50px"
+	        },{
+	        	"type":numbersType,
+	        	"targets":4,
+				"width": "100px"
+	        },{	
+	        	"type":numbersType,
+	        	"targets":5,
+				"width": "100px"
+	        },{
+	        	"targets":6,
+				"width": "100px"
+	        },{
+	        	"targets":7,
+				"width": "100px"
+	        },{
+	        	"targets":8,
+				"width": "100px"
+	        },{
+	        	"targets":9,
+				"width": "100px"
+	        }],
+			dom: 'Bfrtip',
+	        buttons: [{
+	        	extend: 'csv',
+	            text: '<i class="fas fa-cloud-download-alt"></i>[[#{campaignPerformance.export}]]'
+	        }]
+		});
+		$('#sponsoredBrandsCampaign_filter').hide();
+
+		report.column(0).visible(true);
+		report.column(1).visible(true);
+		report.column(2).visible(true);
+		report.column(3).visible(true);
+		report.column(4).visible(true);
+		report.column(5).visible(true);
+		report.column(6).visible(true);
+		report.column(7).visible(true);	
+		report.column(9).visible(true);		
+		report.buttons().container().appendTo($('#btnExport'));
+		$('#btnExport > .dt-buttons > a').addClass('btn btn-default');		
+		$('input[type="checkbox"]').click(function(){
+			for(i=0;i<10;i++){
+				report.column(i).visible(false);
+			}
+			report.column(0).visible(true);
+			report.column(1).visible(true);
+			$('input[type="checkbox"]').each(function(){
+				report.column($(this).val()).visible($(this).prop('checked'));
+			});
+		});
+		$('input[type="checkbox"]').each(function(){
+			$(this).prop('checked');
+		});		
+
+	var campaignNamefullList ='[[${campaignNameList}]]'.replace(/&quot;/g,'');
+	var c1 =campaignNamefullList.substring(1,campaignNamefullList.length-1);
+	var campaignNameList=c1.split(",");
+
+		// console.log(campaignNameList);
+				
+		$.each(campaignNameList,function(index,value){
+			var c = '<span class="btn btn-pill btn-default">'+value+'</span>&nbsp;&nbsp;';		
+			$('#campaignList').append(c);
+		});
+		if(campaignNameList.length>0){
+			$('span.btn-pill').eq(0).removeClass('btn-default').addClass('btn-success');			
+		}
+		$('span.btn-pill').click(function(){
+			$('span.btn-pill').removeClass('btn-success').addClass('btn-default');
+			$(this).removeClass('btn-default').addClass('btn-success');
+						
+			var supplierKcode = '[[${supplierKcode}]]';
+			var marketplaceId = '[[${marketplaceId}]]';		
+			var campaignName = $(this).text();
+			var startDate = $('#startDateInput').val();
+			var endDate = $('#endDateInput').val();
+			
+			$.ajax({
+				type : 'get',
+				url : '/AmazonSponsoredBrandsCampaign/getAmazonSponsoredBrandsCampaignByCampaignName',
+				contentType : "application/json; charset=utf-8",
+				data : {
+					supplierKcode : supplierKcode,
+					marketplaceId : marketplaceId,
+					startDate : startDate,
+					endDate : endDate,
+					campaignName : campaignName										
+				},
+				dataType : "json",
+				success : function(data) {
+					var campaignReport = data;
+																												
+					report.rows().remove().draw();																																									
+					var items = campaignReport.hsaCampaignReportItems;
+					// console.log(campaignReport);
+										
+					$('#cpcCurrency').text("("+campaignReport.currency+")");
+					$('#spendCurrency').text("("+campaignReport.currency+")");
+					$('#14dayTotalSalesCurrency').text("("+campaignReport.currency+")");
+					
+					items.forEach(function(item){
+																											
+						report.rows.add(
+			                    [
+			                    [item.reportDate,
+			                    item.impressions,
+			                    item.clicks,
+			                    item.clickThruRate,
+			                    item.costPerClick,
+			                    item.totalSpend,
+			                    item.totalSales14days,
+			                    item.totalOrders14days,
+			                    item.totalUnits14days,
+			                    item.conversionRate14days]
+			                    ]
+			            ).draw();
+																	
+					});
+
+					$('#reportDate').text(campaignReport.reportDate);																				
+					$('#totalImpressions').text(campaignReport.totalImpressions);
+					$('#totalClicks').text(campaignReport.totalClicks);
+					$('#totalClickThruRate').text(campaignReport.totalClickThruRate);
+					$('#totalCostPerClick').text(campaignReport.totalCostPerClick);
+					$('#totalSpend').text(campaignReport.totalSpend);
+					$('#totalSales14days').text(campaignReport.totalSales14days);
+					$('#totalOrders14days').text(campaignReport.totalOrders14days);
+					$('#totalUnits14days').text(campaignReport.totalUnits14days);
+					$('#totalConversionRate14days').text(campaignReport.totalConversionRate14days);
+									
+					$('#sponsoredBrandsCampaign tbody tr').find('td:eq(2), td:eq(3), td:eq(4), td:eq(5), td:eq(6), td:eq(7), td:eq(8), td:eq(9), td:eq(10)').addClass('text-right');
+																			
+				}															
+			});
+		});
+		$('.dataTables_empty').attr('colspan',8);
+												
+	});
+	
+	function getDefaultStartDate(){
+		var d = new Date();		
+		d.setDate(d.getDate() - 5);		
+		var curr_date = d.getDate();
+		var curr_month = d.getMonth() + 1;
+		var curr_year = d.getFullYear();		
+		var defaultStartDate = curr_year + "-" + curr_month + "-" + curr_date;
+		return defaultStartDate;						
+	}
+	
+	function getDefaultEndDate(){
+		var d = new Date();		
+		d.setDate(d.getDate() - 4);
+		var curr_date = d.getDate();
+		var curr_month = d.getMonth() + 1;
+		var curr_year = d.getFullYear();
+		var defaultEndDate = curr_year + "-" + curr_month + "-" + curr_date;
+		return defaultEndDate;		
+	}	
+				
+</script>
+<style>
+
+</style>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+
+
+	<div class="max-width">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-heading">
+						<a th:text="#{sponsoredBrandsCampaignCP.title}"></a>
+					</div>
+				</div>
+			</div>		
+			<div class="row">
+				<div class="col-md-12">
+					<form action="AmazonSponsoredBrandsCampaign" method="post" class="form-inline mb-1">
+						<div sec:authorize="${hasAnyRole(@authProperties['SPONSORED_BRANDS_CAMPAIGN_REPORT_FILTER'])}">					
+							<label class="mt-2 mt-md-0 mr-md-2" for="supplierSelector"></label>
+							<a th:text="#{sponsoredBrandsCampaign.supplier}" ></a>
+							<select id="supplierSelector" class="form-control" name="supplierKcode">
+								<option value="">--- Select ---</option>
+								<th:block th:each="kcodeAndName : ${supplierKcodeNameMap}" >
+									<option th:value="${kcodeAndName.key}" th:selected="${kcodeAndName.key} == ${supplierKcode}"
+										th:text="${kcodeAndName.key}+' '+${kcodeAndName.value}" >
+									</option>
+								</th:block>							
+							</select>
+						</div>
+						
+							<label for="marketplaceSelector" class="mt-2 mt-md-0 mr-md-2 ml-md-2" ><a th:text="#{sponsoredBrandsCampaign.marketplace}"></a> </label>
+							<select id="marketplaceSelector" class="form-control mb-3 mb-md-0" name="marketplaceId">
+								<th:block th:each="marketplace : ${marketplacesMap}">
+									<option th:value="${marketplace.key}" th:selected="${marketplace.key} == ${marketplaceId}"
+									th:text="${marketplace.value}"></option>
+								</th:block>						
+							</select>
+							
+							<label for="startDateInput" class="mt-2 mt-md-0 mr-2 ml-md-2"><a th:text="#{sponsoredBrandsCampaign.startDateInput}"></a> </label>
+							<input class="form-control mt-2-md mt-md-0" id="startDateInput" name="start" style="width:100px;cursor:default;background-color:white;">
+							
+							<label for="endDateInput" class="mt-2 mt-md-0 mr-2 ml-2"><a th:text="#{sponsoredBrandsCampaign.endDateInput}"></a> </label>
+							<input class="form-control mt-2-md mt-md-0 mr-md-2" id="endDateInput" name="end" style="width:100px;cursor:default;background-color:white;">			
+							
+							<button class="btn btn-primary mt-2 mt-md-0 mr-md-2 " id="submitButton" type="submit" onclick="this.disabled=true;this.form.submit();"><i class="fas fa-search"></i> <a th:text="#{sponsoredBrandsCampaign.search}"></a> </button>
+					
+						</form>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 mb-1">
+					<label class="control-label enhancement">
+						<a th:text="#{sponsoredBrandsCampaignCP.description}"></a> 
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				
+				<div class="col-md-12 mb-1" id="campaignList" th:if="${campaignNameList != 'null'} and ${campaignNameList != '[]'}">
+					<label class="control-label" > <i class="fas fa-tags"></i> <a th:text="#{sponsoredBrandsCampaign.campaignName}"></a> :  <span ></span>&nbsp;&nbsp;</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-right">
+					<button type="button" class="btn btn-default" style="margin-left:10px;float:right;" data-toggle="collapse" data-target="#ConfigColumns" aria-expanded="false" ><i class="fas fa-th-list"></i> <a th:text="#{sponsoredBrandsCampaign.configColumns}"></a></button>	
+					<span id="btnExport" style="float:right;"></span>
+				</div>
+			</div>
+			<div class="row my-2">	
+				<div class="col-md-12 text-center ">
+					<div id="ConfigColumns" class="collapse">
+						<div class="form-check form-check-inline" >
+							<input class="form-check-input" type="checkbox" name="reportDate" style="display: inline;" value="1" id="reportDate" checked />
+							<label class="form-check-label" for="reportDate" ><a th:text="#{sponsoredBrandsCampaignCP.rptDate}"></a> </label>
+						</div>							
+						<div class="form-check form-check-inline" >
+							<input class="form-check-input" type="checkbox" name="impressions" style="display: inline;" value="2" id="impressions" checked />
+							<label class="form-check-label" for="impressions" ><a th:text="#{sponsoredBrandsCampaign.impressions}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="clicks" style="display: inline;" value="3" id="clicks" checked />
+							<label class="form-check-label" for="clicks" ><a th:text="#{sponsoredBrandsCampaign.clicks}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="ctr" style="display: inline;" value="4" id="ctr" checked />
+							<label class="form-check-label" for="ctr" ><a th:text="#{sponsoredBrandsCampaign.ctr}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="cpc" style="display: inline;" value="5" id="cpc" checked />
+							<label class="form-check-label" for="cpc" ><a th:text="#{sponsoredBrandsCampaign.cpc}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="spend" style="display: inline;" value="6" id="spend" checked />
+							<label class="form-check-label" for="spend" ><a th:text="#{sponsoredBrandsCampaign.spend}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="14dayTotalSales" style="display: inline;" value="7" id="14dayTotalSales" checked />
+							<label class="form-check-label" for="14dayTotalSales" ><a th:text="#{sponsoredBrandsCampaign.14dayTotalSales}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="14dayTotalOrders" style="display: inline;" value="8" id="14dayTotalOrders" checked />
+							<label class="form-check-label" for="14dayTotalOrders" ><a th:text="#{sponsoredBrandsCampaign.14dayTotalOrders}"></a> </label>
+						</div>	
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="14daytotalUnits" style="display: inline;" value="9" id="14daytotalUnits" checked />
+							<label class="form-check-label" for="14daytotalUnits" ><a th:text="#{sponsoredBrandsCampaign.14daytotalUnits}"></a> </label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" name="14dayConversionRate" style="display: inline;" value="10" id="14dayConversionRate" checked />
+							<label class="form-check-label" for="14dayConversionRate" ><a th:text="#{sponsoredBrandsCampaign.14dayConversionRate}"></a> </label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+	<div style="padding-bottom: 10px"></div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="wrapper">
+				<table class="table dataTable dtr-inline" id="sponsoredBrandsCampaign" style="border-spacing:0;width:100%;">
+					<thead>
+						<tr>
+							<th style="width: 6%;  max-width:80px; padding-left: 25px;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" title="reportDate"><span>日期</span></th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.impressionsDesc}"><a th:text="#{sponsoredBrandsCampaign.impressions}"></a> </th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.clicksDesc}"><a th:text="#{sponsoredBrandsCampaign.clicks}"></a> </th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.ctrDesc}"><a th:text="#{sponsoredBrandsCampaign.ctr}"></a> </th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.cpcDesc}"><a th:text="#{sponsoredBrandsCampaign.cpc}"></a>  <span id="cpcCurrency">(<a th:if="${hsaCampaignReport != null}" th:text="${hsaCampaignReport.currency}"></a>)</span></th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.spendDesc}"><a th:text="#{sponsoredBrandsCampaign.spend}"></a>  <span id="spendCurrency">(<a th:if="${hsaCampaignReport != null}" th:text="${hsaCampaignReport.currency}"></a>)</span></th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body"> <a th:text="#{sponsoredBrandsCampaign.14dayTotalSales}"></a> <span id="14dayTotalSalesCurrency">(<a th:if="${hsaCampaignReport != null}" th:text="${hsaCampaignReport.currency}"></a>)</span></th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body"><a th:text="#{sponsoredBrandsCampaign.14dayTotalOrders}"></a> </th>
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body"><a th:text="#{sponsoredBrandsCampaign.14daytotalUnits}"></a> </th>					
+							<th style="width: 10%;" class="text-left" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{sponsoredBrandsCampaign.14dayConversionRateDesc}"><a th:text="#{sponsoredBrandsCampaign.14dayConversionRate}"></a> </th>
+						</tr>
+					</thead>
+					<tbody>
+						<div th:if="${hsaCampaignReport != null}">
+						<th:block th:each="item : ${hsaCampaignReport.hsaCampaignReportItems}">
+							<tr>
+								<td class="text-center" th:text="${item.reportDate}"></td>
+								<td class="text-right" th:text="${item.impressions}"></td>
+								<td class="text-right" th:text="${item.clicks}"></td>
+								<td class="text-right" th:text="${item.clickThruRate}"></td>
+								<td class="text-right" th:text="${item.costPerClick}"></td>
+								<td class="text-right" th:text="${item.totalSpend}"></td>
+								<td class="text-right" th:text="${item.totalSales14days}"></td>
+								<td class="text-right" th:text="${item.totalOrders14days}"></td>
+								<td class="text-right" th:text="${item.totalUnits14days}"></td>
+								<td class="text-right" th:text="${item.conversionRate14days}"></td>
+							</tr>						
+						</th:block>
+						</div>
+					</tbody>
+					<tfoot>
+						<div th:if="${hsaCampaignReport != null}">
+						<tr>
+							<td style="padding-left: 28px;"><b th:text="#{sponsoredBrandsCampaign.total}"></b></td>
+							
+							<td id="totalImpressions" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalImpressions}"></td>
+							<td id="totalClicks" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalClicks}"></td>
+							<td id="totalClickThruRate" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalClickThruRate}"></td>
+							<td id="totalCostPerClick" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalCostPerClick}"></td>
+							<td id="totalSpend" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalSpend}"></td>
+							<td id="totalSales14days" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalSales14days}"></td>
+							<td id="totalUnits14days" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalUnits14days}"></td>
+							<td id="totalOrders14days" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalOrders14days}"></td>
+							<td id="totalConversionRate14days" class="text-right" style="padding: 8px 10px;" th:text="${hsaCampaignReport.totalConversionRate14days}"></td>
+						</tr>
+					</div>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+</div>
+</div>
+
+</section>
+</body>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title
+	th:text="#{template.responseTemplate}+': '+${customerCareCaseIssueTemplate.issueName}+' - DRS'">
+</title>
+<script>
+	function deleteConfirm(issueId,templateId) {
+		$("#dialog-confirm").html('[[#{template.deleteTemplateWarning}]]');
+		$("#dialog-confirm").dialog({
+			open : function() {$('.ui-dialog-buttonset button[name="no"]').focus();},
+			resizable : false,
+			modal : true,
+			title : "Confirmation",
+			height : 250,
+			width : 400,
+			buttons : [
+			{
+				text : '[[#{template.yes}]]',
+				name : "yes",
+				click : function() {
+					$(this).dialog('close');
+					location.href = "/Issues/"+ issueId +"/"+templateId+ "/delete";
+				}
+			}, {
+				text : '[[#{template.no}]]',
+				name : "no",
+				click : function() {
+					$(this).dialog('close');
+				}
+			} ]
+		});	
+	}
+</script>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid">		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{template.responseTemplate}"></a> 
+				</div>
+			</div>
+		</div>
+		<div class="row">		
+			<div class="col-md-12">
+				<table class="table no-head">
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{template.issueName}"></a></b>
+						</td>
+						<td>
+							<a th:href="@{/Issues/{Id}(Id=${customerCareCaseIssueTemplate.issueId})}">
+								[[${customerCareCaseIssueTemplate.issueName}]]
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{template.applicableLanguages}"></a> </b>
+						</td>
+						<td>
+							<th:block th:each="applicableLanguage , applicableLanguagesStatus : ${customerCareCaseIssueTemplate.applicableLanguages}" >
+								[[${applicableLanguage.fullName}]]
+								<th:block th:if="${applicableLanguagesStatus.count != customerCareCaseIssueTemplate.applicableLanguages.size()}">,</th:block>
+							</th:block>							
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{template.applicableCase}"></a></b>
+						</td>
+						<td>
+							<th:block th:each="applicableCaseTypes , applicableCaseTypesStatus : ${customerCareCaseIssueTemplate.applicableCaseTypes}" >
+								<a th:text="#{'ccc.'+${applicableCaseTypes}}"></a>
+								<th:block th:if="${applicableCaseTypesStatus.count != customerCareCaseIssueTemplate.applicableCaseTypes.size()}">,</th:block>							  							    							   							
+							</th:block>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{template.applicableMarket}"></a></b>
+						</td>
+						<td>
+							<th:block th:each="applicableMarketRegions , applicableMarketRegionsStatus : ${customerCareCaseIssueTemplate.applicableMarketRegions}" >
+								<a th:text="#{${applicableMarketRegions}}"></a>
+								<th:block th:if="${applicableMarketRegionsStatus.count != customerCareCaseIssueTemplate.applicableMarketRegions.size()}">,</th:block>
+							</c:forEach>							
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{template.applicableMarketplaces}"></a></b>
+						</td>
+						<td>
+							<th:block th:each="applicableMarketplace , applicableMarketplacesStatus : ${customerCareCaseIssueTemplate.applicableMarketplaceList}" >
+								[[${applicableMarketplace.name}]]
+								<th:block th:if="${applicableMarketplacesStatus.count != customerCareCaseIssueTemplate.applicableMarketplaceList.size()}">,</th:block>
+							</th:block>
+						</td>
+					</tr>
+				</table>										
+			</div>
+		</div>
+		<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+			<div class="col-md-12">	
+				<div class="panel panel-default">
+					<div class="panel-body">
+						
+						<p><a th:utext="${customerCareCaseIssueTemplate.contents}"></a></p>					
+					</div>
+				</div>
+			</div>
+		</div>		
+		<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+			<div class="col-md-12 text-right">			
+				<a th:href="@{/Issues/{Id}(Id=${customerCareCaseIssueTemplate.issueId})}">
+					<input class="btn btn-primary" type="button" th:value="#{template.backToIssue}" />
+				</a>
+				<span sec:authorize="${hasAnyRole(@authProperties['TEMPLATE_MAINTAIN'])}">	
+				<a th:href="@{/Template/{id}/edit(id=${customerCareCaseIssueTemplate.id})}">
+					<input class="btn btn-default" type="button" th:value="#{template.edit}" />
+				</a>
+				<input class="btn btn-default" type="button" th:value="#{template.delete}" th:onclick="deleteConfirm([[${customerCareCaseIssueTemplate.issueId}]],[[${customerCareCaseIssueTemplate.id}]]);" />
+				<div id="dialog-confirm"></div>				
+				</span>	
+			</div>
+		</div>			
+	</div>
+</div>
+</section>
+</body>
+</html>	

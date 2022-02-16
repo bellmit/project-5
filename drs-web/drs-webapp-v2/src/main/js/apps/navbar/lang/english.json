@@ -1,0 +1,81 @@
+{
+	"header.home": " Home",		
+	"header.dashBoard": " Dashboard ",
+	
+	"header.products": " Products",
+	"header.ProductsInformationMaintenance": " Products Information Maintenance",
+	"header.manageProducts": " Manage Products",
+	"header.appllyNewProductOnboarding": " 申請產品上架",
+	"header.asinMapping": " SKU-ASIN mapping (Internal)",
+	"header.keyProductStats": " Key product stats",
+	"header.baseProduct": " Base product",
+	"header.sku": " SKU",
+	"header.customerOrders": " Customer orders ",
+	
+	"header.orders": " Orders",
+
+	"header.logistics": " Logistics",
+	"header.replenishmentPrediction": " Replenishment Planning",
+	"header.inventoryShipments": " Inventory Shipments",
+	"header.unifiedShipments": " Unified Shipments (Internal)",
+	"header.replenishmentInformation": " Replenishment Information Maintenance (Internal)",
+	"header.inventoryAvailability": " Update FBA Inventory Availability (Internal)",
+
+	"header.customerCare": " Customer Care",
+	"header.customerCareCase": " Customer Care Cases",
+	"header.issues": " Issues",
+
+	"header.accounting": " Accounting",
+	"header.ss2spStatements": " Statements",
+	"header.intercompanyStatementsReceived": " Intercompany Statements Received (Internal)",
+	"header.intercompanyStatementsIssued": " Intercompany Statements Issued (Internal)",
+	"header.remittance": " Remittances (Internal)",
+	"header.domesticTransaction": " Domestic Transaction (Internal)",
+	"header.internationalTransaction": " International Transaction (Internal)",
+	"header.importDutyTransaction": " Import Duty Transaction (Internal)",
+	"header.settleableTransaction": " Settleable Transactions (Internal)",
+	"header.draftStatements": " SS2SP draft statements (Internal)",
+	"header.profitCostShareStatements": " Profit / Cost Share (Internal)",
+	"header.processCouponRedemptionFee": " Process Coupon Redemption Fee (Internal)",
+
+	"customerSatisfaction.title" : "Customer Satisfaction",
+	"inventoryHealthReport.title" : "FBA Estimated Long-Term Storage Fee",
+	"header.report": " Report",
+	"header.salesAndPageTrafficReport": " Sales and Page Traffic Report",
+	"header.storageFee": " FBA Monthly Storage Fee",
+	"header.importInventoryReport": " Import Reports (Internal)",
+	"header.emailReminder": " Email Reminder Options (Internal)",
+	"header.marketingSalesDashboard": " Marketing Sales Dashboard (beta - internal)",
+
+	"header.marketingActivities": " Marketing Activities",
+
+	"header.skuAdvertisingPerformanceReport":"Amazon Advertising Campaign Performance",
+	"header.searchTermReport":"Amazon Keyword Search",
+	"header.skuAdvertisingEvaluationReport":"Amazon Product Page Analysis",
+	"header.sponsoredBrandsCampaign": "Amazon Sponsored Brands - Keywords",
+	"header.sponsoredBrandsCampaignCP": " Amazon Sponsored Brands - Campaign Performance",
+	"header.importMarketingReport": " Import Marketing Reports (Internal)",
+	"header.ecom-school": " Ecom School",
+	"header.companies": " Companies",
+
+	"header.references": " References",
+	"header.documentation": " Documentation",
+	"header.links": " Supplemental Links",
+
+	"header.logout": " Log Out",
+	"header.agreement": " Agreement",
+	"header.companyInfoMaintenance": " Company Information Maintenance ",
+	"header.drs-typography": " DRS Typography",
+	"header.article-management": " Article Management (Internal) ",
+	"header.specialist-contact": " Specialist Contact",
+	
+	"header.amazon-guide": " Amazon 指南",
+	"header.blog": " Blog",
+	"header.question": " 常見問題",
+
+	"links.item": " Item",
+	"links.description": " Description",
+	"links.preview": " Preview"
+
+	 
+}

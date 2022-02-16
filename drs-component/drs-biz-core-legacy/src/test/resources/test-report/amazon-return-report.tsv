@@ -1,0 +1,3 @@
+return-date	order-id	sku	asin	fnsku	product-name	quantity	fulfillment-center-id	detailed-disposition	reason	status
+2050-06-13T19:20:12+00:00	108-0915425-3439418	K151-17A	B00C19SDL6	X000FMFS6P	Simply Silver Wall-Mount Soap Dispenser (20oz)	1	CVG2	SELLABLE	UNDELIVERABLE_UNKNOWN	Unit returned to inventory
+2016-06-10T14:05:24+00:00	115-8698095-5787460	K448-1A	B00D7TBHA8	X000GKLYCN	Gel'O Cool Pillow Mat 11 x 22" - soft, odorless, no water filling!	1	LEX2	CUSTOMER_DAMAGED	UNWANTED_ITEM	Unit returned to inventory

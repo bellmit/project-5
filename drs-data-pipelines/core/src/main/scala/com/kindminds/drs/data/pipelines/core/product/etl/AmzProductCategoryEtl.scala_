@@ -1,0 +1,203 @@
+package com.kindminds.drs.data.pipelines.core.product.etl
+
+import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
+
+import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
+import akka.stream.alpakka.mongodb.scaladsl.MongoSource
+import akka.stream.alpakka.slick.javadsl.SlickSession
+import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.{ActorMaterializer, IOResult, Materializer}
+import akka.util.ByteString
+import com.mongodb.reactivestreams.client.MongoClients
+import org.bson
+import org.bson.BsonDocument
+import org.bson.conversions.Bson
+import org.mongodb.scala.Document
+import org.mongodb.scala.bson.BsonString
+//import org.mongodb.scala.bson.{BsonString, Document}
+//import org.mongodb.scala.bson.{BsonDocument, BsonString, Document}
+import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
+
+import scala.collection.immutable
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success}
+
+
+object AmzProductCategoryEtl  {
+
+
+  def main(args: Array[String]): Unit = {
+    // importFee()
+    // importFeeDetail()
+    processMaster()
+
+  }
+
+  def cleanseCsvData(csvData: Map[String, ByteString]): Map[String, String] =
+    csvData
+      .filterNot { case (key, _) => key.isEmpty }
+      .mapValues(_.utf8String)
+
+
+  //val filePath = "/home/servicedesk/product_category/toys-and-games_browse_tree_guide._TTH.csv"
+
+  val filePath = "C:\\Users\\Cliff Chang\\test\\watches_browse_tree_guide.csv"
+
+  val timeout = scala.concurrent.duration.FiniteDuration(30, TimeUnit.SECONDS)
+
+  //=============================================
+
+
+  // #init-connection
+
+  private val client = MongoClients.create("mongodb://drsMongo:vgy7ujm@35.221.131.190:27017/drs")
+  private val db = client.getDatabase("drs")
+  // private val numbersColl = db
+  // .getCollection("numbers", classOf[Number])
+  // .withCodecRegistry(codecRegistry)
+  // #init-connection
+
+  private val numbersDocumentColl = db.getCollection("p2mApplication")
+  private val productCategoryColl = db.getCollection("productCategory")
+
+  // implicit val defaultPatience =
+  // PatienceConfig(timeout = 5.seconds, interval = 50.millis)
+
+  //=================================================
+
+  def processMaster():Unit = {
+
+
+    implicit val system = ActorSystem("drsDP")
+    implicit val session = SlickSession.forConfig("slick-postgres")
+    import session.profile.api._
+    implicit val ec =  scala.concurrent.ExecutionContext.global
+    implicit val materializer: Materializer = ActorMaterializer()
+
+
+
+    println(filePath)
+    var count = 0
+    val file = Paths.get(filePath)
+    println(file.getFileName)
+
+
+    val f2 = file.toFile
+    println(f2.getAbsolutePath)
+    println(f2.getAbsoluteFile.exists())
+
+    val f: Source[ByteString, Future[IOResult]] =  FileIO.fromPath(file)
+
+    val r: Future[immutable.Seq[Map[String, String]]] = f.via(CsvParsing.lineScanner())
+      .via(CsvToMap.toMap())                                       //: Map[String, ByteString] (5)
+      .map(cleanseCsvData)                                         //: Map[String, String]     (6)
+      .runWith(Sink.seq)
+
+
+    r onComplete {
+      case Success(x) => {
+
+        x.foreach( y=> {
+          //          println(y.get("Node Path"))
+
+          val nodes: Array[String] = y.get("Node Path").get.split("/")
+          //          println(nodes.mkString("Array(", ", ", ")"))
+          val result = nodes.foldRight("")(_+","+_)
+          val path = result.substring(0,result.length-1)
+          val query: Array[String] = y.get("Query").get.split(":")
+
+          count += 1
+
+
+
+//          if(nodes.length > 1){
+//            if(query.length>1){
+//              val doc1 = Document("name" -> BsonString(nodes(nodes.length-1)),
+//                "parent" -> BsonString(nodes(nodes.length-2)),
+//                "path" -> BsonString(path),
+//                "item_type_keyword" -> BsonString(query(query.length-1)),
+//                "isLast" -> BsonString("1")
+//              )
+//              println(doc1)
+//              MongoSource(productCategoryColl.insertOne(doc1)).runWith(Sink.ignore)
+//            }else{
+//              val doc1 = Document("name" -> BsonString(nodes(nodes.length-1)),
+//                "parent" -> BsonString(nodes(nodes.length-2)),
+//                "path" -> BsonString(path),
+//                "item_type_keyword" -> BsonString(""),
+//                "isLast" -> BsonString("0")
+//              )
+//              println(doc1)
+//              MongoSource(productCategoryColl.insertOne(doc1)).runWith(Sink.ignore)
+//            }
+//          }else{
+//            val doc1 = Document("name" -> BsonString(nodes(nodes.length-1)),
+//              "parent" -> BsonString(""),
+//              "path" -> BsonString(""),
+//              "item_type_keyword" -> BsonString(""),
+//              "isLast" -> BsonString("0")
+//            )
+//            println(doc1)
+//            MongoSource(productCategoryColl.insertOne(doc1)).runWith(Sink.ignore)
+//          }
+//
+//
+
+
+
+
+          /*
+           { _id: "Books", path: null },
+           { _id: "Programming", path: ",Books," },
+           { _id: "Databases", path: ",Books,Programming," },
+           { _id: "Languages", path: ",Books,Programming," },
+           { _id: "MongoDB", path: ",Books,Programming,Databases," },
+           { _id: "dbm", path: ",Books,Programming,Databases," }
+           */
+
+
+
+        })
+        println(count)
+        session.close()
+
+
+      }
+      case Failure(e) => println(e)
+    }
+
+
+
+    /*
+      val source =
+        MongoSource(numbersDocumentColl.find(doc1))
+
+      source.runForeach( d=>{
+        println(d.get("_id"))
+        println(d.get("name"))
+
+      })
+
+     */
+
+
+
+    //val rows: Future[immutable.Seq[bson.Document]] = source.runWith(Sink.seq)
+
+    // rows.futureValue.map(_.getInteger("_id"))
+
+    //println(r2.length)
+
+
+    //  session.close()
+
+  }
+
+
+
+
+
+}

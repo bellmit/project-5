@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+	<servers>
+ 		  
+		<server>
+			<id>TomcatServer</id>
+			<username>roger</username>
+			<password>8jF63#dk</password>
+		</server>
+		
+ 		<server>
+			<id>TestingTomcatServer</id>
+			<username>test</username>
+			<password>testing</password>
+		</server>
+ 
+	</servers>
+</settings>

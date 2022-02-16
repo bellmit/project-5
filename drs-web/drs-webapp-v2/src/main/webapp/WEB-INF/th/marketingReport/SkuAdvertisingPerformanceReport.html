@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+<title th:text="#{marketingReport.skuAdvertisingPerformanceReport}+' - DRS'">
+	 - DRS
+</title>
+
+	
+	<!-- <link rel="stylesheet" type="text/css" th:href="@{/resources/css/DataTables/datatables.min.css}"/>
+	<script type="text/javascript" th:src="@{/resources/js/DataTables/datatables.min.js}"></script> -->
+
+<script type="text/javascript">
+
+
+var numbersType = $.fn.dataTable.absoluteOrderNumber( [
+	{ value: 'N/A', position: 'bottom' }
+] );
+
+$(function() {
+ 
+	
+	jQuery("#startDateInput,#endDateInput").datepicker({
+		beforeShow: function() {
+	        setTimeout(function(){
+	            $('.ui-datepicker').css('z-index', 200);
+	        }, 0);
+	    },
+		dateFormat : 'yy-mm-dd'
+	});
+
+	jQuery("#startDateInput").datepicker('setDate','[[${defaultUtcDateStart}]]');
+	jQuery("#endDateInput").datepicker('setDate','[[${defaultUtcDateEnd}]]');
+	$("#startDateInput,#endDateInput").attr('readonly', true);
+
+	
+	$('#supplierSelector').select2({
+	    theme: "bootstrap"
+	});
+	
+	
+	$('[data-toggle="tooltip"]').tooltip();
+	var report = $('#skuAdPerformance').DataTable({
+		order: [1,'asc'],
+		searching: true,
+	    paging: false,
+	    info: false,
+	    responsive: true,
+	    fixedHeader: true,
+	    language: {
+
+		      "emptyTable": '[[#{campaignPerformance.noData}]]'
+		},
+        columnDefs: [{
+        	"targets":0,
+        	"visible":false,
+        	"width":"10px"
+        },{
+        	"targets":1,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":2,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":3,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":4,
+        	"visible":false,
+        	"width":"100px"
+        },{
+    		"type":numbersType,
+        	"targets":5,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":6,
+        	"visible":false,
+        	"width":"100px"
+        },{
+    		"type":numbersType,
+        	"targets":7,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":8,
+        	"visible":false,
+        	"width":"100px"
+        },{
+        	"targets":9,
+        	"visible":false,
+        	"width":"100px"
+        },{
+    		"type":numbersType,
+        	"targets":10,
+        	"visible":false,
+        	"width":"100px",
+			"className":"text-right"
+        }],
+        buttons: [{
+        	extend: 'csv',
+            text: '<i class="fas fa-cloud-download-alt"></i> [[#{campaignPerformance.export}]]'
+        }]
+	});
+
+	$('#skuAdPerformance_filter').hide();
+	report.column(1).visible(true);
+	report.column(3).visible(true);
+	report.column(4).visible(true);
+	report.column(5).visible(true);
+	report.column(6).visible(true);
+	report.column(7).visible(true);
+	report.column(8).visible(true);
+	report.column(9).visible(true);
+	report.buttons().container().appendTo($('#btnExport'));
+	$('#btnExport > .dt-buttons > a').addClass('btn btn-default');
+	$('input[type="checkbox"]').click(function(){
+		for(i=1;i<11;i++){
+			report.column(i).visible(false);
+		}
+		report.column(1).visible(true);
+		$('input[type="checkbox"]').each(function(){
+			report.column($(this).val()).visible($(this).prop('checked'));
+		});
+		$("span.btn-success").click();
+	});
+	$('input[type="checkbox"]').each(function(){
+		$(this).prop('checked',($(this).val()!=2 && $(this).val()!=10));
+	});
+
+	var campaignNamefullList ='[[${campaignNameList}]]'.replace(/&quot;/g,'');
+	var c1 =campaignNamefullList.substring(1,campaignNamefullList.length-1);
+	var campaignNameList=c1.split(",");
+	
+
+	$.each(campaignNameList,function(index,value){
+		var c = '<span class="btn btn-pill btn-default">'+value+'</span>&nbsp;&nbsp;';
+		
+		$('#campaignList').append(c);
+	});
+	if(campaignNameList.length>0){
+		$('span.btn-pill').eq(0).removeClass('btn-default').addClass('btn-success');
+	}
+
+	$('span.btn-pill, span.btn-success').click(function(){
+		$('span.btn-pill').removeClass('btn-success').addClass('btn-default');
+		$(this).removeClass('btn-default').addClass('btn-success');
+		
+		var supplierKcode = '[[${supplierKcode}]]';
+		var marketplaceId = '[[${marketplaceId}]]';
+		var startDate = '[[${defaultUtcDateStart}]]';
+		var endDate = '[[${defaultUtcDateEnd}]]';
+		var campaignName = $(this).text();
+		console.log(campaignName);
+
+			$.ajax({
+				type : 'get',
+				url : '/sku-adv-performance-report/getReportByCampaignName',
+				contentType : "application/json; charset=utf-8",
+				data : {
+					supplierKcode : supplierKcode,
+					marketplaceId : marketplaceId,
+					startDate : startDate,
+					endDate : endDate,
+					campaignName : campaignName
+				},
+				dataType : "json",
+				success : function(data) {
+					var skuAdvPerformanceReport = data;
+					report.rows().remove().draw();
+					var items = skuAdvPerformanceReport.campaignItems;
+
+					$('#totalSpendCurrency').text("("+skuAdvPerformanceReport.currency+")");
+					$('#averageCpcCurrency').text("("+skuAdvPerformanceReport.currency+")");
+					$('#productSalesWithinOneWeekOfAClickCurrency').text("("+skuAdvPerformanceReport.currency+")");
+
+					var itemArray = new Array();
+
+					items[campaignName].forEach(function(item){
+
+						itemArray.push(
+								[campaignName,
+				                    item.sku,
+				                    "[ad group]",
+				                    item.totalImpression,
+				                    item.totalClicks,
+				                    item.clickThroughRate,
+				                    item.totalSpend,
+				                    item.costPerClick,
+				                    item.totalOneWeekOrdersPlaced,
+				                    item.totalOneWeekOrderedProductSales,
+				                    item.acos]
+			            );
+
+					});
+
+					report.rows.add(itemArray).draw();
+					$('#grandTotalImpression').text(skuAdvPerformanceReport.grandTotalImpression);
+					$('#grandTotalClick').text(skuAdvPerformanceReport.grandTotalClick);
+					$('#grandClickThroughRate').text(skuAdvPerformanceReport.grandClickThroughRate);
+					$('#grandTotalSpend').text(skuAdvPerformanceReport.grandTotalSpend);
+					$('#grandCostPerClick').text(skuAdvPerformanceReport.grandCostPerClick);
+					$('#grandTotalOneWeekOrdersPlaced').text(skuAdvPerformanceReport.grandTotalOneWeekOrdersPlaced);
+					$('#grandTotalOneWeekOrderedProductSales').text(skuAdvPerformanceReport.grandTotalOneWeekOrderedProductSales);
+					$('#grandAcos').text(skuAdvPerformanceReport.grandAcos);
+					$('#skuAdPerformance tbody tr').find('td:eq(1),td:eq(2),td:eq(3),td:eq(4),td:eq(5),td:eq(6),td:eq(7),td:eq(8)').addClass('text-right');
+				}
+			});
+
+	});
+
+	$('.dataTables_empty').attr('colspan',8);
+
+});
+
+
+</script>
+
+
+<style>
+table.dataTable {    
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+table.dataTable.no-footer {
+    border-bottom: 0px solid #111;
+}
+table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > td.sorting_asc, table.dataTable thead > tr > td.sorting_desc, table.dataTable thead > tr > td.sorting {
+    padding-right: 20px;
+}
+table.dataTable tfoot th, table.dataTable tfoot td {
+    padding: 8px 10px;
+    border-top: 2px solid #ccc;
+}
+table.fixedHeader-floating {
+	top:48px !important;
+}
+table.dataTable thead th{
+	border-bottom: 1px solid #eeeded;
+}
+.table > tbody > tr > td.dataTables_empty {
+	border-top:0px;
+}
+</style>
+
+</head>
+
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width" style="max-width:1640px !important;padding-left:20px;padding-right:20px;" >
+	<div class="max-width">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-heading">
+						<a th:text="#{marketingReport.skuAdvertisingPerformanceReport}+' - DRS'"></a>
+					</div>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+				<form action="sku-adv-performance-report" method="post" class="form-inline mb-1">
+					<div sec:authorize="${hasAnyRole(@authProperties['SKU_ADVERTISING_PERFORMANCE_REPORT_FILTER'])}">
+						<label class="mt-2 mt-md-0 mr-md-2" for="supplierSelector"></label>
+						<a th:text="#{campaignPerformance.supplier}"></a>
+						<select id="supplierSelector" class="form-control" name="supplierKcode">
+							<option value="">--- Select ---</option>
+							<th:block th:each="kcodeAndName : ${supplierKcodeToShortEnNameMap}">
+								<option th:value="${kcodeAndName.key}" th:selected="${kcodeAndName.key} == ${supplierKcode}"
+									th:text="*{kcodeAndName.key}+' '+*{kcodeAndName.value}" >
+	
+								</option>
+							</th:block>
+						</select>
+					</div>
+						<label for="marketplaceSelector" class="mt-2 mt-md-0 mr-md-2 ml-md-2"><a th:text="#{campaignPerformance.marketplace}"></a></label>
+						<select id="marketplaceSelector" class="form-control mb-3 mb-md-0" name="marketplaceId" >
+							<th:block th:each="marketplace: ${marketplaces}">
+								<option th:value="${marketplace.key}" th:selected="${marketplace.key}== ${marketplaceId}" 
+								th:text="${marketplace.name}"></option>
+							</th:block>
+						</select>
+						<label for="startDateInput" class="mt-2 mt-md-0 mr-1 ml-md-2"><a th:text="#{campaignPerformance.startDateInput}" ></a></label>
+						<input class="form-control mt-2-md mt-md-0" id="startDateInput" name="start"  style="width:100px;cursor:default;background-color:white;">
+						<label for="endDateInput" class="mt-2 mt-md-0 mr-1 ml-1"><a th:text="#{campaignPerformance.endDateInput}"></a></label>
+						<input class="form-control mt-1-md mt-md-0 mr-md-2" id="endDateInput"   name="end"   style="width:100px;cursor:default;background-color:white;">
+						<div>
+						<button class="btn btn-primary mt-1 mt-md-0 mr-md-2" type="submit" onclick="this.disabled=true;this.form.submit();"><i class="fas fa-search"></i>
+							<a th:text="#{campaignPerformance.search}"></a></button>
+						</div>
+				</form>
+				</div>
+			</div>
+			<div class="row">
+			<div class="col-md-12 mb-1">
+				<label class="control-label enhancement">
+					<a th:text="#{campaignPerformance.description}" ></a>
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			
+
+			<div class="col-md-12 mb-1" id="campaignList" th:if="${campaignNameList != '[]'}">
+				
+				<label class="control-label" ><i class="fas fa-tags"></i><a  th:text="#{campaignPerformance.campaignName}"></a>: <span ></span>&nbsp;&nbsp;</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-right">
+				<button type="button" class="btn btn-default" style="margin-left:10px;float:right;" data-toggle="collapse" data-target="#ConfigColumns" aria-expanded="false" ><i class="fas fa-th-list"></i>
+					<a th:text="#{campaignPerformance.configColumns}"></a></button>
+				<span id="btnExport" style="float:right;"></span>
+			</div>
+		</div>
+		<div class="row my-2">
+			<div class="col-md-12 text-center">
+				<div id="ConfigColumns" class="collapse">
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="adGroupName" value="2"  id="adGroupName" />
+						<label class="form-check-label" for="adGroupName" ><a th:text="#{campaignPerformance.adGroupName}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="impressions" value="3"  id="impressions"  checked />
+						<label class="form-check-label" for="impressions" ><a th:text="#{campaignPerformance.impressions}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="clicks" value="4"  id="clicks"  checked />
+						<label class="form-check-label" for="clicks" ><a th:text="#{campaignPerformance.clicks}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="ctr" value="5"  id="ctr"  checked />
+						<label class="form-check-label"  for="ctr" ><a th:text="#{campaignPerformance.ctr}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="totalSpend" value="6"  id="totalSpend"  checked />
+						<label class="form-check-label" for="totalSpend" ><a th:text="#{campaignPerformance.totalSpend}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="averageCpc" value="7"  id="averageCpc"  checked />
+						<label class="form-check-label" for="averageCpc" ><a th:text="#{campaignPerformance.averageCpc}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="ordersPlacedWithinOneWeekOfAClick" value="8"  id="ordersPlacedWithinOneWeekOfAClick" checked  />
+						<label class="form-check-label" for="ordersPlacedWithinOneWeekOfAClick" ><a th:text="#{campaignPerformance.ordersPlacedWithinOneWeekOfAClick}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="productSalesWithinOneWeekOfAClick" value="9"  id="productSalesWithinOneWeekOfAClick"  checked />
+						<label class="form-check-label" for="productSalesWithinOneWeekOfAClick" ><a th:text="#{campaignPerformance.productSalesWithinOneWeekOfAClick}"></a></label>
+					</span>
+					<span class="form-check form-check-inline">
+						<input class="form-check-input"  type="checkbox" name="acos" value="10"  id="acos" />
+						<label class="form-check-label" for="acos" ><a th:text="#{campaignPerformance.acos}"></a></label>
+					</span>
+				</div>
+			</div>
+		</div>
+
+	<div style="padding-bottom: 10px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="wrapper">
+					<table class="table" id="skuAdPerformance" style="border-spacing:0;table-layout:fixed;diaplay:inline-block;">
+					<thead>
+						<tr>
+							
+							<th class="text-left" data-toggle="tooltip" data-placement="top" data-container="body"  th:title="#{campaignPerformance.campaignNameDesc}"><a th:text="#{campaignPerformance.campaignName}"></a></th>
+							<th class="text-left" data-toggle="tooltip" data-placement="top" data-container="body"  th:title="#{campaignPerformance.skuCodeDesc}"><a th:text="#{campaignPerformance.skuCode}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.adGroupNameDesc}"><a th:text="#{campaignPerformance.adGroupName}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.impressionsDesc}"><a th:text="#{campaignPerformance.impressions}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.clicksDesc}"><a th:text="#{campaignPerformance.clicks}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.ctrDesc}"><a th:text="#{campaignPerformance.ctr}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.totalSpendDesc}"><a th:text="#{campaignPerformance.totalSpend}"></a> <span id="totalSpendCurrency" >(<a th:if="${report != null}" th:text="${report.currency}"></a>)</span></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.averageCpcDesc}"><a th:text="#{campaignPerformance.averageCpc}"></a> <span id="averageCpcCurrency">(<a th:if="${report != null}" th:text="${report.currency}"></a>)</span></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.ordersPlacedWithinOneWeekOfAClickDesc}"><a th:text="#{campaignPerformance.ordersPlacedWithinOneWeekOfAClick}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.productSalesWithinOneWeekOfAClickDesc}"><a th:text="#{campaignPerformance.productSalesWithinOneWeekOfAClick}"></a> <span id="productSalesWithinOneWeekOfAClickCurrency">(<a th:if="${report != null}" th:utext="${report.currency}"></a>)</span></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" th:title="#{campaignPerformance.acosDesc}"><a th:text="#{campaignPerformance.acos}"></a></th>
+						</tr>
+					</thead>
+					<tbody>
+
+
+				<div th:if="${report != null}" >
+					<th:block th:each="campaignItems: ${report.CampaignItems}">
+					
+						<span th:each="lineItem: ${campaignItems.value}" varStatus="status" >
+							<tr>
+								<td class="text-left" th:text="${campaignItems.key}" >${campaignItems.key}</td>
+								<td class="text-left" th:text="${lineItem.sku}"></td>
+								<td class="text-left" >[ad group]</td>
+								<td class="text-right" th:text="${lineItem.totalImpression}"></td>
+								<td class="text-right" th:text="${lineItem.totalClicks}"></td>
+								<td class="text-right" th:text="${lineItem.clickThroughRate}"></td>
+								<td class="text-right" th:text="${lineItem.totalSpend}"></td>
+								<td class="text-right" th:text="${lineItem.costPerClick}"></td>
+								<td class="text-right" th:text="${lineItem.totalOneWeekOrdersPlaced}"></td>
+								<td class="text-right" th:text="${lineItem.totalOneWeekOrderedProductSales}"></td>
+								<td class="text-right" th:text="${lineItem.acos}"></td>
+							</tr>
+						</span>
+					</th:block>
+				</div>
+					</tbody>
+					<tfoot>
+					
+					<tr>
+						<td></td>
+						<td class="text-center"><b><a th:if="${report != null}" th:text="#{campaignPerformance.total}"></a></b><input type="hidden" id="reportCurrency" value="${report.currency}"/></td>
+						<td></td>
+						
+						<td id="grandTotalImpression" class="text-right"><a th:if="${report != null}" th:text="${report.grandTotalImpression}"></a></td>
+						<td id="grandTotalClick" class="text-right"><a th:if="${report != null}" th:text="${report.grandTotalClick}"></a></td>
+						<td id="grandClickThroughRate" class="text-right"><a th:if="${report != null}" th:text="${report.grandClickThroughRate}"></a></td>
+						<td id="grandTotalSpend" class="text-right"><a th:if="${report != null}" th:text="${report.grandTotalSpend}"></a></td>
+						<td id="grandCostPerClick" class="text-right"><a th:if="${report != null}" th:text="${report.grandCostPerClick}"></a></td>
+						<td id="grandTotalOneWeekOrdersPlaced" class="text-right"><a th:if="${report != null}" th:text="${report.grandTotalOneWeekOrdersPlaced}"></a></td>
+						<td id="grandTotalOneWeekOrderedProductSales" class="text-right"><a th:if="${report != null}" th:text="${report.grandTotalOneWeekOrderedProductSales}"></a></td>
+						<td id="grandAcos" class="text-right"><a th:if="${report != null}" th:text="${report.grandAcos}"></a></td>
+						
+					</tr>
+				
+					</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
+		</div>
+</div>
+</section>
+
+</body>
+
+</html>

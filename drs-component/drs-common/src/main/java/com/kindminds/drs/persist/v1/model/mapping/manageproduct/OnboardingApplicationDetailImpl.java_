@@ -1,0 +1,62 @@
+package com.kindminds.drs.persist.v1.model.mapping.manageproduct;
+
+
+
+import com.kindminds.drs.data.dto.manageproduct.OnboardingApplicationDetail;
+import com.kindminds.drs.data.dto.product.BaseProductOnboardingDetail;
+
+public class OnboardingApplicationDetailImpl implements OnboardingApplicationDetail {
+
+    private String id;
+    private String baseProductCode;
+    private String supplierKcode;
+    private String country;
+    private String jsonData;
+    private String status;
+
+    public OnboardingApplicationDetailImpl(BaseProductOnboardingDetail bpod) {
+        this.id = bpod.getId();
+        this.baseProductCode = bpod.getProductBaseCode();
+        this.supplierKcode = bpod.getSupplierKcode();
+        this.jsonData = bpod.getData();
+        this.status = bpod.getStatus();
+    }
+
+    public OnboardingApplicationDetailImpl(String baseProductCode, String supplierKcode, String country, String jsonData, String status) {
+        this.baseProductCode = baseProductCode;
+        this.supplierKcode = supplierKcode;
+        this.country = country;
+        this.jsonData = jsonData;
+        this.status = status;
+    }
+
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    @Override
+    public String getBaseProductCode() {
+        return this.baseProductCode;
+    }
+
+    @Override
+    public String getSupplierKcode() {
+        return this.supplierKcode;
+    }
+
+    @Override
+    public String getCountry() {
+        return this.country;
+    }
+
+    @Override
+    public String getJsonData() {
+        return this.jsonData;
+    }
+
+    @Override
+    public String getStatus() {
+        return this.status;
+    }
+}

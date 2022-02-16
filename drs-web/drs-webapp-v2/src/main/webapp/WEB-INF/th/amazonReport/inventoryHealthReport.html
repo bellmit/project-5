@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title
+            th:text="#{inventoryHealthReport.title}+ ' - DRS'" >
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet"/>
+    <script>
+$(document).ready(function() {
+	if($(window).width() >= 1024){
+	$('#inventoryHealthReport').floatThead({
+		scrollingTop : $("#s5_menu_wrap").height(),
+		zIndex : 100
+	});
+	$('#inventoryHealthReport').on("floatThead", function(e, isFloated, $floatContainer) {
+		if (isFloated) {
+			$floatContainer.addClass("table-floated");
+		} else {
+			$floatContainer.removeClass("table-floated");
+		}
+	})};
+	$('#supplierSelector').select2({
+	    theme: "bootstrap"
+	});
+});
+</script>
+</head>
+
+<body>
+    <section layout:fragment="custom-content">
+
+<div class="max-width">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-heading"><a th:text="#{inventoryHealthReport.title}"></a></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label class="control-label enhancement">
+                    <a th:text="#{inventoryHealthReport.note}"></a><br>
+                    <a th:text="#{inventoryHealthReport.noteUS}"></a><br>
+                    <a th:text="#{inventoryHealthReport.noteUKCA}"></a><br>
+                    <div th:switch="${currency}">
+                        <div th:case="'CAD'">
+                            <a th:utext="#{inventoryHealthReport.moreInfoCA}"></a><br>
+                        </div>
+                        <div th:case="'GBP'">
+                            <a th:utext="#{inventoryHealthReport.moreInfoUK}"></a><br>
+                        </div>
+                        <div th:case="*">
+                            <a th:utext="#{inventoryHealthReport.moreInfoUS}"></a><br>
+                        </div>
+                    </div>
+                    <div sec:authorize="${hasAnyRole(@authProperties['EMAIL_REMINDER'])}">
+                        <a th:href="@{/emailReminder}" th:text="#{inventoryHealthReport.emailReminder}"></a><br>
+                    </div>
+
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form method="POST" class="form-inline" action="/inventory-health-report">
+                    <div class="form-inline">
+                    <div sec:authorize="${hasAnyRole(@authProperties['SUPPLIER_FILTER'])}">
+                        <label class="px-md-2 pt-2 pt-md-0" for="supplierSelector"></label>
+                            <a th:text="#{campaignPerformance.supplier}"></a>
+                        <select id="supplierSelector" class="form-control" name="supplierKcode">
+                            <option value="">All</option>
+                            <th:block th:each="supplierKcodeName : ${supplierKcodeNames}" >
+                                <option th:value="${supplierKcodeName.key}" th:selected="${supplierKcodeName.key} == ${report.supplierKcode}"
+                                        th:text="${supplierKcodeName.key}+' '+${supplierKcodeName.value}" >
+                                </option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <label class="px-md-2 pt-2 pt-md-0" for="marketplaceId">
+                    <br>
+                    <a th:text="#{common.marketplace}"></a></label>
+                    <select class="form-control" name="marketplaceId">
+                        <th:block th:each="marketplace : ${marketplaces}">
+                            <option th:value="${marketplace.key}" th:selected="${marketplace.key} == ${report.marketplace.key}"
+                                    th:text="${marketplace.name}">
+                            </option>
+                        </th:block>
+                    </select>
+                    <button class="btn btn-primary mx-md-2 mt-2 mt-md-0" type="submit"><i class="fas fa-search"></i> <a th:text="#{campaignPerformance.search}"></a></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-right">
+                <a th:text="#{inventoryHealthReport.snapshotDate}"></a><a th:text="${report.snapshotDate}"></a> <a th:text="#{inventoryHealthReport.weeklyUpdate}"></a>
+            </div>
+        </div>
+        <div style="padding-bottom: 10px"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="inventoryHealthReport" class="table table-centered table-floated">
+                        <thead>
+                        <tr>
+                            <th><a th:text="#{inventoryHealthReport.SKU}"></a></th>
+                            <th><a th:text="#{inventoryHealthReport.productName}"></a></th>
+                            <th><a th:text="#{inventoryHealthReport.condition}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.totalUnsellableQty}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.totalSellableQty}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.estLongTermStorageUnits6+}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.estLongTermStorageUnits12+}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.estLongTermStorageFee6+(${currency})}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.estLongTermStorageFee12+(${currency})}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.unitsShippedLast30days}"></a></th>
+                            <th class="text-right"><a th:text="#{inventoryHealthReport.weeksOfCoverTrailing30days}"></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="item : ${report.lineItems}">
+                            <tr>
+                                <td><a th:text="${item.sku}"></a></td>
+                                <td><a th:text="${item.productName}"></a></td>
+                                <td><a th:text="${item.condition}"></a></td>
+                                <td class="text-right"><a th:text="${item.unsellableQuantity}"></a></td>
+                                <td class="text-right"><a th:text="${item.sellableQuantity}"></a></td>
+                                <td class="text-right"><a th:text="${item.qtyToBeChargedLtsf6Mo}"></a></td>
+                                <td class="text-right"><a th:text="${item.qtyToBeChargedLtsf12Mo}"></a></td>
+                                <td class="text-right"><a th:text="${item.projectedLtsf6Mo}"></a></td>
+                                <td class="text-right"><a th:text="${item.projectedLtsf12Mo}"></a></td>
+                                <td class="text-right"><a th:text="${item.unitsShippedLast30Days}"></a></td>
+                                <td class="text-right"><a th:text="${item.weeksOfCoverT30}"></a></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </section>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>說明書說明</title>
+
+<style>
+
+.ex_text{
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    line-height: 2.5rem;
+}
+.list {
+    list-style-type: disc;
+    padding: 30px;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 3rem;
+    
+}
+.text_pic_text_list {
+    color: #3D4278;
+}
+.text_pic_ex {
+    display: flex;
+    margin-top: 40px;
+}
+.text_pic_text {
+    width: 50%;
+    margin-right: 50px;
+
+}
+.text_pic_pic {
+    padding-top: 30px;
+    width: 50%;
+    text-align: center;
+}
+.hr_line {
+    width: 50%;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    color: #CB26D6;
+}
+.pic_description {
+    margin-bottom: 20px;
+    font-style: italic;
+    font-size: 16px;
+    color: #2386D5;
+}
+.pic {
+    max-width: 100%;
+}
+
+</style>    
+
+</head>
+<body>
+<section layout:fragment="custom-content">
+    <div style="margin: 2% 15% 5% 15%;">
+
+    <div class="page-heading" style="margin-bottom: 40px; font-weight: 600 !important;">說明書說明</div>    
+        
+    <div class="ex_text">此處「說明書」意指包含所有與產品一起呈現給消費者的實體文字附件，除了一般說明書之外，可能還有水洗標、顧客卡、品牌卡等。
+    </div>
+    <br/>
+    <br/>
+    <div class="ex_text">由於任何消費者看到的內容都會影響到他們對於產品的使用體驗，產品說明書的內容訴求簡單易懂，使用流暢不生澀的詞句，讓消費者能輕鬆依照說明書操作或安裝。
+        若使用消費者不熟悉的用語及句型，可能會引起誤解及使用時的挫折感；此外，頁面方向、排列順序也會影響閱讀感受。</div>    
+    <br/>
+    <br/>
+    <div class="ex_text">DRS 提醒您，以下實體文字附件可以幫助您傳遞訊息給消費者：</div>
+        <ul class="list">
+            <li>快速入門指南（Quick Start Guide）：有時候說明書內容太多，消費者難以找到需要的資訊，因此您也可以附上一張快速入門指南，以直覺化的方式告訴消費者簡易的操作方法。</li>
+            <li>品牌小卡、品牌貼紙（Brand Card）：隨產品附帶的卡片、貼紙是推廣品牌的好用小工具之一，依照您的客群特性，您附上的小東西也許會是他們大大的驚喜。</li>
+            <li>保固卡（Warranty Card）：您可以把保固資訊寫在說明書內，也可以獨立做成一張卡片，如果您需要消費者保留此卡，以便在維修時連同卡片及產品一起寄回來給您，請務必寫在清楚明顯的位置。
+            </li>
+            <li>洗滌標籤：依目標銷售市場的當地法規，您的產品可能必須附上洗標。美國市場可以參考：
+                <a href="https://www.ftc.gov/tips-advice/business-center/selected-industries/clothing-and-textiles" target="_blank"> FTC - Clothing and Textiles</a>
+                ，以及另外兩個有幫助的網站：
+                <ul style="margin-top: 20px;">
+                    <li><a href="https://www.ftc.gov/tips-advice/business-center/guidance/threading-your-way-through-labeling-requirements-under-textile"  target="_blank">
+                        THREADING YOUR WAY THROUGH THE LABELING REQUIREMENTS UNDER THE TEXTILE AND WOOL ACTS</a></li>
+                    <li><a href="https://www.ftc.gov/tips-advice/business-center/guidance/clothes-captioning-complying-care-labeling-rule" target="_blank">
+                        CLOTHES CAPTIONING: COMPLYING WITH THE CARE LABELING RULE</a></li>
+                </ul>
+            </li>
+        </ul>
+    <div class="ex_text">以下列舉說明書可能包含之內容：</div>
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>品牌名稱與標誌（Logo）：幫助消費者對產品加深印象，提高產品及品牌的完整性。</li>
+                <li>產品名稱：說明書使用之產品名稱與銷售平台上的使用之產品名稱不需要完全相同。</li>
+                <li>產品型號：方便查詢與辨別產品。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img1.png" />
+        </div>
+
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>產品構造、說明圖示（Product Diagram）：藉由圖示呈現產品結構或產品各部位功能。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <div style="margin-bottom: 40px;">
+            <p class="pic_description">使用清晰簡潔的素描圖描述產品細節與功能。</p>
+            <img class="pic" src="/resources/images/pai-ex-img2.png" />
+            </div>
+            <p class="pic_description">產品組合示意圖</p>
+            <img class="pic" src="/resources/images/pai-ex-img3.jpg" />
+        </div>
+
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>使用前注意事項：避免消費者在不適當的環境或前提下操作產品，另外，也可在此提醒使用者在使用產品前應有的準備及檢查工作。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img4.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>產品使用步驟與備註：詳細說明產品使用方法，佐以圖片，也可加入一些小提示。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img5.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>保養方式／安全警語：提醒消費者安全使用方式及保養方法，應提及避免事項，以防發生危險。 </li>
+                <li>如果您的產品使用的材質可能引起過敏，或不適合長期接觸皮膚、不適合在極端的環境下使用，請務必寫在說明書上。以下為警示內容參考寫法：
+                    <br/>
+                    <span style="color: #D72222 !important;">
+                    Warning: It is possible to get ice burns due to prolonged contact with a chilled cool pillow. 
+                    To prevent ice burns, put a barrier such as a towel between the skin and the cool pillow. 
+                    Small children and elderly people can suffer skin burns and damage quicker than adults because of their fragile skin. 
+                    If you notice any itchiness, numbness or inflammation to your skin, seek medical aid immediately.
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img6.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>疑難排解：可以將產品在使用上最常遇到的問題、產品特徵及處理方式條列出，幫助消費者自行排除問題。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img7.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>產品規格：例如尺寸、重量、長度、電壓、功率、頻率、距離（範圍）及流量等。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img8.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>免責聲明與認證標誌：依照您的產品在目標市場的法規要求，在說明書或產品上標示認證標誌、聲明。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" style="height: 120%; padding-bottom: 20px;" src="/resources/images/pai-ex-img9.png" />
+        </div>
+    </div>
+    <hr class="hr_line" />
+
+    <div class="text_pic_ex">
+        <div class="text_pic_text">
+            <ul class="list text_pic_text_list">
+                <li>感謝購買：可以在說明書上加入正面、稍具感性的內容，鼓勵滿意的使用者給予回饋。</li>
+                <li>聯絡資訊、網站、社群網路資訊或 QR 碼：使消費者得以獲得更多品牌產品資訊。</li>
+            </ul>
+        </div>
+        <div class="text_pic_pic">
+            <img class="pic" src="/resources/images/pai-ex-img10.png" />
+        </div>
+    </div>
+
+    </div>
+</section>
+</body>

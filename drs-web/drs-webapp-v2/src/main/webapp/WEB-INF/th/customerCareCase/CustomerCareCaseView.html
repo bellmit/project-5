@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+<title
+	th:text="#{ccc.title}+' : '+${CustomerCareCase.caseId}+' - DRS'">
+</title>
+
+<style type="text/css">
+.removePseudoElements:before{
+	content: none;
+}
+
+.form-control{
+	border-raius: 0px;
+}
+
+html {
+	font-size:14px !important;
+}
+
+</style>
+
+<link th:href="@{/resources/css/bootstrap3-glyphicons.css}" type="text/css" rel="stylesheet">
+<link th:href="@{/resources/css/bootstrap3-wysihtml5.css}" type="text/css" rel="stylesheet">
+
+<script type='text/javascript' th:src="@{/resources/js/bootstrap3-wysihtml5.all.js}"></script>
+
+<link rel="stylesheet" type="text/css" th:href="@{/resources/css/jquery-ui-timepicker-addon.css}"/></link>
+<script type='text/javascript' th:src="@{/resources/js/jquery-ui-timepicker-addon.js}"></script>
+<script type='text/javascript' th:src="@{/resources/js/date.format.js}"></script>
+<script type='text/javascript' th:src="@{/resources/js/Countable.js}"></script></script>	
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-migrate-3.0.0.min.js"></script>
+
+<script>
+	$(function() {
+
+		
+		
+		$.widget("ui.tooltip", $.ui.tooltip, {
+    		options: {
+            	content: function () {
+                	return $(this).prop('title');
+            	}
+        	}
+    	});	
+		$("#noteNoOfBillableWords").tooltip({
+			show: null,
+			position: { 
+				my: "left-60 top-150", 
+				at: "right center" 
+			}
+		});	
+		$("#noteNoOfExtraActions").tooltip({
+			show: null,
+			position: { 
+				my: "left-60 top-200", 
+			   	at: "right center" 
+			}
+		});	
+	});
+
+	function deleteConfirm(caseId) {
+		$("#dialog-confirm").html('[[#{ccc.deleteCaseWarning}]]');
+		$("#dialog-confirm").dialog({
+			open : function() {$('.ui-dialog-buttonset button[name="no"]').focus();},
+			resizable : false,
+			modal : true,
+			title : "Confirmation",
+			height : 250,
+			width : 400,
+			buttons : [{
+				text : '[[#{ccc.yes}]]',
+				name : "yes",
+				click : function() {
+					$(this).dialog('close');
+					location.href = "/CustomerCareCases/" + caseId +"/delete";
+				}
+			}, {
+				text : '[[#{ccc.no}]]',
+				name : "no",
+				click : function() {
+					$(this).dialog('close');
+				}
+			} ]
+		});			
+	}
+
+	function deleteMessageConfirm(caseId,lineSeq){		
+		$("#dialog-message-confirm").html('[[#{ccc.deleteMsgWarning}]]');		
+		$("#dialog-message-confirm").dialog({
+			open : function() {$('.ui-dialog-buttonset button[name="no"]').focus();},
+			resizable : false,
+			modal : true,
+			title : "Confirmation",
+			height : 250,
+			width : 400,
+			buttons : [{
+				text : '[[#{ccc.yes}]]' ,
+				name : "yes",
+				click : function() {
+					$(this).dialog('close');
+					location.href = "/CustomerCareCases/" + caseId +"/"+ lineSeq + "/deleteMsg";
+				}
+			}, {
+				text : '[[#{ccc.no}]]' ,
+				name : "no",
+				click : function() {
+					$(this).dialog('close');
+				}
+			} ]
+		});		
+	}
+		
+	var app = angular.module('message', []);
+	app.controller('messageCtrl', function($scope) {				
+		var area = document.getElementById('contents');
+		$scope.contents = "";		 		
+		function callback (counter) { 		   
+ 			if(counter['words'] <= 1){ 			  
+ 				document.getElementById("wordCounter").innerHTML = counter['words'] +" word"; 			 
+ 		  	}else{ 			  
+ 			 	document.getElementById("wordCounter").innerHTML = counter['words'] +" words"; 			 
+ 		  	} 		   		   		  
+		}		
+		Countable.live(area, callback);		
+		$('#contentRow .wysihtml5-sandbox').contents().find('body').on("change keyup paste blur click",function() {	    	
+	    	var descriptionContent =  $("#contentRow .wysihtml5-sandbox").contents().find('.contents').html(); 	    	    	
+	    	$('#contents').val(descriptionContent);	    	    	
+	    	var area = document.getElementById('contents');			
+			function callback (counter) {	 		   
+	 			if(counter['words'] <= 1){ 			  
+	 				document.getElementById("wordCounter").innerHTML = counter['words'] +" word";			  
+	 			 	$scope.contents = "";
+	 			 	$scope.$apply();	 			 
+	 		  	}else{ 			  
+	 			 	document.getElementById("wordCounter").innerHTML = counter['words'] +" words"; 			  		  
+	 			 	$scope.contents = descriptionContent;
+	 			 	$scope.$apply();	 			 		  
+	 		  	}	 		   		   		  
+			}			
+			Countable.live(area, callback);	    	
+	    });	    
+	    $('#contentRow .wysihtml5-sandbox').on('load', function(e){	
+	    	$('#contentRow .wysihtml5-sandbox').contents().find('body').on("change keyup paste blur click",function() {				
+	    		var descriptionContent =  $("#contentRow .wysihtml5-sandbox").contents().find('.contents').html(); 	    	    	
+	        	$('#contents').val(descriptionContent);	        	    	
+	        	var area = document.getElementById('contents');	    		
+	    		function callback (counter) {	     		  
+	     			if(counter['words'] <= 1){ 			  
+	     			 	document.getElementById("wordCounter").innerHTML = counter['words'] +" word";			  
+	     			 	$scope.contents = "";
+	     			 	$scope.$apply();	     			     	 		  
+	     		  	}else{ 			  
+	     			 	document.getElementById("wordCounter").innerHTML = counter['words'] +" words"; 			  		  
+	     			 	$scope.contents = descriptionContent;
+	     			 	$scope.$apply();	
+	     		  	}	     		   		   		  
+	    		}	    		
+	    		Countable.live(area, callback);	        		   		
+	    	});
+	    });		
+		getIssues();
+		$scope.issue="";
+		$scope.responseTemplate="";
+		$scope.CustomerType = [{customer : ''}];
+		$scope.MSDCType = [];
+		
+		function emptyList(id) {
+			document.getElementById(id).options.length = 0;
+		}
+		
+		function getIssues(){
+			var categoryId = Number($('#categoryName').val());			
+			var typeId = Number($('#issueType').val());						
+			var ajaxUrl = '/CustomerCareCases/getIssues/';
+			var issues = null;			
+			$.ajax({
+				type : 'get',			
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {
+					categoryId : categoryId,
+					typeId : typeId				
+				},
+				dataType : "json",
+				success : function(data) {					
+					issues = data;					
+					emptyList("issue");										
+					if(Object.keys(issues).length > 0){										
+						var selectIssue = document.getElementById("issue");
+						var optIssue = document.createElement("option");
+						optIssue.value = "";
+						optIssue.textContent = "---Select---";
+						selectIssue.appendChild(optIssue);																			
+					}					
+					for ( var key in issues) {					
+						optIssue = document.createElement("option");
+						optIssue.value = key;
+						optIssue.textContent = issues[key];
+						selectIssue.appendChild(optIssue);											
+					}														
+					emptyList("otherTemplate");															
+					$scope.issue="";
+					$scope.responseTemplate="";					
+					$scope.Message.issue.$$lastCommittedViewValue="";
+					$scope.Message.issue.$$rawModelValue="";
+					$scope.Message.issue.$modelValue="";
+					$scope.Message.issue.$viewValue="";					
+					$scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					$scope.Message.responseTemplate.$$rawModelValue="";
+					$scope.Message.responseTemplate.$modelValue="";
+					$scope.Message.responseTemplate.$viewValue="";																									
+				},
+				error: function(jqXHR, textStatus, errorThrown) 
+				{
+					emptyList("issue");
+					emptyList("otherTemplate");										
+					$scope.issue="";
+					$scope.responseTemplate="";					
+					$scope.Message.issue.$$lastCommittedViewValue="";
+					$scope.Message.issue.$$rawModelValue="";
+					$scope.Message.issue.$modelValue="";
+					$scope.Message.issue.$viewValue="";					
+					$scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					$scope.Message.responseTemplate.$$rawModelValue="";
+					$scope.Message.responseTemplate.$modelValue="";
+					$scope.Message.responseTemplate.$viewValue="";																			
+				}							
+			});
+		}
+		
+		$scope.checkMessageType = function() {			
+			var checkedValue = null;			
+			if (document.getElementById('CustomerType').checked) {
+				checkedValue = document.getElementById('CustomerType').value;
+			}			
+			if (document.getElementById('MSDCType').checked) {
+				checkedValue = document.getElementById('MSDCType').value;
+			}												
+			$('#startDate').val('');
+			$('#endDate').val('');
+			$('#timeTaken').val('');
+			$('#chargeToSKU').val('');
+			$('#addToSettleableTransaction').prop('checked', false);			
+			$('#wordCount').val('');
+			$('#standardActionCount').val('');
+			$('#DRSChargeByWord').val('');
+			$('#costPerHour').val('');
+			if (checkedValue == "customer_msg") {
+				$scope.CustomerType = [{customer : ''}];
+				$scope.MSDCType = [];				
+				$("#insertTemplateArea").hide();				
+			} else {				
+				$scope.CustomerType = [];
+				$scope.MSDCType = [{MSDC : ''}];				
+				$("#insertTemplateArea").show();
+			}			
+		}
+						
+		$scope.getTimeNow = function(target) {						
+			var now = new Date();									
+			$('#'+target).val(dateFormat(now, "yyyy-mm-dd HH:MM:ss o"));			
+			$scope.getTimeTaken();			
+		};
+						
+		function msToTime(s) {		 			
+			function addZ(n) {
+				return (n<10? '0':'') + n;
+			}
+			var ms = s % 1000;
+			s = (s - ms) / 1000;
+			var secs = s % 60;
+			s = (s - secs) / 60;
+			var mins = s % 60;
+			var hrs = (s - mins) / 60;
+			return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs);		
+		}
+				
+		$scope.getTimeTaken = function(){			
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();								     			
+			var startDateFormat = startDate.replace(/-/g,"/");   
+			var endDateFormat = endDate.replace(/-/g,"/");								
+		    if(startDateFormat != "" && endDateFormat != ""){		    	
+		    	var startDateTime = new Date(startDateFormat);		    	
+		    	var endDateTime = new Date(endDateFormat);		    	
+		    	var duration = endDateTime - startDateTime;		    				    	
+		    	var time = msToTime(duration);		    			    			    	
+		    	$scope.timeTaken = time;		    	
+		    	$scope.getDrsChargeByWord();		    			    	
+		    }						
+		};
+		
+		$scope.getDrsChargeByWord = function (){			
+			var feeForWordCount = 0.07;
+			if( $scope.MSDCType[0]["translationFeeIncluded"] == true) feeForWordCount = 0.14;
+			var wordCount = Number($scope.MSDCType[0]["wordCount"]);
+			var standardActionCount = Number($scope.MSDCType[0]["standardActionCount"]);
+			var DRSChargeByWord = wordCount*feeForWordCount+standardActionCount*1.4;
+			$scope.MSDCType[0]["DRSChargeByWord"] = Math.round(Number(DRSChargeByWord) * Math.pow(10, 2)) / Math.pow(10, 2);
+			$scope.getCostPerHour();						
+		};
+		
+		$scope.getCostPerHour = function (){			
+			var costPerHour = ($scope.MSDCType[0]["DRSChargeByWord"]/$scope.MSDCType[0]["timeTaken"])*60;			
+			$scope.MSDCType[0]["costPerHour"] = Math.round(Number(costPerHour) * Math.pow(10, 2)) / Math.pow(10, 2);			
+		};
+		
+		$scope.insertMessage = function (id){			
+			var templateId = $('#'+id).val();
+			var ajaxUrl = '/CustomerCareCases/getTemplateContent/';
+			var templateContent = null;
+			$('#contents').val("");
+			$("#responseTemplateId").val("");	        			
+			$.ajax({
+				type : 'get',
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : { templateId : templateId },
+				dataType : "json",
+				success : function(data) {					
+					templateContent = data;					
+					var cursorPos = $(".wysihtml5-sandbox").contents().find('.contents').prop('selectionStart');
+					var currentContents = $(".wysihtml5-sandbox").contents().find('.contents').html();
+					var textBefore = currentContents.substring(0,  cursorPos );
+			        var textAfter  = currentContents.substring( cursorPos, currentContents.length );			       
+			        $('#contents').val( textBefore+ templateContent);			        
+			        $(".wysihtml5-sandbox").contents().find('.contents').html(textBefore+ templateContent);			        
+			        $("#responseTemplateId").val($("#"+id).val());			        
+			        var area = document.getElementById('contents');					
+			        function callback (counter) {			         		   
+			        	if(counter['words'] <= 1){			         				  
+			        		document.getElementById("wordCounter").innerHTML = counter['words'] +" word";			         			  
+			        	}else{			         			  
+			         		document.getElementById("wordCounter").innerHTML = counter['words'] +" words";			         			  		  
+			        	}			         		   		   		  
+			        }			        		
+			        Countable.live(area, callback);			        																																												
+				}											
+			});						
+		};
+															
+		$scope.getIssueTypeList = function(scope) {		    
+			var categoryId = Number($('#categoryName').val());
+			var ajaxUrl = '/CustomerCareCases/getIssueTypeList/';
+			var issueTypeList = null;			
+			$.ajax({	
+				type : 'get',			
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : { categoryId : categoryId },
+				dataType : "json",
+				success : function(data) {					
+					issueTypeList = data;										
+					emptyList("issueType");					
+					var selectIssueType = document.getElementById("issueType");
+					var optIssueType = document.createElement("option");
+					optIssueType.value = "";
+					optIssueType.textContent ='[[#{issue.ALL_TYPE}]]';
+					selectIssueType.appendChild(optIssueType);						
+					for ( var issueType in issueTypeList) {
+						if (issueTypeList.hasOwnProperty(issueType)) {					
+							optIssueType = document.createElement("option");
+							optIssueType.value = issueType;
+							optIssueType.textContent = issueTypeList[issueType];
+							selectIssueType.appendChild(optIssueType);
+						}					
+					}									
+					scope.getIssues(scope);															
+				},
+				error: function(jqXHR, textStatus, errorThrown) 
+				{										
+					console.log(jqXHR);
+					console.log(textStatus);
+					console.log(errorThrown);									
+				}					
+			});			
+		};
+				
+		$scope.getIssues = function (scope){			
+			var categoryId = Number($('#categoryName').val());			
+			var typeId = Number($('#issueType').val());						
+			var ajaxUrl = '/CustomerCareCases/getIssues/';
+			var issues = null;			
+			$.ajax({
+				type : 'get',			
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : {
+					categoryId : categoryId,
+					typeId : typeId				
+				},
+				dataType : "json",
+				success : function(data) {					
+					issues = data;					
+					emptyList("issue");										
+					if(Object.keys(issues).length > 0){										
+						var selectIssue = document.getElementById("issue");
+						var optIssue = document.createElement("option");
+						optIssue.value = "";
+						optIssue.textContent = "---Select---";
+						selectIssue.appendChild(optIssue);																			
+					}					
+					for ( var key in issues) {					
+						optIssue = document.createElement("option");
+						optIssue.value = key;
+						optIssue.textContent = issues[key];
+						selectIssue.appendChild(optIssue);											
+					}														
+					emptyList("otherTemplate");					
+					scope.issue="";
+					scope.responseTemplate="";					
+					scope.Message.issue.$$lastCommittedViewValue="";
+					scope.Message.issue.$$rawModelValue="";
+					scope.Message.issue.$modelValue="";
+					scope.Message.issue.$viewValue="";					
+					scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					scope.Message.responseTemplate.$$rawModelValue="";
+					scope.Message.responseTemplate.$modelValue="";
+					scope.Message.responseTemplate.$viewValue="";																									
+				},
+				error: function(jqXHR, textStatus, errorThrown) 
+				{					
+					emptyList("issue");
+					emptyList("otherTemplate");					
+					scope.issue="";
+					scope.responseTemplate="";					
+					scope.Message.issue.$$lastCommittedViewValue="";
+					scope.Message.issue.$$rawModelValue="";
+					scope.Message.issue.$modelValue="";
+					scope.Message.issue.$viewValue="";					
+					scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					scope.Message.responseTemplate.$$rawModelValue="";
+					scope.Message.responseTemplate.$modelValue="";
+					scope.Message.responseTemplate.$viewValue="";																			
+				}							
+			});						
+		};
+			
+		$scope.getTemplates = function (scope){			
+			var issueId = $('#issue').val();			 
+			var ajaxUrl = '/CustomerCareCases/getTemplates/';
+			var templates = null;						
+			$.ajax({
+				type : 'get',				
+				url : ajaxUrl,
+				contentType : "application/json; charset=utf-8",
+				data : { issueId : issueId },
+				dataType : "json",
+				success : function(data) {					
+					templates = data;					
+					emptyList("otherTemplate");										
+					if(Object.keys(templates).length > 0){						
+						var selectTemplate = document.getElementById("otherTemplate");
+						var optTemplate = document.createElement("option");
+						optTemplate.value = "";
+						optTemplate.textContent = "---Select---";
+						selectTemplate.appendChild(optTemplate);																			
+					}					
+					for ( var key in templates) {						
+						optTemplate = document.createElement("option");
+						optTemplate.value = key;
+						optTemplate.textContent = templates[key];
+						selectTemplate.appendChild(optTemplate);											
+					}															
+					scope.responseTemplate="";					
+					scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					scope.Message.responseTemplate.$$rawModelValue="";
+					scope.Message.responseTemplate.$modelValue="";
+					scope.Message.responseTemplate.$viewValue="";																																				
+				},
+				error: function(jqXHR, textStatus, errorThrown) 
+				{										
+					emptyList("otherTemplate");										
+					scope.responseTemplate="";					
+					scope.Message.responseTemplate.$$lastCommittedViewValue="";
+					scope.Message.responseTemplate.$$rawModelValue="";
+					scope.Message.responseTemplate.$modelValue="";
+					scope.Message.responseTemplate.$viewValue="";										
+				}											
+			});						
+		};										
+	});			
+</script>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width" ng-app="message">
+	<div class="text-center" style="color: #FF0000">
+		<h1>[[${message}]]</h1>
+	</div>
+	<div class="container-fluid">
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading"><a th:text="#{ccc.title}"></a></div>
+			</div>	
+
+		</div>
+		
+		<form action="/CustomerCareCases/updateStatus" name="CustomerCareCase"  modelAttribute="CustomerCareCase">
+			<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+				<div class="col-md-6">
+					<table class="table no-head table-withoutBorder">
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.id}"></a></b>
+							</td>
+							<td>
+								[[${CustomerCareCase.caseId}]]
+								<input type="hidden" name="caseId" th:value="${caseId}" />
+								<input type="hidden" name="dateCreated" th:value="${dateCreated}" />
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.caseType}"></a></b>
+							</td>
+							<td>
+								<a th:text="#{'ccc.'+${CustomerCareCase.caseType}}"></a> 
+								<input type="hidden" name="caseType" th:value="${caseType}"/>
+							</td>
+						</tr>
+						<th:block th:if="${CustomerCareCase.marketplaceOrderId ne '' and CustomerCareCase.marketplaceOrderId ne null}">
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.marketplaceOrderId}"></a></b>
+							</td>
+							<td>
+							<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS'])}">	
+								<a id="marketplaceOrder" th:href="@{https://sellercentral.amazon.com/orders-v3/order/{moId}(moId=${CustomerCareCase.marketplaceOrderId})}"
+								target="_blank" th:text=${CustomerCareCase.marketplaceOrderId}>
+								</a>
+								<input type="hidden" name="marketplaceOrderId" th:value="${marketplaceOrderId}"/>
+							</div>
+							<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS_SUPPLIER'])}">
+							
+								[[${CustomerCareCase.marketplaceOrderId}]]
+								<input type="hidden" name="marketplaceOrderId" th:value="${marketplaceOrderId}"/>
+							</div>
+							</td>
+						</tr>
+						</th:block>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{common.marketplace}"></a></b>
+							</td>
+							<td>
+								[[${CustomerCareCase.marketplace.name}]]
+								<input type="hidden" name="marketplace" th:value="${marketplace}" />
+							</td>
+						</tr>						
+						<th:block th:if="${CustomerCareCase.marketplaceOrderId ne '' and CustomerCareCase.marketplaceOrderId ne null}">						
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.orderDate}"></a></b>
+							</td>
+							<td>
+								[[${CustomerCareCase.marketplaceOrderDate}]]
+								<input type="hidden" name="marketplaceOrderDate" th:value="${marketplaceOrderDate}" />
+								<input type="hidden" name="dateCreated" th:value="${dateCreated}" />
+							</td>
+						</tr>
+						</th:block>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.customerName}"></a></b>
+							</td>
+							<td>
+								[[${CustomerCareCase.customerName}]]
+								<input type="hidden" name="customerName" th:value="${customerName}"/>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.drsCompany}"></a></b>
+							</td>
+							<td>
+								[[${DrsCompanyKcodeToShortEnUsNameMap[CustomerCareCase.drsCompanyKcode]}]]
+								<input type="hidden" name="drsCompanyKcode" th:value="${drsCompanyKcode}" />
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.supplier}"></a></b>
+							</td>
+							<td>
+							<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS'])}">	
+								<a th:href="@{/Companies/{supplierKcode}(supplierKcode=${CustomerCareCase.supplierKcode})}"
+								th:text="${CustomerCareCase.supplierKcode}+' '+${supplierKcodeToShortEnUsNameMap[CustomerCareCase.supplierKcode]}">
+								</a>
+								<input type="hidden" name="supplierKcode" th:value="${supplierKcode}" />
+							</div>
+							<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS_SUPPLIER'])}">
+								[[${CustomerCareCase.supplierKcode}]] [[${supplierKcodeToShortEnUsNameMap[CustomerCareCase.supplierKcode]}]]
+							</div>							
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.relatedProduct}"></a></b>
+							</td>
+							<td>																
+								<div th:if="${CustomerCareCase.relatedProductSkuCodeList == null}">   								
+									<th:block th:each="ProductBase : ${CustomerCareCase.relatedProductBaseCodeList}">
+                                    	<a th:href="@{/BaseProduct/{ProductBase}(ProductBase=${ProductBase})}"
+                                    		th:text="${ProductBase}+' '+${productBaseCodeToSupplierNameMap['__${ProductBase}__']}"></a>
+                        
+                                    	<br>    
+									</th:block>																	    								
+								</div>
+								<div th:if="${CustomerCareCase.relatedProductBaseCodeList == null}">
+    								<th:block th:each="sku : ${CustomerCareCase.relatedProductSkuCodeList}">
+                                    	<a th:href="@{/SKUs/{sku}(sku=${sku})}">
+                                    		[[${sku}]] [[${productSkuCodeToSupplierNameMap['__${sku}__']}]]
+                                    	</a>
+                                    	<br>    
+									</th:block>									
+								</div>
+								<input type="hidden" name="relatedProductBaseCodeList" 
+										th:value="${#strings.arrayJoin(CustomerCareCase.relatedProductBaseCodeList,',')}" />
+								<input type="hidden" name="relatedProductSkuCodeList" 
+										th:value="${#strings.arrayJoin(CustomerCareCase.relatedProductSkuCodeList,',')}" />																							    														    
+						    </td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-md-6">
+					<table class="table no-head table-withoutBorder">
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.issueCategory}"></a></b>
+							</td>
+							<td>							
+								
+									<div th:if="${CustomerCareCase.issueTypeCategoryId == null}">
+										<a th:text="#{issue.ALL_CATEGORY}"></a>
+									</div>
+									<div th:unless="${CustomerCareCase.issueTypeCategoryId == null}">
+										<a th:text="#{'issue.'+${issueCategoryIdToNameMap[CustomerCareCase.issueTypeCategoryId]}}"></a>
+									</div>
+																				
+								<input type="hidden" name="issueTypeCategoryId" th:value="${issueTypeCategoryId}"/>									
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.issueType-issue}"></a></b>
+							</td>
+							<td>
+							<th:block th:each="relatedIssueIds , status : ${CustomerCareCase.relatedIssueIds}">							  
+								<a th:href="@{/Issues/{relatedIssueIds}(relatedIssueIds=${relatedIssueIds})}" 
+								th:text="${issueIdToTypeMap[__${relatedIssueIds}__]}+' - '+${issueNameMap[__${relatedIssueIds}__]}"><br>
+								</a>
+							</th:block>							
+							<input type="hidden" name="relatedIssueIds" th:value="${relatedIssueIds}" />																					
+						   </td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.status}"></a></b>
+							</td>
+							<td>
+								<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS'])}">
+									<select id="status" class="form-control" name="status" >																		
+										<option value="processing" th:text="#{ccc.processing}" th:selected ="${CustomerCareCase.status}=='processing'"></option>																		
+										<option value="waitingForCustomerResponse" th:text="#{ccc.waitingForCustomerResponse}" th:selected ="${CustomerCareCase.status}=='waitingForCustomerResponse'"></option>																											
+										<option value="caseClosed" th:text="#{ccc.caseClosed}" th:selected ="${CustomerCareCase.status}=='caseClosed'"></option>								
+									</select>
+								</div>
+								<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DRS_SUPPLIER'])}">
+									<a th:text="#{'ccc.'+${CustomerCareCase.status}}"></a>	
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b><a th:text="#{ccc.latestActivity}"></a></b>
+							</td>
+							<td>
+							
+								<div th:if="${CustomerCareCase.latestActivityDays ge 3}">
+									[[${CustomerCareCase.latestActivityDays}]] <a th:text="#{ccc.days}"></a> <a th:text="#{ccc.ago}"></a>
+								</div>
+								<div th:unless="${CustomerCareCase.latestActivityDays ge 3}">
+						   			<div th:if="${CustomerCareCase.latestActivityDays ne 0}">
+						   		 		
+						    				<span th:if="${CustomerCareCase.latestActivityDays gt 1}">
+												[[${CustomerCareCase.latestActivityDays}]] <a th:text="#{ccc.days}"></a> 									
+											</span>
+											<span th:if="${CustomerCareCase.latestActivityDays eq 1}">
+												[[${CustomerCareCase.latestActivityDays}]] <a th:text="#{ccc.day}"></a> 									 
+											</span>
+										
+						    			
+											<span th:if="${CustomerCareCase.latestActivityHours gt 1}">
+												[[${CustomerCareCase.latestActivityHours}]] <a th:text="#{ccc.hours}"></a><a th:text="#{ccc.ago}"></a>									
+											</span>
+											<span th:if="${CustomerCareCase.latestActivityHours le 1}">
+												[[${CustomerCareCase.latestActivityHours}]] <a th:text="#{ccc.hour}"></a><a th:text="#{ccc.ago}"></a> 									 
+											</span>
+										
+									</div>
+						   			<div th:if="${CustomerCareCase.latestActivityDays eq 0}">
+						   				
+											<span th:if="${CustomerCareCase.latestActivityHours gt 1}">
+												[[${CustomerCareCase.latestActivityHours}]] <a th:text="#{ccc.hours}"></a> 									
+											</span>
+											<span th:if="${CustomerCareCase.latestActivityHours eq 1}">
+												[[${CustomerCareCase.latestActivityHours}]] <a th:text="#{ccc.hour}"></a> 									 
+											</span>
+										
+								
+											<span th:if="${CustomerCareCase.latestActivityMinutes gt 1}">
+												[[${CustomerCareCase.latestActivityMinutes}]] <a th:text="#{ccc.minutes}"></a><a th:text="#{ccc.ago}"></a>									
+											</span>
+											<span th:if="${CustomerCareCase.latestActivityMinutes le 1}">
+												[[${CustomerCareCase.latestActivityMinutes}]] <a th:text="#{ccc.minute}"></a><a th:text="#{ccc.ago}"></a>									 
+											</span>
+																    						   
+						   			</div>						  				   						
+								</div>
+													
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+				<div class="col-md-12 text-right" >
+					<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_EDIT'])}">								
+						<input class="btn btn-primary" type="submit" th:value="#{ccc.updateStatus}" /> 
+					</span>
+					<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_EDIT'])}">					
+						<a class="btn btn-success" th:href="@{/CustomerCareCases/{caseId}/edit(caseId=${CustomerCareCase.caseId})}"
+							th:text="#{ccc.edit}">
+						</a>
+					</span>
+					<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_DELETE'])}">						
+						<span th:if="${CustomerCareCase.messages.size() eq 1}">										
+							<input class="btn btn-link" type="button" th:value="#{ccc.delete}" th:onclick="|deleteConfirm('${CustomerCareCase.caseId}')|	" />
+							<div id="dialog-confirm"></div>
+						</span>
+					</span>		
+				</div>
+			</div>
+			<th:block th:each="message , messageStatus : ${CustomerCareCase.messages}">
+			
+				<div th:if="${messageStatus.count == CustomerCareCase.messages.size()}">
+					<input type="hidden" th:name="message[__${messageStatus.index}__].contents" th:value="${CustomerCareCase.message[__${messageStatus.index}__].contents}" />
+					<input type="hidden" th:name="message[__${messageStatus.index}__].lineSeq" th:value="${CustomerCareCase.message[__${messageStatus.index}__].lineSeq}" />			
+				</div>
+
+			</th:block>
+		</form>
+		
+		<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_CREATEMSG'])}">														
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading"><a th:text="#{ccc.newMsg}"></a></div>
+			</div>
+		</div>	
+
+		
+		<div id="newMessage" ng-controller="messageCtrl">
+			<script>
+			$(document).ready(function(){
+				var cccId='[[${CustomerCareCase.caseId}]]';
+				$("#Message").attr("action","/CustomerCareCases/postMsg?caseId="+cccId);	
+			
+			});	
+			</script>
+			
+			
+			<form id="Message"  name="Message" class="form-horizontal text-left" modelAttribute="Message"
+			  method="POST">
+				
+				<div id="customer" class="row">
+					<div class="col-md-6">
+					
+						<table class="table table-withoutBorder">
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.replyFrom}"></a></b>
+								</td>
+								<td>
+									<input type="radio" id="CustomerType" name="messageType" value="customer_msg" ng-click="checkMessageType()" checked="TRUE" /> Customer 
+									<input type="radio" id="MSDCType" name="messageType" value="reply_msg" ng-click="checkMessageType()" /> MSDC
+								</td>
+							</tr>
+							<tr id="DateUTCRow" ng-repeat="customer in CustomerType">
+								<td class="text-right">
+									<b><a th:text="#{ccc.replyDate}"></a><span class="text-danger">*</span></b></td>
+								<td>
+								<script>
+									$(function() {
+										
+										var control = {
+										create : function(tp_inst, obj, unit, val, min, max, step) {$(
+										'<input class="ui-timepicker-input" value="'+ val + '" style="width:50%">').appendTo(obj).spinner({
+											min : min,
+											max : max,
+											step : step,
+											change : function(e, ui) { // key events
+												// don't call if api was used and not key press
+												if (e.originalEvent !== undefined)
+													tp_inst._onTimeChange();
+													tp_inst._onSelectHandler();
+											},
+											spin : function(e, ui) { // spin events
+												tp_inst.control.value(tp_inst, obj,unit, ui.value);
+												tp_inst._onTimeChange();
+												tp_inst._onSelectHandler();
+											}
+										});
+										return obj;
+										},
+										options : function(tp_inst, obj, unit, opts, val) {
+											if (typeof (opts) == 'string' && val !== undefined)
+												return obj.find('.ui-timepicker-input').spinner(opts, val);
+												return obj.find('.ui-timepicker-input').spinner(opts);
+										},
+										value : function(tp_inst, obj, unit, val) {
+											if (val !== undefined)
+												return obj.find('.ui-timepicker-input').spinner('value', val);
+												return obj.find('.ui-timepicker-input').spinner('value');
+										}
+									};
+										
+									jQuery("#dateUTC").datetimepicker({
+										beforeShow: function() {
+						        			setTimeout(function(){
+						            			$('.ui-datepicker').css('z-index', 200);
+						        			}, 0);
+						    			},
+										controlType : control,
+										dateFormat : "yy-mm-dd",
+										timeFormat : 'HH:mm z',
+										timezoneList : [ {
+											value : +480,
+											label : 'Taipei'
+										}, {
+											value : -480,
+											label : 'Pacific'
+										} ]
+									});
+									
+									$("#dateUTC").attr('readonly', true);
+									
+									});
+								</script>																
+								<input id="dateUTC" class="form-control" style="display:inline;cursor:default;background-color:white;" name="dateCreate" ng-model="customer.dateCreate" required="required"/>
+								</td>
+							</tr>
+						</table>
+						
+					</div>
+				</div>
+				<div id="MSDC" class="row" ng-repeat="MSDC in MSDCType">
+					<div class="col-md-6">
+						<table class="table table-withoutBorder">							
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.endTime}"></a><span class="text-danger">*</span></b>
+								</td>
+								<td>
+								<script>
+									$(function() {
+										var control = {
+												create : function(tp_inst, obj, unit, val, min, max, step) {$(
+												'<input class="ui-timepicker-input" value="'+ val + '" style="width:50%">').appendTo(obj).spinner({
+													min : min,
+													max : max,
+													step : step,
+													change : function(e, ui) { // key events
+														// don't call if api was used and not key press
+														if (e.originalEvent !== undefined)
+															tp_inst._onTimeChange();
+															tp_inst._onSelectHandler();
+													},
+													spin : function(e, ui) { // spin events
+														tp_inst.control.value(tp_inst, obj,unit, ui.value);
+														tp_inst._onTimeChange();
+														tp_inst._onSelectHandler();
+													}
+												});
+												return obj;
+												},
+												options : function(tp_inst, obj, unit, opts, val) {
+													if (typeof (opts) == 'string' && val !== undefined)
+														return obj.find('.ui-timepicker-input').spinner(opts, val);
+														return obj.find('.ui-timepicker-input').spinner(opts);
+												},
+												value : function(tp_inst, obj, unit, val) {
+													if (val !== undefined)
+														return obj.find('.ui-timepicker-input').spinner('value', val);
+														return obj.find('.ui-timepicker-input').spinner('value');
+												}
+											};
+											jQuery("#endDate").datetimepicker({
+												beforeShow: function() {
+						        					setTimeout(function(){
+						            				$('.ui-datepicker').css('z-index', 200);
+						        					}, 0);
+						    					},
+												controlType : control,
+												dateFormat : "yy-mm-dd",
+												timeFormat : 'HH:mm:ss z',
+												timezoneList : [ {
+													value : +480,
+													label : 'Taipei'
+												}, {
+													value : -480,
+													label : 'Pacific'
+												} ]
+											});
+											$("#endDate").attr('readonly', true);
+											});
+									</script>																
+									<input id="endDate" class="form-control" style="display:inline;cursor:default;background-color:white;" name="endDate" ng-model="MSDC.endDate" required="required"/>
+								</td>	
+							</tr>
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.timeTaken}"></a><span class="text-danger">*</span></b>
+								</td>
+								<td>
+									<input id="timeTaken" class="form-control" name="timeTaken" ng-model="MSDC.timeTaken" ng-change="getDrsChargeByWord()" ng-pattern="/^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$/" required="required"/>
+									<div class="text-danger" ng-show="Message.timeTaken.$error.pattern">
+										<a th:text="#{ccc.timeTaken_format}"></a>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.relatedSku}"></a><span class="text-danger">*</span></b>
+								</td>
+								<td>
+									<select id="chargeToSKU" class="form-control" th:path="chargeToSKU" ng-model="MSDC.chargeToSKU" required="required">
+										<div th:if="${CustomerCareCase.relatedProductSkuCodeList == null}">   								
+								   	 		<option value="" label="--- Select ---"></option>
+								    		<th:block th:each="sku : ${productSkuCodeToSupplierNameMapUnderBases}">
+									    	<option th:value="${sku.key}" th:text="${sku.key}+' '+${sku.value}"></option>                                             									                                                     
+											</th:block>																	    								
+										</div>
+										<div th:if="${CustomerCareCase.relatedProductBaseCodeList == null}">
+											<option value="" label="--- Select ---" ></option> 
+    								   		<th:block th:each="sku : ${CustomerCareCase.relatedProductSkuCodeList}">
+									    	<option th:value="${sku}" th:text="${sku}+' '+${productSkuCodeToSupplierNameMap['__${sku}__']}"></option>					
+											   </th:block>									
+										</div>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>
+									<input type="checkbox" id="isFreeOfCharge" name="isFreeOfCharge" /><a th:text="#{ccc.freeOfCharge}"></a>
+									<input type="hidden" id="responseTemplateId" path="responseTemplateId" value="" />
+								</td>
+							</tr>							
+						</table>
+					</div>
+					<div class="col-md-6">
+						<table class="table table-withoutBorder">
+							<tr>
+								<td id="noteNoOfBillableWords" class="text-right" th:title="#{ccc.NoOfBillableWordsNote}">
+									<b><a th:text="#{ccc.wordCount}"></a><span class="text-danger">*</span></b>
+								</td>
+								<td>
+									<input id="wordCount" class="form-control" name="wordCount" ng-model="MSDC.wordCount" ng-change="getDrsChargeByWord()" required="required"/>
+								</td>
+							</tr>														
+							<tr>
+								<td id="noteNoOfExtraActions" class="text-right" th:title="#{ccc.NoOfExtraActionsNote}">
+									<b><a th:text="#{ccc.standardAction}"></a><span class="text-danger">*</span></b>
+								</td>
+								<td>
+									<input id="standardActionCount" class="form-control" name="standardActionCount" ng-model="MSDC.standardActionCount" ng-change="getDrsChargeByWord()" required="required"/>
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>
+									<input type="checkbox" id="translationFeeIncluded" name="includesTranslationFee" ng-model="MSDC.translationFeeIncluded" ng-change="getDrsChargeByWord()" />
+									<a th:text="#{ccc.translationFee}"></a>
+								</td>							
+							</tr>
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.chargeByWord}"></a></b>
+								</td>
+								<td>
+									<input id="DRSChargeByWord" class="form-control" name="DRSChargeByWord" ng-model="MSDC.DRSChargeByWord" readonly="true" />
+								</td>
+							</tr>
+							<tr>
+								<td class="text-right">
+									<b><a th:text="#{ccc.costPerHour}"></a></b>
+								</td>
+								<td>
+									<input id="costPerHour" class="form-control" name="costPerHour" ng-model="MSDC.costPerHour" readonly="true" />
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>			
+				<div class="row">
+					<div class="col-md-12">
+						<div id="insertTemplateArea" style="display:none">				
+							<b><a th:text="#{ccc.InsertDefaultMessage}"></a></b>
+							<br>
+							<a th:text="#{template.responseTemplate}"></a>				
+							<select id="basicTemplate" class="form-control" style="width:25%;display: inline;" ng-model="applicableTemplate" ng-change="insertMessage('basicTemplate')">
+								<option value="" >--- Select ---</option>
+								<th:block th:each="applicableTemplate : ${applicableTemplates}">
+								<option th:value="${applicableTemplate.key}" th:text="${applicableTemplate.value}"></option>							
+								</th:block>
+							</select>
+							<br><br>
+							<b><a th:text="#{ccc.InsertOtherMessageFromTemplate}"></a></b>
+							<br>
+							<a th:text="#{ccc.issueCategory}"></a>
+							<select id="categoryName" name="categoryName" class="form-control" style="width:265px;display: inline;" ng-model="categoryName" ng-change="getIssueTypeList(this)">
+        				   		<option value="" th:text="#{issue.ALL_CATEGORY}" > </option>
+        				   		<th:block th:each="issueCategoryIdToName : ${issueCategoryIdToNameMap}">
+								<option th:value="${issueCategoryIdToName.key}" th:text="#{'issue.'+${issueCategoryIdToName.value}}"></option>
+								</th:block> 
+        				   	</select>
+							<a th:text="#{ccc.issueType}"></a>
+							<select id="issueType" name="issueType" class="form-control" style="width:265px;display: inline;" ng-model="issueType" ng-change="getIssues(this)">
+        				   		<option value="" th:text="#{issue.ALL_TYPE}"></option>
+        				   	</select>
+							<a th:text="#{ccc.issue}"></a>
+							<select id="issue" name="issue" class="form-control" style="width:265px;display: inline;" ng-model="issue" ng-change="getTemplates(this)">        				   	   
+        				   	</select>
+							<br><br>
+							<a th:text="#{template.responseTemplate}"></a>				
+							<select id="otherTemplate" name="responseTemplate" class="form-control" style="width:265px;display: inline;" ng-model="responseTemplate" ng-change="insertMessage('otherTemplate')">        				   	   
+        				   	</select>						
+						</div>
+					</div>
+				</div>
+				<div id="contentRow" class="row" style="margin-top: 10px; margin-bottom: 10px;">				
+					<div class="col-md-12">
+						<textarea id="contents" class="form-control contents" name="contents" rows="8" ng-model="contents" ></textarea>
+						<div id ="wordCounter"></div>				
+					</div>			
+				</div>
+				<div class="row text-right" style="margin-top: 10px; margin-bottom: 10px;">
+					<div class="col-md-12">						
+						<input class="btn btn-primary" type="submit" th:value="#{ccc.submit}" ng-disabled='Message.$invalid || contents==""' th:onclick="this.disabled=true;this.value=[[#{ccc.submitButtonNote}]];this.form.submit()"/>					
+						<input class="btn btn-link" type="button" th:value="#{ccc.customerCareCaseList}" th:onclick="'document.location.href=\''+@{/CustomerCareCases}+'\''" />											
+						<input class="btn btn-link" type="button" th:value="#{issue.issueList}" th:onclick="'document.location.href=\''+@{/Issues}+'\''" />							
+					</div>
+				</div>
+			</form>
+		</div>
+		</div>						
+		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		<th:block th:each="message , messageStatus : ${CustomerCareCase.messages}">
+		<!-- todo -->
+			<div th:if="${messageStatus.count != CustomerCareCase.messages.size()}">
+				<script>
+					
+					app.controller('messageCtrl'+'[[${messageStatus.count}]]', function($scope) {															
+						function callback (counter) {						 																				
+							if(counter['words'] <= 1){						 			  
+						 		document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" word";						 			  
+						 	}else{						 			  
+						 		document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" words";						 			  		  
+						 	}						 		   		   		  
+						}																								
+						var radioArray = new Array();
+						radioArray['customer_msg'] = 'CustomerType';
+						radioArray['reply_msg'] = 'MSDCType';																										
+						document.getElementById(radioArray['[[${message.messageType}]]']+'[[${messageStatus.count}]]').checked = true;
+																									
+						if (document.getElementById('CustomerType'+'[[${messageStatus.count}]]').checked) {
+							$('#MSDCType'+'[[${messageStatus.count}]]').attr('disabled', true);
+							$scope.MSDCType = [];
+							$scope.CustomerType = [{customer : ''}];
+							$scope.CustomerType[0]["dateCreate"] = '[[${message.dateCreate}]]';									
+							var messageContentsHTML = $('#messageContent'+'[[${messageStatus.count}]]').html();									
+							$scope.contents = messageContentsHTML;									
+							$(".wysihtml5-sandbox").contents().find('.contents'+'[[${messageStatus.count}]]').html(messageContentsHTML);									
+						}								
+						if (document.getElementById('MSDCType'+'[[${messageStatus.count}]]').checked) {																		
+							$('#CustomerType'+'[[${messageStatus.count}]]').attr('disabled', true);									
+							$("#insertTemplateArea"+'[[${messageStatus.count}]]').show();									
+							$scope.MSDCType = [{MSDC : ''}];
+							$scope.CustomerType = [];									
+							$scope.MSDCType[0]["endDate"] = '[[${message.endDate}]]';
+							$scope.MSDCType[0]["timeTaken"] = '[[${message.timeTaken}]]';
+							$scope.MSDCType[0]["chargeToSKU"] = '[[${message.chargeToSKU}]]';																		
+							if('[[${message.isFreeOfCharge}]]' == 'true'){
+								$scope.MSDCType[0]["isFreeOfCharge"] = true;
+							}
+							if('[[${message.includesTranslationFee}]]' == 'true'){
+								$scope.MSDCType[0]["translationFeeIncluded"] = true;
+							}
+							$scope.MSDCType[0]["wordCount"] = '[[${message.wordCount}]]';
+							$scope.MSDCType[0]["standardActionCount"] = '[[${message.standardActionCount}]]';
+							$scope.MSDCType[0]["DRSChargeByWord"] = '[[${message.DRSChargeByWord}]]';
+							$scope.MSDCType[0]["costPerHour"] = '[[${message.costPerHour}]]';								    
+							var messageContentsHTML = $('#messageContent'+'[[${messageStatus.count}]]').html();													    
+							$scope.contents = messageContentsHTML;								    
+							$(".wysihtml5-sandbox").contents().find('.contents'+'[[${messageStatus.count}]]').html(messageContentsHTML);									
+							getIssues('[[${messageStatus.count}]]');									
+							$scope.issue="";
+							$scope.responseTemplate="";									
+						}																							
+						Countable.live(document.getElementById('contents'+'[[${messageStatus.count}]]'), callback);								
+						$('#contentRow .wysihtml5-sandbox').contents().find('body').on("change keyup paste blur click",function() {				    		    	
+				    		var descriptionContent =  $("#contentRow .wysihtml5-sandbox").contents().find('.contents'+'[[${messageStatus.count}]]').html(); 	    	    	
+				    		$('#contents'+'[[${messageStatus.count}]]').val(descriptionContent);				    		    	    	
+				    		var area = document.getElementById('contents'+'[[${messageStatus.count}]]');				    				
+				    			function callback (counter) {				    		 		   
+				    		 		if(counter['words'] <= 1){ 			  
+				    		 			document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" word";			  
+				    		 			$scope.contents = "";
+						     			$scope.$apply();
+				    		 		}else{ 			  
+				    		 			document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" words"; 			  		  
+				    		 			$scope.contents = descriptionContent;
+						     			$scope.$apply();	
+				    		 		}				    		 		   		   		  
+				    			}				    				
+				    		Countable.live(area, callback);				    		    	
+				    	});
+						$('#contentRow .wysihtml5-sandbox').on('load', function(e){	
+							$('#contentRow .wysihtml5-sandbox').contents().find('body').on("change keyup paste blur click",function() {										
+								var descriptionContent =  $("#contentRow .wysihtml5-sandbox").contents().find('.contents'+'[[${messageStatus.count}]]').html(); 	    	    	
+							    $('#contents'+'[[${messageStatus.count}]]').val(descriptionContent);							        	    	
+							    var area = document.getElementById('contents'+'[[${messageStatus.count}]]');							    		
+							    	function callback (counter) {							     		  
+							     		if(counter['words'] <= 1){ 			  
+							     			document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" word";			  
+							     			$scope.contents = "";
+							     			$scope.$apply();	     			     	 		  
+							     		}else{ 			  
+							     			document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" words"; 			  		  
+							     			$scope.contents = descriptionContent;
+							     			$scope.$apply();	
+							     		}							     		   		   		  
+							    	}							    		
+							   	Countable.live(area, callback);							        		   		
+							});
+						});
+										
+						function emptyList(id) {
+							document.getElementById(id).options.length = 0;
+						}
+								
+						function getIssues(id){									
+							var categoryId = Number($('#categoryName'+id).val());			
+							var typeId = Number($('#issueType'+id).val());								
+							var ajaxUrl = '/CustomerCareCases/getIssues/';
+							var issues = null;												
+							$.ajax({
+								type : 'get',
+								url : ajaxUrl,
+								contentType : "application/json; charset=utf-8",
+								data : {
+									categoryId : categoryId,
+									typeId : typeId				
+								},
+								dataType : "json",
+								success : function(data) {											
+									issues = data;											
+									emptyList("issue"+id);											
+									if(Object.keys(issues).length > 0){																
+										var selectIssue = document.getElementById("issue"+id);
+										var optIssue = document.createElement("option");
+										optIssue.value = "";
+										optIssue.textContent = "---Select---";
+										selectIssue.appendChild(optIssue);																									
+									}											
+									for ( var key in issues) {											
+										optIssue = document.createElement("option");
+										optIssue.value = key;
+										optIssue.textContent = issues[key];
+										selectIssue.appendChild(optIssue);																	
+									}																	
+									emptyList("otherTemplate"+id);											
+									$scope.issue="";
+									$scope.responseTemplate="";											
+									$scope.Message.issue.$$lastCommittedViewValue="";
+									$scope.Message.issue.$$rawModelValue="";
+									$scope.Message.issue.$modelValue="";
+									$scope.Message.issue.$viewValue="";											
+									$scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									$scope.Message.responseTemplate.$$rawModelValue="";
+									$scope.Message.responseTemplate.$modelValue="";
+									$scope.Message.responseTemplate.$viewValue="";																						
+								},
+								error: function(jqXHR, textStatus, errorThrown) 
+								{											
+									emptyList("issue"+id);
+									emptyList("otherTemplate"+id);											
+									$scope.issue="";
+									$scope.responseTemplate="";											
+									$scope.Message.issue.$$lastCommittedViewValue="";
+									$scope.Message.issue.$$rawModelValue="";
+									$scope.Message.issue.$modelValue="";
+									$scope.Message.issue.$viewValue="";											
+									$scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									$scope.Message.responseTemplate.$$rawModelValue="";
+									$scope.Message.responseTemplate.$modelValue="";
+									$scope.Message.responseTemplate.$viewValue="";											
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);															
+								}																							
+							});																		
+						}
+																
+						$scope.checkMessageType = function(count) {									
+							var checkedValue = null;									
+							if (document.getElementById('CustomerType'+count).checked) {
+								checkedValue = document.getElementById('CustomerType'+count).value;
+							}									
+							if (document.getElementById('MSDCType'+count).checked) {
+								checkedValue = document.getElementById('MSDCType'+count).value;
+							}																																																										
+							$('#startDate'+count).val('');
+							$('#endDate'+count).val('');
+							$('#timeTaken'+count).val('');
+							$('#chargeToSKU'+count).val('');									
+							$('#wordCount'+count).val('');
+							$('#standardActionCount'+count).val('');
+							$('#DRSChargeByWord'+count).val('');
+							$('#costPerHour'+count).val('');
+							if (checkedValue == "customer_msg") {
+								$("#MSDC"+count).hide();
+								$("#insertTemplateArea"+count).hide();
+								$("#DateUTCRow"+count).show();
+							} else {
+								$("#MSDC"+count).show();
+								$("#insertTemplateArea"+count).show();
+								$("#DateUTCRow"+count).hide();
+							}
+																		
+						}
+								
+						$scope.getTimeNow = function(target,count) {									
+							var now = new Date();									
+							$('#'+target+count).val(dateFormat(now, "yyyy-mm-dd HH:MM:ss o"));									
+							$scope.getTimeTaken(count);									
+						};
+												
+						function msToTime(s) {								 			
+							function addZ(n) {
+								return (n<10? '0':'') + n;
+							}
+							var ms = s % 1000;
+							s = (s - ms) / 1000;
+							var secs = s % 60;
+							s = (s - secs) / 60;
+							var mins = s % 60;
+							var hrs = (s - mins) / 60;
+							return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs);								
+						}
+										
+						$scope.getTimeTaken = function(count){									
+							var startDate = $("#startDate"+count).val();
+							var endDate = $("#endDate"+count).val();														     			
+							var startDateFormat = startDate.replace(/-/g,"/");   
+							var endDateFormat = endDate.replace(/-/g,"/");														
+							if(startDateFormat != "" && endDateFormat != ""){								    	
+								var startDateTime = new Date(startDateFormat);		    	
+								var endDateTime = new Date(endDateFormat);		    	
+								var duration = endDateTime - startDateTime;
+								var time = msToTime(duration);								    			    			    	
+								$scope.timeTaken = time;								    	
+								$scope.getDrsChargeByWord(count);								    			    	
+							}									
+						};
+								
+						$scope.getDrsChargeByWord = function (count){									
+							var feeForWordCount = 0.07;
+							if( $scope.MSDCType[0]["translationFeeIncluded"] == true) feeForWordCount = 0.14;
+							var wordCount = Number($scope.MSDCType[0]["wordCount"]);
+							var standardActionCount = Number($scope.MSDCType[0]["standardActionCount"]);
+							var DRSChargeByWord = wordCount*feeForWordCount+standardActionCount*1.4;
+							$scope.MSDCType[0]["DRSChargeByWord"] = Math.round(Number(DRSChargeByWord) * Math.pow(10, 2)) / Math.pow(10, 2);
+							$scope.getCostPerHour();																														
+						};
+								
+						$scope.getCostPerHour = function (){																		
+							var costPerHour = ($scope.MSDCType[0]["DRSChargeByWord"]/$scope.MSDCType[0]["timeTaken"])*60;			
+							$scope.MSDCType[0]["costPerHour"] = Math.round(Number(costPerHour) * Math.pow(10, 2)) / Math.pow(10, 2);										
+						};
+								
+						$scope.openMessage = function (id){																	
+							$("#collapse"+id).on('show.bs.collapse', function(){									      
+								$("#messageContent"+id).hide();
+								$("#editArea"+id).hide();										
+								Countable.once(document.getElementById('contents'+'[[${messageStatus.count}]]'), function (counter) {																							
+									if(counter['words'] <= 1){									 			  
+										document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" word";									 			  
+									}else{									 			  
+										document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" words";									 			  		  
+									}							  																			  
+								});																																								
+							});
+																			
+							$("#collapse"+id).on('hide.bs.collapse', function(){								    
+								$("#messageContent"+id).show();
+								$("#editArea"+id).show();																													
+							});																										
+						};
+																																								
+						$scope.collapseMessage = function (id){																	
+							$("#collapse"+id).on('show.bs.collapse', function(){									      
+								$("#messageContent"+id).hide();
+								$("#editArea"+id).hide();										
+							});																			
+							$("#collapse"+id).on('hide.bs.collapse', function(){								    
+								$("#messageContent"+id).show();
+								$("#editArea"+id).show();										
+							});																											
+						};
+																
+						$scope.collapseMessageForSubmit = function(id){																	
+							$("#messageForm"+id).submit(function(e){										
+								var postData = $(this).serializeArray();
+								var formURL = $(this).attr("action");
+								var updatedMessage = null;			
+
+								$.ajax({											
+									url : formURL,
+									type: "POST",
+									data : postData,
+									success:function(data, textStatus, jqXHR) {
+										
+										updatedMessage = JSON.parse(data);																							
+										var str = updatedMessage['contents'].replace(/(?:\r\n|\r|\n)/g, '<br />');																			          			
+										$("#messageContent"+id).html(updatedMessage['contents']);							            
+									},
+									error: function(jqXHR, textStatus, errorThrown) 
+									{																								
+									}																			
+								});										
+								e.preventDefault();	//STOP default action										
+							});												
+							$( "#messageForm"+id ).submit();										
+							$("#collapse"+id).on('show.bs.collapse', function(){									      
+								$("#messageContent"+id).hide();
+								$("#editArea"+id).hide();										
+							});									
+							$("#collapse"+id).on('hide.bs.collapse', function(){								    
+								$("#messageContent"+id).show();
+								$("#editArea"+id).show();										
+							});																											
+						};
+								
+						$scope.insertMessage = function (target,id){								
+							var templateId = $('#'+target+id).val();
+							var ajaxUrl = '/CustomerCareCases/getTemplateContent/';
+							var templateContent = null;
+							$('#contents'+id).val("");
+							$("#responseTemplateId"+id).val("");							        									
+							$.ajax({
+								type : 'get',
+								url : ajaxUrl,
+								contentType : "application/json; charset=utf-8",
+								data : { templateId : templateId },
+								dataType : "json",
+								success : function(data) {											
+									templateContent = data;											
+									var cursorPos = $(".wysihtml5-sandbox").contents().find('.contents'+id).prop('selectionStart');
+									var currentContents = $(".wysihtml5-sandbox").contents().find('.contents'+id).html();
+									var textBefore = currentContents.substring(0,  cursorPos );
+									var textAfter  = currentContents.substring( cursorPos, currentContents.length );									        
+									$('#contents'+id).val( textBefore+ templateContent);
+									$(".wysihtml5-sandbox").contents().find('.contents'+id).html(textBefore+ templateContent);									        
+									$("#responseTemplateId"+id).val($("#"+target+id).val());									        
+									Countable.once(document.getElementById('contents'+'[[${messageStatus.count}]]'), function (counter) {												
+										if(counter['words'] <= 1){										 			  
+											document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" word";										 			  
+										}else{										 			  
+										 	document.getElementById("wordCounter"+'[[${messageStatus.count}]]').innerHTML = counter['words'] +" words";										 			  		  
+										}																				  
+									});									        									        									        
+								}																	
+							});																											
+						};
+																	
+						$scope.getIssueTypeList = function(scope,id) {								
+							var categoryId = Number($('#categoryName'+id).val());
+							var ajaxUrl = '/CustomerCareCases/getIssueTypeList/';
+							var issueTypeList = null;									
+							$.ajax({	
+								type : 'get',
+								url : ajaxUrl,
+								contentType : "application/json; charset=utf-8",
+								data : { categoryId : categoryId },
+								dataType : "json",
+								success : function(data) {											
+									issueTypeList = data;													
+									emptyList("issueType"+id);											
+									var selectIssueType = document.getElementById("issueType"+id);
+									var optIssueType = document.createElement("option");
+									optIssueType.value = "";
+									optIssueType.textContent = '[[#{issue.ALL_TYPE}]]';
+									selectIssueType.appendChild(optIssueType);																																																			
+									for ( var issueType in issueTypeList) {
+										if (issueTypeList.hasOwnProperty(issueType)) {											
+											optIssueType = document.createElement("option");
+											optIssueType.value = issueType;
+											optIssueType.textContent = issueTypeList[issueType];
+											selectIssueType.appendChild(optIssueType);											
+										}
+									}										
+									scope.getIssues(scope,id);														
+								},
+								error: function(jqXHR, textStatus, errorThrown) 
+								{																
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);															
+								}											
+							});								
+						};
+										
+						$scope.getIssues = function (scope,id){								
+							var categoryId = Number($('#categoryName'+id).val());			
+							var typeId = Number($('#issueType'+id).val());								
+							var ajaxUrl = '/CustomerCareCases/getIssues/';
+							var issues = null;												
+							$.ajax({
+								type : 'get',
+								url : ajaxUrl,
+								contentType : "application/json; charset=utf-8",
+								data : {
+									categoryId : categoryId,
+									typeId : typeId				
+								},
+								dataType : "json",
+								success : function(data) {											
+									issues = data;											
+									emptyList("issue"+id);											
+									if(Object.keys(issues).length > 0){																
+										var selectIssue = document.getElementById("issue"+id);
+										var optIssue = document.createElement("option");
+										optIssue.value = "";
+										optIssue.textContent = "---Select---";
+										selectIssue.appendChild(optIssue);																									
+									}											
+									for ( var key in issues) {											
+										optIssue = document.createElement("option");
+										optIssue.value = key;
+										optIssue.textContent = issues[key];
+										selectIssue.appendChild(optIssue);																	
+									}											
+									emptyList("otherTemplate"+id);											
+									scope.issue="";
+									scope.responseTemplate="";											
+									scope.Message.issue.$$lastCommittedViewValue="";
+									scope.Message.issue.$$rawModelValue="";
+									scope.Message.issue.$modelValue="";
+									scope.Message.issue.$viewValue="";											
+									scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									scope.Message.responseTemplate.$$rawModelValue="";
+									scope.Message.responseTemplate.$modelValue="";
+									scope.Message.responseTemplate.$viewValue="";																						
+								},
+								error: function(jqXHR, textStatus, errorThrown) 
+								{											
+									emptyList("issue"+id);
+									emptyList("otherTemplate"+id);											
+									scope.issue="";
+									scope.responseTemplate="";											
+									scope.Message.issue.$$lastCommittedViewValue="";
+									scope.Message.issue.$$rawModelValue="";
+									scope.Message.issue.$modelValue="";
+									scope.Message.issue.$viewValue="";											
+									scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									scope.Message.responseTemplate.$$rawModelValue="";
+									scope.Message.responseTemplate.$modelValue="";
+									scope.Message.responseTemplate.$viewValue="";											
+									console.log(jqXHR);
+									console.log(textStatus);
+									console.log(errorThrown);															
+								}																							
+							});									
+						};		
+						
+						$scope.getTemplates = function (scope,id){									
+							var issueId = $('#issue'+id).val();
+							var ajaxUrl = '/CustomerCareCases/getTemplates/';
+							var templates = null;												
+							$.ajax({
+								type : 'get',
+								url : ajaxUrl,
+								contentType : "application/json; charset=utf-8",
+								data : { issueId : issueId },
+								dataType : "json",
+								success : function(data) {											
+									templates = data;											
+									emptyList("otherTemplate"+id);																						
+									if(Object.keys(templates).length > 0){												
+										var selectTemplate = document.getElementById("otherTemplate"+id);												
+										var optTemplate = document.createElement("option");
+										optTemplate.value = "";
+										optTemplate.textContent = "---Select---";
+										selectTemplate.appendChild(optTemplate);																									
+									}											
+									for ( var key in templates) {												
+										optTemplate = document.createElement("option");
+										optTemplate.value = key;
+										optTemplate.textContent = templates[key];
+										selectTemplate.appendChild(optTemplate);																	
+									}																						
+									scope.responseTemplate="";											
+									scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									scope.Message.responseTemplate.$$rawModelValue="";
+									scope.Message.responseTemplate.$modelValue="";
+									scope.Message.responseTemplate.$viewValue="";																						
+								},
+								error: function(jqXHR, textStatus, errorThrown) 
+								{											
+									emptyList("otherTemplate"+id);											
+									scope.responseTemplate="";											
+									scope.Message.responseTemplate.$$lastCommittedViewValue="";
+									scope.Message.responseTemplate.$$rawModelValue="";
+									scope.Message.responseTemplate.$modelValue="";
+									scope.Message.responseTemplate.$viewValue="";																						
+								}																							
+							});									
+						};
+																																																																																																																																								
+					});
+				</script> 			 		
+		<div th:id="'messageId'+${message.lineSeq}" class="panel panel-default" style="margin:2% 0 2% 0" th:ng-controller="'messageCtrl'+${messageStatus.count}">
+			<div class="panel-heading" style="padding: 15px 15px;">						
+				<span class="text-muted"><a th:text="'#'+${message.lineSeq}"></a> 
+					<b>						  
+					
+						<span th:if="${message.messageType eq 'customer_msg'}">
+							[[${CustomerCareCase.customerName}]]
+						</span>
+						<span th:unless="${message.messageType eq 'customer_msg'}">									
+							TrueToSource								
+						</span>
+					
+					</b>
+				</span>												  											
+				<span th:id="'editArea'+${messageStatus.count}" class="text-muted text-right" style="float:right">
+						   <a th:text="#{ccc.createdBy(${message.createBy},${message.dateCreate})}"></a>
+						    <div th:if="${message.messageType eq 'reply_msg'}">
+							<a class="btn btn-default"
+								th:href="@{/CustomerCareCases/{caseId}/{lineSeq}(caseId=${CustomerCareCase.caseId},lineSeq=${message.lineSeq})}">							
+									<i class="fas fa-dollar-sign" aria-hidden="true"></i>								
+							</a>
+							</div>
+							<span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_CREATEMSG'])}">
+																					
+							<span th:if="${message.isModifiable eq true}">
+							<a class="btn btn-default" th:id="'heading'+${messageStatus.count}" ng-model="openMessage" role="button" data-toggle="collapse" data-parent="#accordion" th:href="'#collapse'+${messageStatus.count}" aria-expanded="true" th:aria-controls="'collapse'+${messageStatus.count}" th:attr="ng-click='openMessage(\''+${messageStatus.count}+'\');'"	>																 								
+								<i class="fas fa-pencil-alt" aria-hidden="true"></i>    
+							</a>
+							</span>
+							</span>
+							
+						    <span sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_CREATEMSG'])}">
+						    <span th:if="${message.isModifiable eq true}">
+						    <a class="btn btn-default" th:onclick="deleteMessageConfirm([[${CustomerCareCase.caseId}]],[[${message.lineSeq}]]);">								
+								<i class="fas fa-trash-alt" aria-hidden="true"></i>							
+							</a>
+							</span>
+							</span>
+				</span>						
+			</div>																																									
+			<div th:id="'collapse'+${messageStatus.count}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading${messageStatus.count}">
+				<div class="panel-body">						
+					<div id="newPerMessage">
+					<span class="text-danger"><a th:text="#{ccc.tempValidation}"></a></span>
+					<script>
+						$(document).ready(function(){
+							var cId='[[${CustomerCareCase.caseId}]]';
+							$('#messageForm'+'[[${messageStatus.count}]]').attr("action","/CustomerCareCases/updateMsg?caseId="+cId);	
+						})	
+			
+						</script>
+					
+					<form th:id="'messageForm'+${messageStatus.count}" name="Message" class="form-horizontal text-left" modelAttribute="Message">				  
+				    	<div id="customer${messageStatus.count}" class="row">
+							<div class="col-md-6">
+								<table class="table table-withoutBorder">
+									<tr>
+										<td class="text-right"><b><a th:text="#{ccc.replyFrom}"></a></b></td>
+										<td>
+											<input type="radio" th:id="'CustomerType'+${messageStatus.count}" name="messageType" value="customer_msg" ng-click="checkMessageType('${messageStatus.count}')" checked="TRUE" /> Customer 
+											<input type="radio" th:id="'MSDCType'+${messageStatus.count}" name="messageType" value="reply_msg" ng-click="checkMessageType('${messageStatus.count}')" /> MSDC
+											<input type="hidden" name="lineSeq" th:value="${message.lineSeq}"/>		
+										</td>
+									</tr>
+									<tr id="DateUTCRow${messageStatus.count}" ng-repeat="customer in CustomerType">
+										<td class="text-right">
+											<b><a th:text="#{ccc.replyDate}"></a><span class="text-danger">*</span></b>
+										</td>
+										<td>
+											<script>
+												$(function() {	
+													var control = {
+														create : function(tp_inst, obj, unit, val, min, max, step) {$(
+														'<input class="ui-timepicker-input" value="' + val + '" style="width:50%">').appendTo(obj).spinner({
+															min : min,
+															max : max,
+															step : step,
+															change : function(e, ui) { // key events
+																// don't call if api was used and not key press
+																if (e.originalEvent !== undefined)
+																	tp_inst._onTimeChange();
+																	tp_inst._onSelectHandler();
+															},
+															spin : function(e, ui) { // spin events
+																tp_inst.control.value(tp_inst, obj,unit, ui.value);
+																tp_inst._onTimeChange();
+																tp_inst._onSelectHandler();
+															}
+														});
+														return obj;
+														},
+														options : function(tp_inst, obj, unit, opts, val) {
+															if (typeof (opts) == 'string' && val !== undefined)
+																return obj.find('.ui-timepicker-input').spinner(opts, val);
+																return obj.find('.ui-timepicker-input').spinner(opts);
+														},
+														value : function(tp_inst, obj, unit, val) {
+															if (val !== undefined)
+																return obj.find('.ui-timepicker-input').spinner('value', val);
+																return obj.find('.ui-timepicker-input').spinner('value');
+														}
+													};
+												jQuery("#dateUTC"+'[[${messageStatus.count}]]').datetimepicker({
+													beforeShow: function() {
+						        						setTimeout(function(){
+						            					$('.ui-datepicker').css('z-index', 200);
+						        						}, 0);
+						    						},
+													controlType : control,
+													dateFormat : "yy-mm-dd",
+													timeFormat : 'HH:mm:ss z',
+													timezoneList : [ {
+														value : +480,
+														label : 'Taipei'
+													}, {
+														value : -480,
+														label : 'Pacific'
+													} ]
+												});
+												$("#dateUTC"+'[[${messageStatus.count}]]').attr('readonly', true);
+												});
+											</script>
+												<input th:id="'dateUTC'+${messageStatus.count}" class="form-control" style="display:inline;cursor:default;background-color:white;"
+												 name="dateCreate" ng-model="customer.dateCreate" required="required"/>
+										</td>
+									</tr>
+								</table>
+							</div>
+				 		</div>
+				 		<div th:id="'MSDC'+${messageStatus.count}" class="row" ng-repeat="MSDC in MSDCType">
+							<div class="col-md-6"> 
+								<table class="table table-withoutBorder">							
+									<tr>
+										<td class="text-right"><b><a th:text="#{ccc.endTime}"></a><span class="text-danger">*</span></b></td>
+										<td>
+											<script>
+												$(function() {
+													var control = {
+														create : function(tp_inst, obj, unit, val, min, max, step) {$(
+														'<input class="ui-timepicker-input" value="' + val + '" style="width:50%">').appendTo(obj).spinner({
+															min : min,
+															max : max,
+															step : step,
+															change : function(e, ui) { // key events
+																// don't call if api was used and not key press
+																if (e.originalEvent !== undefined)
+																	tp_inst._onTimeChange();
+																	tp_inst._onSelectHandler();
+															},
+															spin : function(e, ui) { // spin events
+																tp_inst.control.value(tp_inst, obj,unit, ui.value);
+																tp_inst._onTimeChange();
+																tp_inst._onSelectHandler();
+															}
+														});
+														return obj;
+														},
+														options : function(tp_inst, obj, unit, opts, val) {
+														if (typeof (opts) == 'string' && val !== undefined)
+															return obj.find('.ui-timepicker-input').spinner(opts, val);
+															return obj.find('.ui-timepicker-input').spinner(opts);
+														},
+														value : function(tp_inst, obj, unit, val) {
+														if (val !== undefined)
+															return obj.find('.ui-timepicker-input').spinner('value', val);
+															return obj.find('.ui-timepicker-input').spinner('value');
+														}
+													};
+												jQuery("#endDate"+'[[${messageStatus.count}]]').datetimepicker({
+													beforeShow: function() {
+						        						setTimeout(function(){
+						            						$('.ui-datepicker').css('z-index', 200);
+						        						}, 0);
+						    						},
+													controlType : control,
+													dateFormat : "yy-mm-dd",
+													timeFormat : 'HH:mm:ss z',
+													timezoneList : [ {
+														value : +480,
+														label : 'Taipei'
+													}, {
+														value : -480,
+														label : 'Pacific'
+													} ]
+												});
+												$("#endDate"+'[[${messageStatus.count}]]').attr('readonly', true);
+												});
+											</script>								
+												<input th:id="'endDate'+${messageStatus.count}" class="form-control" style="display:inline;cursor:default;background-color:white;" 
+												name="endDate" ng-model="MSDC.endDate" required="required"/>									
+										</td>
+									</tr>
+									<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.timeTaken}"></a><span class="text-danger">*</span></b>
+										</td>
+										<td>
+											<input th:id="'timeTaken'+${messageStatus.count}" class="form-control" 
+											name="timeTaken" ng-model="MSDC.timeTaken" ng-change="getDrsChargeByWord('${messageStatus.count}')" required="required"/>
+										</td>
+									</tr>	
+				    				<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.relatedSku}"></a><span class="text-danger">*</span></b>
+										</td>
+										<td>
+											<select th:id="'chargeToSKU'+${messageStatus.count}" class="form-control" name="chargeToSKU" 
+											ng-model="MSDC.chargeToSKU" required="required">
+											<div th:if="${CustomerCareCase.relatedProductSkuCodeList == null}">   								
+								    			<option value="" label="--- Select ---"></option>
+								    			<th:block th:each="sku : ${productSkuCodeToSupplierNameMapUnderBases}">
+									          	<option th:value="${sku.key}" th:text="${sku.key}+' '+${sku.value}"></option>                                            									                                                     
+												</th:block>																	    								
+											</div>
+											<div th:if="${CustomerCareCase.relatedProductBaseCodeList == null}">
+												<option value="" label="--- Select ---"></option> 
+    								   			<th:block th:each="sku : ${CustomerCareCase.relatedProductSkuCodeList}">
+									        	<option th:value="${sku}" th:text="${sku}+' '+${productSkuCodeToSupplierNameMap['__${sku}__']}"></option>					
+												   </th:block>									
+											</div>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td>
+											<input type="checkbox" th:id="'isFreeOfCharge'+${messageStatus.count}" name="isFreeOfCharge" ng-model="MSDC.isFreeOfCharge" />
+											<a th:text="#{ccc.freeOfCharge}"></a>
+											<input type="hidden" th:id="'responseTemplateId'+${messageStatus.count}" name="responseTemplateId" value="" />
+										</td>
+									</tr>				    				    
+				    			</table>				    				   					     				  
+							</div>
+							<div class="col-md-6">
+								<table class="table table-withoutBorder">							
+									<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.wordCount}"></a><span class="text-danger">*</span></b>
+										</td>
+										<td>
+											<input th:id="'wordCount'+${messageStatus.count}" class="form-control" name="wordCount" ng-model="MSDC.wordCount" ng-change="getDrsChargeByWord('${messageStatus.count}')" required="required"/>
+										</td>
+									</tr>														
+									<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.standardAction}"></a><span class="text-danger">*</span></b>
+										</td>
+										<td>
+											<input th:id="'standardActionCount'+${messageStatus.count}" class="form-control" name="standardActionCount" ng-model="MSDC.standardActionCount" ng-change="getDrsChargeByWord('${messageStatus.count}')" required="required"/>
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td>
+											<input type="checkbox" th:id="'translationFeeIncluded'+${messageStatus.count}" name="includesTranslationFee" ng-model="MSDC.translationFeeIncluded" ng-change="getDrsChargeByWord('${messageStatus.count}')"/>
+											<a th:text="#{ccc.translationFee}"></a>
+										</td>
+									</tr>
+									<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.chargeByWord}"></a></b>
+										</td>
+										<td>
+											<input th:id="'DRSChargeByWord'+${messageStatus.count}" class="form-control" name="DRSChargeByWord" ng-model="MSDC.DRSChargeByWord" readonly="true" />
+										</td>
+									</tr>
+									<tr>
+										<td class="text-right">
+											<b><a th:text="#{ccc.costPerHour}"></a></b>
+										</td>
+										<td>
+											<input th:id="'costPerHour'+${messageStatus.count}" class="form-control" name="costPerHour" ng-model="MSDC.costPerHour" readonly="true" />
+										</td>
+									</tr>																			    				    
+				    			</table>										    										
+							</div>						
+						</div>
+				<div class="row">
+					<div class="col-md-12">
+						<div th:id="'insertTemplateArea'+${messageStatus.count}" style="display:none">				
+							<b><a th:text="#{ccc.InsertDefaultMessage}"></a></b>
+							<br>
+							<a th:text="#{template.responseTemplate}"></a>				
+							<select th:id="'basicTemplate'+${messageStatus.count}" name="basicTemplate" class="form-control" style="width:25%;display: inline;" 
+							ng-model="applicableTemplate" ng-change="insertMessage('basicTemplate',${messageStatus.count})">
+								<option value="" >--- Select ---</option>
+								<th:block th:each="applicableTemplate : ${applicableTemplates}">
+								<option th:value="${applicableTemplate.key}">[[${applicableTemplate.value}]]</option>							
+								</th:block>
+							</select>
+							<br><br>
+							<b><a th:text="#{ccc.InsertOtherMessageFromTemplate}"></a></b>
+							<br>
+							<a th:text="#{ccc.issueCategory}"></a>
+							<select th:id="'categoryName'+${messageStatus.count}" name="categoryName" class="form-control" 
+							style="width:265px;display: inline;" ng-model="categoryName" ng-change="getIssueTypeList(this,'${messageStatus.count}')">
+        				   		<option value=""><a th:text="#{issue.ALL_CATEGORY}"></a></option>
+        				   	   	<th:block th:each="issueCategoryIdToName : ${issueCategoryIdToNameMap}">
+								<option th:value="${issueCategoryIdToName.key}" th:text="#{'issue.'+${issueCategoryIdToName.value}}"></option>
+								</th:block>
+        				   	</select>
+        					<a th:text="#{ccc.issueType}"></a>
+        					<select th:id="'issueType'+${messageStatus.count}" name="issueType" class="form-control" style="width:265px;display: inline;" ng-model="issueType" ng-change="getIssues(this,'${messageStatus.count}')">
+        				   		<option value=""><a th:text="#{issue.ALL_TYPE}"></a></option>
+        				   	</select>
+        					<a th:text="#{ccc.issue}"></a>
+        					<select th:id="'issue'+${messageStatus.count}" name="issue" class="form-control" style="width:265px;display: inline;" ng-model="issue" ng-change="getTemplates(this,'${messageStatus.count}')">        				   	   
+        				   	</select>
+        					<br><br>		   	   
+        					<a th:text="#{template.responseTemplate}"></a>	   	   				
+							<select th:id="'otherTemplate'+${messageStatus.count}" name="responseTemplate" class="form-control" style="width:265px;display: inline;" ng-model="responseTemplate" ng-change="insertMessage('otherTemplate','${messageStatus.count}')">        				   	   
+        				   	</select>									
+						</div>
+					</div>
+				</div>																	
+				<div id="contentRow" class="row" style="margin-top: 10px; margin-bottom: 10px;">
+					<div class="col-md-12">
+						
+						<textarea th:id="'contents'+${messageStatus.count}" th:class="'form-control contents'+${messageStatus.count}" name="contents" rows="8" ng-model="contents"></textarea>
+						<div th:id ="'wordCounter'+${messageStatus.count}"></div>				
+					</div>
+				</div>
+				<div class="row text-right" style="margin-top: 10px; margin-bottom: 10px;">
+					<div class="col-md-12">					
+						<a class="btn btn-primary" th:id="'heading'+${messageStatus.count}" ng-model="submitMessage" role="button" 
+						data-toggle="collapse" data-parent="#accordion" th:href="'#collapse'+${messageStatus.count}" aria-expanded="true" th:aria-controls="'collapse'+${messageStatus.count}"
+						th:attr="ng-click='collapseMessageForSubmit(\''+${messageStatus.count}+'\');'" ng-disabled='Message.$invalid || contents==""'																 					
+							th:text="#{ccc.submit}" >					
+						</a>					
+						<a th:id="'heading'+${messageStatus.count}" class="btn btn-link" ng-model="cancelMessage" role="button" 
+						data-toggle="collapse" data-parent="#accordion" th:href="'#collapse'+${messageStatus.count}" aria-expanded="true" th:aria-controls="'collapse'+${messageStatus.count}"
+						  th:attr="ng-click='collapseMessage(\''+${messageStatus.count}+'\');'"																 
+							th:text="#{ccc.cancel}">
+						</a>
+					</div>
+				</div>
+		</form>
+			</div>						
+		</div>					
+		</div>
+			<!-- <% pageContext.setAttribute("newLineChar", "\n"); %> -->
+			<div th:id="'messageContent'+${messageStatus.count}" class="panel-body removePseudoElements">						
+				<p><a th:utext="${message.contents}"></a></p>						
+			</div>
+		</div>
+		<script type="text/javascript">
+			$('#contents'+'[[${messageStatus.count}]]').wysihtml5({
+				"events": {
+				 	"load": function() {
+						$("#contentRow .wysihtml5-sandbox").addClass("inspectlet-disable-iframe-inject");				        	               
+					}
+				},toolbar: {		   
+					"html": true, //Button which allows you to edit the generated HTML. Default false   		     		   
+	    			"link": false, //Button to insert a link. Default true
+	    			"image": true, //Button to insert an image. Default true,
+	    			"blockquote": false //Blockquote 		   
+				}
+			});				
+		</script>								  			 						 
+			</div>			
+		</th:block>
+		<div id="dialog-message-confirm"></div>
+		</div>		  
+		<th:block th:each="message,messageStatus : ${CustomerCareCase.messages}" >
+						
+			<div th:if="${messageStatus.count == CustomerCareCase.messages.size()}">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading" style="padding: 15px 15px;">
+							<span class="text-muted"><a th:text="'#'+${message.lineSeq}"></a> <b><a th:text="${CustomerCareCase.customerName}"></a></b></span>
+							<span class="text-muted text-right" style="float:right"><a th:text="#{ccc.createdBy(${message.createBy},${message.dateCreate})}"></a></span>						
+						</div>
+						<div class="panel-body">
+					  		<!-- <% pageContext.setAttribute("newLineChar", "\n"); %> -->
+					 	 	<p><a th:utext="${message.contents}"></a></p>
+						</div>
+					</div>
+				</div>				
+			</div>
+			</div>
+			
+		</th:block>		
+		<script type="text/javascript">
+			$('#contents').wysihtml5({
+	    		"events": {
+	        		"load": function() {
+	            		$("#contentRow .wysihtml5-sandbox").addClass("inspectlet-disable-iframe-inject");	        	               
+	        		}
+	    		},toolbar: {		   
+	    	 		"html": true, //Button which allows you to edit the generated HTML. Default false   		     		   
+			 		"link": false, //Button to insert a link. Default true
+			 		"image": true, //Button to insert an image. Default true,
+			 		"blockquote": false //Blockquote  		   
+		  		}
+			});	
+		</script>						
+	</div>
+</div>
+</section>
+</body>
+</html>

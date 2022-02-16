@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.kindminds.drs</groupId>
+        <artifactId>drs-component</artifactId>
+        <version>1.0.0-RELEASE</version>
+    </parent>
+
+    <groupId>com.kindminds.drs</groupId>
+    <version>1.0.0-RELEASE</version>
+    <artifactId>drs-message</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <org.springframework.data.version>2.1.8.RELEASE</org.springframework.data.version>
+    </properties>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.12.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kindminds.drs</groupId>
+            <artifactId>drs-common</artifactId>
+            <version>1.0.0-RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kindminds.drs</groupId>
+            <artifactId>drs-adapter</artifactId>
+            <version>1.0.0-RELEASE</version>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+
+            <!-- This plugin compiles Scala files -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.4.0</version>
+
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <javacArgs>
+                        <javacArg>-Xlint:unchecked</javacArg>
+                        <javacArg>-Xlint:deprecation</javacArg>
+                    </javacArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <sourceDir>${project.basedir}/src/main/scala</sourceDir>
+                        </configuration>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+            <!-- This plugin adds all dependencies to JAR file during 'package' command.
+    Pay EXTRA attention to the 'mainClass' tag.
+    You have to set name of class with entry point to program ('main' method) -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>ScalaRunner</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+
+
+        </plugins>
+    </build>
+
+
+</project>

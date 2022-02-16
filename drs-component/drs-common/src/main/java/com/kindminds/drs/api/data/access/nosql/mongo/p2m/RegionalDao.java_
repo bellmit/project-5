@@ -1,0 +1,10 @@
+package com.kindminds.drs.api.data.access.nosql.mongo.p2m;
+
+public interface RegionalDao {
+
+    void intoMongodb(String json);
+
+    void save(String json);
+
+    String findByP2MApplicationId(String p2mApplicationId);
+}

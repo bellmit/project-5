@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+
+	<persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spSettleableItemReportLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.RemittanceImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.close.BillStatementImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.close.RemittenceImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.user.UserCredentialImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.user.UserInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonTransactionImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonTransactionLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spStatementItemProfitShareImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spStatementItemShipmentRelatedImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.stock.ProductStockChangeImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.close.BillStatementLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spStatementItemServiceExpenseImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.CompanyImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductBaseImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductSkuImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.logistics.ShipmentIvsImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.logistics.ShipmentIvsLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductSkuStockImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssStatementItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.RemittanceReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spServiceExpenseReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.logistics.ShipmentUnsLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.logistics.ShipmentUnsImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssStatementItemPaymentOnBehalfImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssPurchaseAllowanceReportRawItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssPaymentAndRefundReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseMessageImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseDtoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonOrderImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonOrderItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.KeyProductStatsReportLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductMarketplaceInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.DebitCreditNoteItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.DebitCreditNoteSkuLineImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseIssueImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseOrderInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseIssueTemplateImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.customercare.CustomerCareCaseIssueCommentImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ss2spCustomerCareCostReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.SupplementalLinkImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.close.BillStatementProfitShareItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductDtoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ProductDetailImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.close.BsliCustomerCaseExemptionInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.sales.CustomerOrderImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.sales.CustomerOrderExportingImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.settleable.DrsTransactionImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.settleable.DrsTransactionLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssStatementItemProductInventoryReturnImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssProductInventoryReturnReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.ImportDutyImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.ImportDutyLineItemImpl</class>
+		<class>com.kindminds.drs.v1.model.impl.PaymentRecordReportAmountDetailLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonCampaignPerformanceReportBriefLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.statement.Ms2ssSettleableItemReportLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.PaymentRecordReportQuantitySummaryLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.RetainmentRateImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.SearchTermReportLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonOrderDetailImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.SatisfactionDto</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.settleable.DrsTransactionLineItemSourceImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.replenishment.SkuInventoryInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.replenishment.ReplenishmentTimeSpentImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonSponsoredProductsAdvertisedProductReportBriefLineItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.SupplierLongTermStorageFeeImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.CouponRedemptionImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.ProfitShareInvoiceEmailReminderImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonHeadlineSearchAdReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.ProfitShareInvoiceEmailReminderImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.CouponRedemptionImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.accounting.AdSpendTransactionImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.CampaignReportDetailImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.ConfirmMarketingMaterialCommentImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.report.HsaCampaignReportDetailImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.sales.PurchaseOrderInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.sales.PurchaseOrderSkuInfoImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.product.AmazonAsinImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonReviewReportItemImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonReviewNotificationImpl</class>
+		<class>com.kindminds.drs.persist.v1.model.mapping.amazon.AmazonReimbursementInfoImpl</class>
+		<class>com.kindminds.drs.persist.data.row.sales.DailySalesRowImpl</class>
+		<class>com.kindminds.drs.persist.data.row.customercare.CustomerCareCaseRowImpl</class>
+		<class>com.kindminds.drs.persist.data.row.marketing.CampaignRowImpl</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+	</persistence-unit>
+
+	<!--
+		<persistence-unit name="casApplication" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+</persistence-unit>
+	-->
+
+
+
+</persistence>

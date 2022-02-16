@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{ss2spStatement.statement}+':'+${statementName}'+' - DRS'">
+	</title>
+</head>
+<body>
+	<section layout:fragment="custom-content">		
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{ss2spStatement.statement}+': '+${statementName}"></a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<p class="text-right">
+					<a th:text="#{ss2spStatement.period}+':'+${report.dateStart} +' ~ '+${report.dateEnd}"></a><br>
+					<a th:text="#{ss2spStatement.issuer}"></a> <a th:text="':'+${companyKcodeToNameMap[report.isurKcode]}"<br>
+					<a th:text="#{ss2spStatement.receiver}"></a> <a th:text="'：'+${companyKcodeToNameMap[report.rcvrKcode]}"></a>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th><a th:text="#{ss2spStatement.itemType}"></a> </th>
+							<th class="text-right" style="width: 15%;">	<a th:text="#{ss2spStatement.statementAmountT}"></a> </th>
+							<th><a th:text="#{ss2spStatement.notes}"></a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${report.profitShareItems}">
+							<tr>
+								<td><a th:text="${item.displayName}"></a></td>
+								<td class="text-right"><a th:href="@{/{statementName}/profitshare(statementName=${statementName})}">${item.amountStr}</a></td>
+								<td>請開立並寄送三聯式統一發票予本公司。品名：利潤分享，金額：${item.amountUntaxStr}，營業稅：${item.amountTaxStr}，總計：${item.amountStr}。公司名稱：善恩創新股份有限公司，統一編號：80698253，公司地址：11148
+									台北市士林區忠誠路一段179號3樓。感謝您！</td>
+							</tr>
+						</c:forEach>
+						<c:forEach items="${report.shipmentRelatedItems}" var="item">
+							<tr>
+								<td><spring:message code='${item.itemName}' /> ${item.sourceShipmentName}</td>
+								<td class="text-right"><a href="${pageContext.request.contextPath}/${rootUrl}/${statementName}/shipment/${item.sourceShipmentName}">${item.amountStr}</a></td>
+								<td><spring:message code='${item.noteText}' />${item.sourceShipmentInvoiceNumber}</td>
+							</tr>
+						</c:forEach>
+						<c:forEach items="${report.statementItemsServiceExpense}"
+							var="item">
+						    <c:choose>
+						    <c:when test="${empty fn:trim(item.invoiceNumber)}">
+                                <tr>
+                                    <td>-<spring:message code='${item.displayName}' /></td>
+                                    <td class="text-right">${item.amountStr}</td>
+                                    <td>尚未開立</td>
+                                </tr>
+						    </c:when>
+						    <c:otherwise>
+                                <tr>
+                                    <td>-<spring:message code='${item.displayName}' /></td>
+                                    <td class="text-right"><a href="${pageContext.request.contextPath}/${rootUrl}/${statementName}/ServiceExpense/${item.invoiceNumber}">${item.amountStr}</a></td>
+                                    <td>${item.invoiceNumber}</td>
+                                </tr>
+							</c:otherwise>
+						    </c:choose>
+						</c:forEach>
+						<tr>
+							<td><strong><em><spring:message code='ss2spStatement.totalForThisPeriod' /></em></strong></td>
+							<td class="text-right"><strong><em>${report.total}</em></strong></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td colspan="3"></td>
+						</tr>
+						<tr>
+							<td><spring:message code='ss2spStatement.balanceFromPreviousPeriod' /></td>
+							<td class="text-right">${report.previousBalance}</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>-<spring:message code='ss2spRemittanceFrom' /></td>
+							<c:choose>
+								<c:when test="${report.remittanceIsurToRcvr == '0'}">
+									<td class="text-right">-${report.remittanceIsurToRcvr}</td>
+								</c:when>
+								<c:otherwise>
+									<td class="text-right"><a href="${pageContext.request.contextPath}/${rootUrl}/${statementName}/RemittanceReceived">-${report.remittanceIsurToRcvr}</a></td>
+								</c:otherwise>
+							</c:choose>
+							<td></td>
+						</tr>
+						<tr>
+							<td><spring:message code='ss2spRemittanceTo' /></td>
+							<c:choose>
+								<c:when test="${report.remittanceRcvrToIsur == '0'}">
+									<td class="text-right">${report.remittanceRcvrToIsur}</td>
+								</c:when>
+								<c:otherwise>
+									<td class="text-right"><a href="${pageContext.request.contextPath}/${rootUrl}/${statementName}/RemittanceSent">${report.remittanceRcvrToIsur}</a></td>
+								</c:otherwise>
+							</c:choose>
+							<td></td>
+						</tr>
+						<tr>
+							<td colspan="3"></td>
+						</tr>
+						<tr>
+							<td style="background-color: #F2F5A9;"><strong><spring:message code='ss2spStatement.balance' /></strong></td>
+							<td class="text-right" style="background-color: #F2F5A9"><strong><spring:message code='${report.currency}' /> ${report.balance} </strong></td>
+							<td>${balanceNote}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+</section>
+</body>
+</html>

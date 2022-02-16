@@ -1,0 +1,196 @@
+package com.kindminds.drs.v1.model.impl;
+
+import com.kindminds.drs.Currency;
+import com.kindminds.drs.api.v1.model.product.SkuShipmentAllocationInfo;
+import com.kindminds.drs.util.TestUtil;
+
+import java.math.BigDecimal;
+
+//todo arhtur it hvae to be removed
+public class SkuShipmentAllocationInfoImpl implements SkuShipmentAllocationInfo {
+
+
+	private int ivsSkuIdentificationId;
+	private String ivsSkuIdentificationSerialNo;
+	private String sku;
+	private String ivsName;
+	private Currency fcaCurrency;
+	private BigDecimal fcaPrice;
+	private BigDecimal ivsSalesTaxRate;
+	private String unsName;
+	private Currency ddpCurrency;
+	private BigDecimal ddpAmount;
+	private BigDecimal fxRateFromFcaCurrencyToUnsDestinationCountryCurrency;
+	private BigDecimal fxRateFromFcaCurrencyToEur;
+
+	public SkuShipmentAllocationInfoImpl(
+			String sku,
+			String unsName,
+			String ivsName,
+			String ddpCurrency,
+			String ddpAmount,
+			String fcaCurrency,
+			String fcaPrice,
+			String ivsSalesTaxRate,
+			String fxRateFromFcaCurrencyToUnsDestinationCountryCurrency,
+			String fxRateFromFcaCurrencyToEur) {
+		super();
+		this.ivsSkuIdentificationId = ivsSkuIdentificationId;
+		this.ivsSkuIdentificationSerialNo = ivsSkuIdentificationSerialNo;
+		this.sku = sku;
+		this.unsName = unsName;
+		this.ivsName = ivsName;
+		this.ddpCurrency = Currency.valueOf(ddpCurrency);
+		this.ddpAmount = new BigDecimal(ddpAmount);
+		this.fcaCurrency = Currency.valueOf(fcaCurrency);
+		this.fcaPrice = new BigDecimal(fcaPrice);
+		this.ivsSalesTaxRate = new BigDecimal(ivsSalesTaxRate);
+		this.fxRateFromFcaCurrencyToUnsDestinationCountryCurrency = new BigDecimal(fxRateFromFcaCurrencyToUnsDestinationCountryCurrency);
+		this.fxRateFromFcaCurrencyToEur = fxRateFromFcaCurrencyToEur==null?null:new BigDecimal(fxRateFromFcaCurrencyToEur);
+	}
+
+	public SkuShipmentAllocationInfoImpl(
+			int ivsSkuIdentificationId,
+			String ivsSkuIdentificationSerialNo,
+			String sku,
+			String unsName,
+			String ivsName,
+			String ddpCurrency,
+			String ddpAmount,
+			String fcaCurrency,
+			String fcaPrice,
+			String ivsSalesTaxRate,
+			String fxRateFromFcaCurrencyToUnsDestinationCountryCurrency,
+			String fxRateFromFcaCurrencyToEur) {
+		super();
+		this.ivsSkuIdentificationId = ivsSkuIdentificationId;
+		this.ivsSkuIdentificationSerialNo = ivsSkuIdentificationSerialNo;
+		this.sku = sku;
+		this.unsName = unsName;
+		this.ivsName = ivsName;
+		this.ddpCurrency = Currency.valueOf(ddpCurrency);
+		this.ddpAmount = new BigDecimal(ddpAmount);
+		this.fcaCurrency = Currency.valueOf(fcaCurrency);
+		this.fcaPrice = new BigDecimal(fcaPrice);
+		this.ivsSalesTaxRate = new BigDecimal(ivsSalesTaxRate);
+		this.fxRateFromFcaCurrencyToUnsDestinationCountryCurrency = new BigDecimal(fxRateFromFcaCurrencyToUnsDestinationCountryCurrency);
+		this.fxRateFromFcaCurrencyToEur = fxRateFromFcaCurrencyToEur==null?null:new BigDecimal(fxRateFromFcaCurrencyToEur);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof SkuShipmentAllocationInfo){
+			SkuShipmentAllocationInfo info = (SkuShipmentAllocationInfo)obj;
+			return
+					this.getIvsSkuIdentificationId() == info.getIvsSkuIdentificationId() &&	this.getIvsSkuIdentificationSerialNo().equals(info.getIvsSkuIdentificationSerialNo())
+				&&	this.getSku().equals(info.getSku())
+				&& this.getIvsName().equals(info.getIvsName())
+				&& this.getFcaCurrency().equals(info.getFcaCurrency())
+				&& this.getFcaPrice().equals(info.getFcaPrice())
+				&& this.getIvsSalesTaxRate().equals(info.getIvsSalesTaxRate())
+				&& this.getUnsName().equals(info.getUnsName())
+				&& this.getDdpCurrency().equals(info.getDdpCurrency())
+				&& this.getDdpAmount().equals(info.getDdpAmount())
+				&& this.getFxRateFromFcaCurrencyToDestinationCountryCurrency().equals(info.getFxRateFromFcaCurrencyToDestinationCountryCurrency())
+				&& TestUtil.nullableEquals(this.getFxRateFromFcaCurrencyToEur(),info.getFxRateFromFcaCurrencyToEur());
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "SkuShipmentAllocationInfoImpl [getSku()=" + getSku() + ", getIvsName()=" + getIvsName()
+				+ ", getFcaCurrency()=" + getFcaCurrency() + ", getFcaPrice()=" + getFcaPrice()
+				+ ", getIvsSalesTaxRate()=" + getIvsSalesTaxRate() + ", getUnsName()=" + getUnsName()
+				+ ", getDdpCurrency()=" + getDdpCurrency() + ", getDdpAmount()=" + getDdpAmount()
+				+ ", getFxRateFromFcaCurrencyToDestinationCountryCurrency()="
+				+ getFxRateFromFcaCurrencyToDestinationCountryCurrency() + ", getFxRateFromFcaCurrencyToEur()="
+				+ getFxRateFromFcaCurrencyToEur() + "]";
+	}
+
+	@Override
+	public int getIvsSkuIdentificationId() {
+		return this.ivsSkuIdentificationId;
+	}
+
+	@Override
+	public String getIvsSkuIdentificationSerialNo() {
+		return this.ivsSkuIdentificationSerialNo;
+	}
+
+	@Override
+	public String getIvsSkuIdentificationStatus() {
+		return null;
+	}
+
+	@Override
+	public void setIvsSkuIdentificationStatus(String status) {
+
+	}
+
+	@Override
+	public String getIvsSkuIdentificationRemark() {
+		return null;
+	}
+
+	@Override
+	public void setIvsSkuIdentificationRemark(String remark) {
+
+	}
+
+	@Override
+	public int getIvsSkuIdentificationDrsTranId() {
+		return 0;
+	}
+
+	@Override
+	public String getSku() {
+		return this.sku;
+	}
+
+	@Override
+	public String getIvsName() {
+		return this.ivsName;
+	}
+
+	@Override
+	public Currency getFcaCurrency() {
+		return this.fcaCurrency;
+	}
+
+	@Override
+	public BigDecimal getFcaPrice() {
+		return this.fcaPrice;
+	}
+
+	@Override
+	public BigDecimal getIvsSalesTaxRate() {
+		return this.ivsSalesTaxRate;
+	}
+
+	@Override
+	public String getUnsName() {
+		return this.unsName;
+	}
+
+	@Override
+	public Currency getDdpCurrency() {
+		return this.ddpCurrency;
+	}
+
+	@Override
+	public BigDecimal getDdpAmount() {
+		return this.ddpAmount;
+	}
+
+	@Override
+	public BigDecimal getFxRateFromFcaCurrencyToDestinationCountryCurrency() {
+		return this.fxRateFromFcaCurrencyToUnsDestinationCountryCurrency;
+	}
+
+	@Override
+	public BigDecimal getFxRateFromFcaCurrencyToEur() {
+		return this.fxRateFromFcaCurrencyToEur;
+	}
+
+}

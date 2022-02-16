@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<!--<annotation-driven />-->
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!--
+	<beans:bean id="viewResolver" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver">
+		<beans:property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView" />
+	</beans:bean>
+	
+	<beans:bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<beans:property name="definitions" value="/WEB-INF/tiles.xml" />
+	</beans:bean>
+	-->
+	
+
+	
+	<context:component-scan base-package="com.kindminds.drs.web" />
+ 
+    <beans:bean id="localeResolver"
+        class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <beans:property name="defaultLocale" value="en_US" />
+    </beans:bean>
+
+	<!-- =========================================================================================================================== -->
+	<!-- Amazon Order Retriever ==================================================================================================== -->
+	<!-- =========================================================================================================================== -->
+	<beans:bean id="amazonTask" class="com.kindminds.drs.service.schedule.job.ImportAmazonOrderUcoImpl"><beans:property name="country" value="NA" /></beans:bean>
+	<beans:bean id="amazonJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="amazonTask" />
+		<beans:property name="targetMethod" value="importOrders" />
+	</beans:bean>
+	<beans:bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="amazonJob" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="amazonTaskUk" class="com.kindminds.drs.service.schedule.job.ImportAmazonOrderUcoImpl"><beans:property name="country" value="EU" /></beans:bean>
+	<beans:bean id="amazonJobUk" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="amazonTaskUk" />
+		<beans:property name="targetMethod" value="importOrders" />
+	</beans:bean>
+	<beans:bean id="cronTriggerUk" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="amazonJobUk" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<!-- ======================================================================================================================================= -->
+	<!-- Amazon Fulfillment Order Retriever ==================================================================================================== -->
+	<!-- ======================================================================================================================================= -->
+	<beans:bean id="amazonFulfillmentOrderRetrieverNA" class="com.kindminds.drs.service.schedule.job.ImportAmazonFulfillmentOrderUcoImpl"><beans:property name="region" value="NA" /></beans:bean>
+	<beans:bean id="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverNA" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="amazonFulfillmentOrderRetrieverNA" />
+		<beans:property name="targetMethod" value="importOrders" />
+	</beans:bean>
+	<beans:bean id="cronTriggerFactoryBeanAmazonFulfullmentOrderRetrieverNA" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverNA" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="amazonFulfillmentOrderRetrieverUK" class="com.kindminds.drs.service.schedule.job.ImportAmazonFulfillmentOrderUcoImpl"><beans:property name="region" value="UK" /></beans:bean>
+	<beans:bean id="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverUK" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="amazonFulfillmentOrderRetrieverUK" />
+		<beans:property name="targetMethod" value="importOrders" />
+	</beans:bean>
+	<beans:bean id="cronTriggerFactoryBeanAmazonFulfullmentOrderRetrieverUK" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverUK" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="shopifyTask" class="com.kindminds.drs.service.schedule.job.ImportShopifyOrderUcoImpl"></beans:bean>
+	<beans:bean id="shopifyJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="shopifyTask" />
+		<beans:property name="targetMethod" value="importOrders" />
+	</beans:bean>
+	<beans:bean id="cronTriggerShopify" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="shopifyJob" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="maintainCustomerCareCaseIssueUco" class="com.kindminds.drs.service.usecase.customercare.MaintainCustomerCareCaseIssueUcoImpl"></beans:bean>
+	<beans:bean id="customerIssueRenotifyJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="maintainCustomerCareCaseIssueUco" />
+		<beans:property name="targetMethod" value="doRenotify" />
+	</beans:bean>
+	<beans:bean id="cronTriggerIssuRenotify" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="customerIssueRenotifyJob" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="updateProductSkuInventoryHistoryUcoImpl" class="com.kindminds.drs.service.schedule.job.UpdateProductSkuInventoryHistoryUcoImpl"></beans:bean>
+	<beans:bean id="productSkuInventoryHistoryUpdater" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="updateProductSkuInventoryHistoryUcoImpl" />
+		<beans:property name="targetMethod" value="update" />
+	</beans:bean>
+	<beans:bean id="cronTriggerProductSkuInventoryHistoryUpdater" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="productSkuInventoryHistoryUpdater" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<!-- =========================================================================================================================== -->
+	<!-- inventory updater ========================================================================================================= -->
+	<!-- =========================================================================================================================== -->
+	<beans:bean id="UpdateFbaSellableQuantityUcoImplUs" class="com.kindminds.drs.service.schedule.job.UpdateFbaSellableQuantityUcoImpl"><beans:property name="marketplace" value="Amazon.com" /></beans:bean>
+	<beans:bean id="inventorySupplyUpdaterUs" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="UpdateFbaSellableQuantityUcoImplUs" />
+		<beans:property name="targetMethod" value="update" />
+	</beans:bean>
+	<beans:bean id="cronTriggerInventorySupplyUpdaterUs" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="inventorySupplyUpdaterUs" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="UpdateFbaSellableQuantityUcoImplUk" class="com.kindminds.drs.service.schedule.job.UpdateFbaSellableQuantityUcoImpl"><beans:property name="marketplace" value="Amazon.co.uk" /></beans:bean>
+	<beans:bean id="inventorySupplyUpdaterUk" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="UpdateFbaSellableQuantityUcoImplUk" />
+		<beans:property name="targetMethod" value="update" />
+	</beans:bean>
+	<beans:bean id="cronTriggerInventorySupplyUpdaterUk" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<beans:property name="jobDetail" ref="inventorySupplyUpdaterUk" />
+		<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+
+	<beans:bean id="UpdateFbaSellableQuantityUcoImplCa" class="com.kindminds.drs.service.schedule.job.UpdateFbaSellableQuantityUcoImpl"><beans:property name="marketplace" value="Amazon.ca" /></beans:bean>
+	<beans:bean id="inventorySupplyUpdaterCa" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean" >
+		<beans:property name="targetObject" ref="UpdateFbaSellableQuantityUcoImplCa" />
+		<beans:property name="targetMethod" value="update" />
+	</beans:bean>
+	<beans:bean id="cronTriggerInventorySupplyUpdaterCa" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+	<beans:property name="jobDetail" ref="inventorySupplyUpdaterCa" />
+	<beans:property name="cronExpression" value="0 19 19 28 2 ? 2050" />
+	</beans:bean>
+	
+	<!-- =========================================================================================================================== -->
+	<!-- SchedulerFactoryBean ====================================================================================================== -->
+	<!-- =========================================================================================================================== -->
+	<beans:bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<beans:property name="jobDetails">
+			<beans:list>
+				<beans:ref bean="amazonJob" />
+				<beans:ref bean="amazonJobUk" />
+				<beans:ref bean="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverNA" />
+				<beans:ref bean="methodInvokingJobDetailFactoryBeanAmazonFulfullmentOrderRetrieverUK" />
+				<beans:ref bean="shopifyJob" />
+				<beans:ref bean="customerIssueRenotifyJob" />
+				<beans:ref bean="productSkuInventoryHistoryUpdater" />
+				<beans:ref bean="inventorySupplyUpdaterUs" />
+				<beans:ref bean="inventorySupplyUpdaterUk" />
+				<beans:ref bean="inventorySupplyUpdaterCa" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="triggers">
+			<beans:list>
+				<beans:ref bean="cronTrigger" />
+				<beans:ref bean="cronTriggerUk" />
+				<beans:ref bean="cronTriggerFactoryBeanAmazonFulfullmentOrderRetrieverNA" />
+				<beans:ref bean="cronTriggerFactoryBeanAmazonFulfullmentOrderRetrieverUK" />
+				<beans:ref bean="cronTriggerShopify" />
+				<beans:ref bean="cronTriggerIssuRenotify" />
+				<beans:ref bean="cronTriggerProductSkuInventoryHistoryUpdater" />
+				<beans:ref bean="cronTriggerInventorySupplyUpdaterUs" />
+				<beans:ref bean="cronTriggerInventorySupplyUpdaterUk" />
+				<beans:ref bean="cronTriggerInventorySupplyUpdaterCa" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="transactionManager">
+			<beans:ref bean="transactionManager" />
+		</beans:property>
+	</beans:bean>
+
+	<!-- scheduler section end -->
+
+    <interceptors>
+        <beans:bean
+            class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <beans:property name="paramName" value="locale" />
+        </beans:bean>
+    </interceptors>
+      	
+	<!-- <context:component-scan base-package="org.krams" />
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+        p:maxUploadSize="1000000"/>
+        
+    <beans:import resource="trace-context.xml"/> 
+	
+	<beans:bean id="deployProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+        p:location="/WEB-INF/spring.properties" />-->
+	
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <beans:property name="maxUploadSize" value="50000000" />
+	</beans:bean>
+		
+	<interceptors>
+        <beans:bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" p:paramName="lang"/>
+        <interceptor>
+            <mapping path="/NewDevelopingProductList"/>
+			<mapping path="/NewDevelopingProduct/**/*"/>
+			<mapping path="/CreateCoreProductInformation"/>
+			<mapping path="/CoreProductInformation/**/*"/>
+			<mapping path="/EditCoreProductInformation/**/*"/>
+			<mapping path="/MarketSideProductInformation/**/*"/>
+			<mapping path="/EditMarketSideProductInformation/**/*"/>
+			<mapping path="/SourceProductMarketingMaterial/**/*"/>
+			<mapping path="/EditSourceProductMarketingMaterial/**/*"/>
+			<mapping path="/MarketSideProductMarketingMaterial/**/*"/>
+			<mapping path="/EditMarketSideProductMarketingMaterial/**/*"/>
+            <exclude-mapping path="/resources/**"/>
+            <beans:bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+                <beans:property name="cacheSeconds" value="0"/>
+                <beans:property name="useExpiresHeader" value="true"/>
+                <beans:property name="useCacheControlHeader" value="true"/>
+                <beans:property name="useCacheControlNoStore" value="true"/>
+            </beans:bean>
+        </interceptor>
+	</interceptors>
+
+	<context:component-scan base-package="com.kindminds.drs.web" />
+
+
+
+</beans:beans>

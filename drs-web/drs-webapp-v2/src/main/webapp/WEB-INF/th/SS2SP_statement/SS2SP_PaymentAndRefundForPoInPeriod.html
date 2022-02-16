@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title th:text="#{${report.title}}+' '+${sourcePoId}+' - DRS'"></title>
+
+<link th:href="@{/resources/css/newstyle.css}" type="text/css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<style>
+table.dataTable {    
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+	}
+table.dataTable.no-footer {
+    border-bottom: 0px solid #111;
+}
+table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > td.sorting_asc, table.dataTable thead > tr > td.sorting_desc, table.dataTable thead > tr > td.sorting {
+    padding-right: 15px;
+}
+table.fixedHeader-floating {
+ top:48px !important;
+}
+table.dataTable thead th{
+	border-bottom: 1px solid #eeeded;
+}
+.table > tbody > tr > td.dataTables_empty {
+	border-top:0px;
+}
+.dataTables_wrapper.no-footer .dataTables_scrollBody{
+	border-bottom: 0px solid #111;
+}
+</style>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="row">
+    <div class="col-md-12 max-width" >   
+    <div class="breadcrumb">
+        <a href="/" th:text="#{productVersion.homepage}" ></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div> 
+        <a th:href="@{/{rootUrl}(rootUrl=${rootUrl})}" th:text="#{ss2spStatement.statements}"></a> <div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                 
+		<a th:href="@{/{rootUrl}/{statementName}(rootUrl=${rootUrl},statementName=${statementName})}" th:text="${statementName}"></a> 
+		<div class="bnext"><img th:src="@{/resources/images/bnext.png}"/></div>                                   
+         <span><a th:text="#{${report.title}}+' '+${sourcePoId}"></a>  </span>  
+    </div>
+    </div>
+</div>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{${report.title}}+${sourcePoId}"></a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<p class="text-right">
+					<a th:text="#{ss2spStatement.period}" ></a><a th:text="'：'+${report.dateStart}+' ~ '+${report.dateEnd}" ></a> <br>
+					<a th:text="#{ss2spStatement.issuer}" ></a><a th:text="'：'+${companyKcodeToNameMap[report.isurKcode]}" ></a><br>
+					<a th:text="#{ss2spStatement.receiver}" ></a><a th:text="'：'+${companyKcodeToNameMap[report.rcvrKcode]}"></a>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<a class="btn btn-primary" target="_blank" th:href="@{/{rootUrl}/{statementName}/shipment/{sourcePoId}/export
+				(rootUrl=${rootUrl},statementName=${statementName},sourcePoId=${sourcePoId})}"
+				th:text="#{ss2spStatement.reviewExport}"></a> 															    
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<table id="report" class="table">
+					<thead>
+						<tr>
+							<th></th>
+							<th>SKU</th>
+							<th th:text="#{ss2spStatement.skuName}" ></th>
+							<th th:text="#{ss2spStatement.itemType}" ></th>
+							<th class="text-right" th:text="#{ss2spStatement.amountPerUnit}" ></th>
+							<th class="text-right" th:text="#{ss2spStatement.quantity}" ></th>
+							<th class="text-right" th:text="#{ss2spStatement.amount}" ></th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${lineItems}" >
+							<tr>
+								<td>								
+								<a th:id="'collapse'+${item.sku}+${item.settleableItemId}" class="btn btn-default"
+									th:text="#{ss2spStatement.expand}"></a>								
+								<script>								
+								$(document).ready(function() {
+									
+									$( "#collapse"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').click(function() {
+										  								
+										if ($("#panel"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').css('display') === "table-row") {
+											$("#panel"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').css('display','none');	
+											$( "#collapse"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').text('[[#{ss2spStatement.expand}]]' );											
+								        } else {
+								        	$("#panel"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').css('display','table-row');											    
+								        	$( "#collapse"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').text('[[#{ss2spStatement.collapse}]]');										       
+								        }
+																														
+									});	
+																		
+									$('#report'+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').DataTable( {
+										searching: false,
+										ordering: false,
+									    paging: false,
+									    info: false,
+									    scrollY: '50vh',									    
+								        scrollCollapse: true
+									});
+									
+									});									
+								</script>
+								</td>
+								<td th:text="${item.sku}"></td>
+								<td th:text="${item.skuName}"></td>
+								<td th:text="#{${item.itemType}}" ></td>
+								<td class="text-right" th:text="${item.unitAmount}"></td>
+								<td class="text-right" th:text="${item.quantity}"></td>
+								<td class="text-right">
+									<div>
+										<span th:if="${report.title = 'ss2spStatement.SellBack'}">
+											<a th:text="${item.totalAmount}"></a>
+										</span>
+										<span th:unless="${report.title = 'ss2spStatement.SellBack'}">
+											<a th:text="${item.totalAmount}"></a>	
+										</span>								
+									</div>
+								</td>
+							</tr>
+							<!--  
+							<tr id="collapse${item.sku}${item.settleableItemId}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading${item.sku}${item.settleableItemId}">
+							-->
+							<tr th:id="'panel'+${item.sku}+${item.settleableItemId}">	
+								<!-- <c:set var="id" value="${item.sku}${item.settleableItemId}" /> -->
+								<td colspan=7>																	
+									<table th:id="'report'+${item.sku}+${item.settleableItemId}" class="table success">
+										<thead>
+										<tr class="success">
+											<th><a th:text="#{ss2spStatement.time}"></a></th>											
+											<th><a th:text="#{ss2spStatement.SKU}"></a></th>
+											<th><a th:text="#{ss2spStatement.skuName}"></a></th>
+											<th><a th:text="#{ss2spStatement.itemName}"></a></th>										
+											<th><a th:text="#{ss2spStatement.sourceItem}"></a></th>
+											<th class="text-center"><a th:text="#{ss2spStatement.sourceCurrency}"></a></th>
+											<th class="text-right"><a th:text="#{ss2spStatement.sourceAmount}"></a></th>
+										</tr>
+										</thead>
+										<tbody>
+											<th:block th:each="disp : ${ss2spSettleableItemReport[item.sku+item.settleableItemId].itemList}">
+											<tr class="success">
+												<td><a th:text="${disp.transactionTimeUtc}"></a></td>										
+												<td><a th:text="${disp.sku}"></a></td>
+												<td><a th:text="${disp.skuName}"></a></td>
+												<td><a th:text="#{${disp.name}}" ></a></td>
+												<td><a th:text="${disp.sourceName}"></a></td>
+												<td class="text-center"><a th:text="#{${disp.currency}}"></a></td>
+												<td class="text-right"><a th:text="${disp.amount}"></a></td>
+											</tr>
+											</th:block>
+											<tr class="success">
+												<!-- 
+												<td colspan="5"></td>
+												-->
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>												
+												<td class="text-right"><b><a th:text="#{ss2spStatement.totalAmount}"></a> 
+													<a th:text="#{${ss2spSettleableItemReport[item.sku+item.settleableItemId].currency}}"></a> </b></td>
+												<td class="text-right"><b><a th:text="${ss2spSettleableItemReport[item.sku+item.settleableItemId].total}"></a></b></td>
+											</tr>
+										</tbody>								
+									</table>
+								</td>								
+							</tr>
+							<script>	
+								$(document).ready(function() {
+										  
+									$("#panel"+'[[${item.sku}]]'+'[[${item.settleableItemId}]]').css('display','none');
+																																																																									
+								});									
+							</script>
+						</th:block>							
+						<tr>
+							<td colspan="5"></td>
+							<td class="text-right"><strong><a th:text="#{ss2spStatement.totalAmount}"></a> 
+								 <a th:text="#{${report.currency.name()}}"></a> </strong></td>
+							<td class="text-right"><strong><a th:text="${report.total}"></a></strong></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

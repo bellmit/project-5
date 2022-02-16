@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<title th:text="'Payment Record For '+${report.shipmentName}+' - DRS'"></title>
+<link th:href="@{/resources/css/tooltip.css}" type="text/css" rel="stylesheet">
+<link th:href="@{/resources/css/newstyle.css}" type="text/css" rel="stylesheet">
+<script type="text/javascript">
+	$(function() {
+		$('[data-toggle="tooltip"]').tooltip();	
+	});
+</script>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					[[#{inventoryPaymentReport.TITLE}]]: 
+					<a th:href="@{/InventoryShipments/{shipmentName}(shipmentName=${report.shipmentName})}"
+					th:text="${report.shipmentName}"></a>
+				</div>
+			</div>
+		</div>
+		<div style="font-size:16px;color:#333333;">
+			<a th:text="#{inventoryPaymentReport.SUMMARY}"></a>
+		</div>
+		<div class="row rowframe">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="text-center">SKU</th>
+							<th class="text-right"><a th:text="#{inventoryPaymentReport.AMOUNT_ORIGINAL_INVOICE}"></a></th>
+							<!--<th class="text-right"><spring:message code="inventoryPaymentReport.QUANTITY_RETURNED" /></th>-->
+							<!--<th class="text-right"><spring:message code="inventoryPaymentReport.QUANTITY_DRS_ACTUAL_PURCHASE" /></th>-->
+							<!-- <th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{inventoryPaymentReport.TOOLTIP_TEXT_QUANTITY_MARKET_SIDE_FULFILLED}" ><a th:text="#{inventoryPaymentReport.QUANTITY_MARKET_SIDE_FULFILLED}"></a></th> -->
+							<th class="text-right"><a th:text="#{inventoryPaymentReport.AMOUNT_SOLD_BACK}"></a></th>
+							<th class="text-right"><a th:text="#{inventoryPaymentReport.AMOUNT_SOLD_BACK_RECOVERY}"></a></th>
+							<th class="text-right"><a th:text="#{inventoryPaymentReport.AMOUNT_OTHER}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{inventoryPaymentReport.TOOLTIP_TEXT_AMOUNT_PAID}" ><a th:text="#{inventoryPaymentReport.AMOUNT_PAID}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{inventoryPaymentReport.TOOLTIP_TEXT_AMOUNT_REFUNDED}" ><a th:text="#{inventoryPaymentReport.AMOUNT_REFUNDED}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{inventoryPaymentReport.TOOLTIP_TEXT_AMOUNT_NET_PAID}" ><a th:text="#{inventoryPaymentReport.AMOUNT_NET_PAID}"></a></th>
+							<th class="text-right" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" th:title="#{inventoryPaymentReport.TOOLTIP_TEXT_AMOUNT_OUTSTANDING}" ><a th:text="#{inventoryPaymentReport.AMOUNT_OUTSTANDING}"></a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${report.quantitySummaryLineItems}" >
+							<!-- <tr>
+								<td class="text-left">[[${item.sku}]]</td>
+								<td class="text-right">[[${item.quantityOriginalInvoice}]]</td>
+								<td class="text-right">[[${item.quantityMarketSideFulfilled}]]</td>
+								<td class="text-right">[[${item.quantitySoldBack}]]</td>
+								<td class="text-right">[[${item.quantitySoldBackRecovery}]]</td>
+								<td class="text-right">[[${item.quantityOther}]]</td>
+								<td class="text-right">[[${item.quantityPaid}]]</td>
+								<td class="text-right">[[${item.quantityRefunded}]]</td>
+								<td class="text-right">[[${item.quantityNetPaid}]]</td>
+								<td class="text-right">[[${item.quantityOutstanding}]]</td>
+							</tr> -->
+							<tr>
+								<td class="text-left">[[${item.sku}]]</td>
+								<td class="text-right">[[${item.amountOriginalInvoice}]]</td>
+								<!--<td class="text-right">${item.quantityReturned}</td>-->
+								<!--<td class="text-right">${item.quantityActualPurchase}</td>-->
+								<!-- <td class="text-right">[[${item.amountMarketSideFulfilled}]]</td> -->
+								<td class="text-right">[[${item.amountSoldBack}]]</td>
+								<td class="text-right">[[${item.amountSoldBackRecovery}]]</td>
+								<td class="text-right">[[${item.amountOther}]]</td>
+								<td class="text-right">[[${item.amountPaid}]]</td>
+								<td class="text-right">[[${item.amountRefunded}]]</td>
+								<td class="text-right">[[${item.amountNetPaid}]]</td>
+								<td class="text-right">[[${item.amountOutstanding}]]</td>
+							</tr>
+						</th:block>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div style="padding-bottom: 20px"></div>	
+		<div style="font-size:16px;color:#333333;">
+			<a th:text="#{inventoryPaymentReport.AMOUNT_DETAILS}"></a>
+		</div>
+		<div class="row rowframe">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="text-center">SKU</th>
+							<th class="text-center"><a th:text="#{ss2spStatement.statementId}"></a></th>
+							<th class="text-center"><a th:text="#{ss2spStatement.itemName}"></a></th>
+							<th class="text-right"><a th:text="#{QUANTITY}"></a></th>
+							<th class="text-right"><a th:text="#{inventoryPaymentReport.AMOUNT}"></a> (<a th:text="#{${report.currency}}"></a>)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<th:block th:each="item : ${report.amountDetailLineItems}">
+							<tr>
+								<td class="text-center">[[${item.sku}]]</td>
+								<td class="text-center"><a th:href="@{/{Url}/{Name}(Url=${statementRootUrl},Name=${item.statementName})}"
+									th:text="${item.statementName}" ></a></td>
+								<td class="text-center"><a th:text="#{${item.itemName}}" ></a></td>
+								<td class="text-right">[[${item.quantity}]]</td>
+								<td class="text-right">[[${item.amount}]]</td>
+							</tr>
+						</th:block>
+						<tr>
+							<td colspan="4"></td>
+							<td class="text-right"><b><a th:text="#{inventoryPaymentReport.TOTAL}"></a> (<a th:text="#{${report.currency}}"></a>): [[${report.amountSubtotal}]]</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

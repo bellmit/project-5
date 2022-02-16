@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title></title>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+<script>
+	
+	var app = angular.module('issueType', []);
+	app.controller('issueTypeCtrl', function($scope) {
+		
+		$scope.type = '[[${type}]]';
+				
+		var currentURL = document.URL;
+		
+		if(currentURL.indexOf("edit") > -1) $scope.name = '[[${name}]]';
+						
+	});
+
+	$(document).ready(function(){
+		var t ='[[${type}]]';
+		if(t == 'Create'){
+			document.title='[[#{issue.createIssueType}]]'+' - DRS'
+			$('#form').attr("action","/Issues/saveIssueType")
+
+		}else{
+			document.title='[[#{issue.issueType}]]'+' - DRS'
+			$('#form').attr("action","/Issues/updateIssueType")
+		}	
+
+	});
+
+</script>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="container-fluid" ng-app="issueType"
+		ng-controller="issueTypeCtrl">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+
+						<div th:if="${type eq 'Create'}">
+							<a th:text="#{issue.createIssueType}"></a>
+							
+						</div>
+						<div th:unless="${type eq 'Create'}">
+							<a th:text="#{issue.issueType}"></a>
+							
+						</div>
+
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 offset-md-3">
+				<form id="form"  name="IssueType"
+					class="form-horizontal text-left"
+					modelAttribute="IssueType">
+					
+					<div class="form-group">
+					<label><a th:text="#{issue.issueCategory}"></a></label>
+					<select class="form-control" name="categoryId" ng-disabled="type == 'Edit'">
+									<th:block th:each="categoryIdToName:${categoryIdToNameMap}">
+										<option th:value="${categoryIdToName.key}"
+												th:text="#{'issue.'+${categoryIdToName.value}}" ></option>
+									</th:block>
+							</select>
+					</div>
+					
+					<div class="form-group">
+					<label><a th:text="#{issue.issueType}"></a> <span class="text-danger">*</span></label>
+					<input type="hidden"  name="typeId" th:value="${IssueType.typeId}" />
+							    <input class="form-control"
+									name="name" ng-model="name"
+									required="required" /> 
+								<small class="text-danger"
+									ng-show="IssueType.name.$error.required && IssueType.name.$dirty">
+									<a th:text="#{issue.issueType_req}"></a>
+								</small>
+					</div>
+					<div>
+					<input class="btn btn-primary" type="submit"
+								ng-disabled='IssueType.$invalid'
+								th:value="#{issue.submit}"
+								style="float: right" onclick="this.form.submit()" />
+					</div>
+					
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

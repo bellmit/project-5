@@ -1,0 +1,198 @@
+<head>
+	<title>
+		evaluateProductInfo
+	</title>
+</head>
+<script>
+jQuery(window).on("load", function(e) {	
+	
+	$('#dueDateMarketplaceRestrictions,#dueDateCertificationsAvailabilityMain,#dueDateCertificationsAvailabilitySupport').attr('readonly', true);
+	jQuery("#dueDateMarketplaceRestrictions,#dueDateCertificationsAvailabilityMain,#dueDateCertificationsAvailabilitySupport").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});
+</script>
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					1-3. Trial list product on Amazon & Check marketplace restrictions (PS)
+				</div>
+			</div>
+		</div>		
+		<form name="evaluateProductInfo" action="">
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateMarketplaceRestrictions" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;" placeholder="Due Date for 1-3 Trial list product on Amazon & Check marketplace restrictions"> <br><br>
+			</div>
+		</div>		
+		<div style="padding-top:20px"></div>
+		<div class="row">			
+			<div class="col-md-12">				
+				<div class="panel panel-default">
+  					<div class="panel-heading">1-3a. Check marketplace restrictions</div>
+  						<div class="panel-body">
+  							<p>Marketplaces:</p>
+							US: <a href="https://sellercentral.amazon.com/gp/help/help.html/?itemID=200164330&ref_=xx_200164330_a_r0_cont_sgsearch" target="_blank">Amazon Restricted Products</a>
+							<br>
+							UK: <a href="https://sellercentral.amazon.co.uk/gp/help/201743940/ref=ag_201743940_cont_200316110" target="_blank">Category, Product and Content Restrictions</a>
+							<br>
+							UK: check the list in this <a href="https://sellercentral.amazon.co.uk/gp/help/201743940/ref=ag_201743940_cont_200316110" target="_blank">thread</a> (appears to be from <a href="https://images-na.ssl-images-amazon.com/images/G/02/vc-smp/RestrictedProductsGuidelines_UK._V316934779_.pdf" target="_blank">Vendor Express Restricted Products Guidelines</a>)
+							<br>
+							<br>
+							<a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=200525830" target="_blank">Examples of Amazon products that may be regulated as dangerous goods</a>
+							<br>
+							<br>
+							<p>FBA:</p>														
+							US: <a href="https://sellercentral.amazon.com/gp/help/help.html/?itemID=201730840&ref_=xx_201730840_a_r1_cont_sgsearch" target="_blank">FBA Restricted Products</a>
+							<br>
+							UK: <a href="https://sellercentral.amazon.co.uk/gp/help/help.html/?itemID=201730840&ref_=xx_201730840_a_r4_cont_sgsearch" target="_blank">FBA Prohibited Products</a>
+							<br>
+							<a href="https://www.amazon.com/gp/help/customer/display.html/?nodeId=200385160" target="_blank">Requirements for lithium batteries</a>
+							<br>
+							<br>
+							<p>Category:</p>
+							<a href="https://docs.google.com/a/drs.network/spreadsheets/d/1YurvbnNOWZvi6_exujeiElBVdcwOG0XnMI9RzCuZ31E/edit?usp=sharing" target="_blank">Suggested Category</a>
+							<br>
+							Beanworthy's <a href="https://docs.google.com/spreadsheets/d/17nc371G1Q93IzAkxzkXYX-XN1hbgVP0xZ3OaaJd_-cI/edit#gid=306216953" target="_blank">Category Approval Status</a> (please update); US seller central <a href="https://sellercentral.amazon.com/gp/help/200252980?ref=ag_200252980_cont_201730840&language=en_CA" target="_blank">Categories requiring approval</a>				    
+  						</div>
+				</div>		
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" class="form-control" style="width:25%;display:inline;margin-right:20px" placeholder="Marketplace Category Approval received *">				
+				<input type="text" class="form-control" style="width:25%;display:inline" placeholder="Category and product type *">	<br><br>		
+				<input type="radio" name="category" value="no"> No
+				<input type="radio" name="category" value="yes"> Yes
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>*checklist - marketplace restriction</b></span><br>
+				<input type="checkbox" name="productCategory" value="yes"> Confirm product category (can refer to Suggested Category)<br>
+				<input type="checkbox" name="amazonRestrictedProducts" value="yes"> Check Amazon Restricted Products (in all required marketplaces)<br>
+				<input type="checkbox" name="fbaRestrictedProducts" value="yes"> Check FBA Restricted Products (in all required marketplaces)<br>
+				<input type="checkbox" name="categoryRestrictions" value="yes"> Check category restrictions<br>
+				<input type="checkbox" name="searchTerms" value="yes"> Try search terms in Seller Central and look for Consider sensitive words. Leave note below.			
+			</div>			
+		</div>		
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+  					<div class="panel-heading">1-3b. Trial list product on Amazon</div>
+  						<div class="panel-body">
+  							<p>FBA Export</p>
+							Check supplier's regional selling rules and list to <a href="https://sellercentral.amazon.com/ags-exports/exclude-products?marketplaceId=ATVPDKIKX0DER&" target="_blank">FBA Export: Exclude Products</a>.
+							<br>
+							<br>
+							<p>
+							It can be done as soon as the ASIN is available. Download their template from the website, 
+							add the ASINs on the 3rd sheet, and upload again from the same webpage. 
+							The instructions indicate you need the SKU, but only the ASIN is actually required. 
+  							</p>  											    
+  						</div>
+				</div>							
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>*checklist - List product on Amz*</b></span><br>
+				<input type="checkbox" name="fbaBarcode" value="yes"> Confirm use of commingled or FBA barcode<br>
+				<input type="checkbox" name="ean" value="yes"> Create EAN if supplier doesn't have one<br>
+				<input type="checkbox" name="sensitiveWords" value="yes"> List product on marketplaces - avoid sensitive words (bluetooth, laser, EU, medical purpose, etc)<br>
+				<input type="checkbox" name="hazmat" value="yes"> Get Hazmat approval if needed<br>
+				<input type="checkbox" name="regionalSellingRules" value="yes"> Check supplier's regional selling rules, and list to Exclude from Export			
+			</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+  					<div class="panel-heading">1-3a. Check compliance and certification availability (main PS)</div>
+  						<div class="panel-body">  							
+  							<p>Collect all needed documents:</p>								
+							<ul>
+  								<li>MSDS, UN38.3 test report, 1.2M drop test report, air/sea transportation report</li>
+  								<li><a href="https://www.bluetooth.com/develop-with-bluetooth/qualification-listing/do-i-need-to-list-qualify-my-product" target="_blank">BQB</a></li>
+  								<li>FCC, NCC</li>
+  								<li>FDA, Taiwan FDA</li>
+  								<li>CE, RoHS</li>
+  								<li>Confirm HS code and check for Import/Export rules (<a href="https://fbfh.trade.gov.tw/rich/text/indexfh.asp" target="_blank">Taiwan</a>; <a href="http://dataweb.usitc.gov/scripts/tariff_current.asp" target="_blank">US</a>; <a href="https://www.gov.uk/trade-tariff/sections" target="_blank">UK</a>; <a href="http://www.cbsa-asfc.gc.ca/trade-commerce/tariff-tarif/2016/01-99/01-99-t2016-3-eng.pdf" target="_blank">CA</a>) i.e. C02, 貨物稅(T / T*)</li>
+  								<li>Collect all needed certification for importing (if we dont have the document we cannot return goods to Taiwan)</li>
+							</ul>							
+							<p>All compliance and certifications MUST be completed before shipping. They do not have to be completed for approval.</p>
+							<p><a href="https://docs.google.com/a/drs.network/spreadsheets/d/1yudUFHnxHVYcdcaSbIZnG3QOX844MXywB0Q59egBcPk/edit?usp=sharing" target="_blank">[General] Certification Knowledge Database</a></p>
+							<p><a href="https://docs.google.com/a/drs.network/spreadsheets/d/1nGBGSURn-u-pA9ZG7O5qnF3H8b8wt9JL1Wpcm2fvj2Q/edit?usp=sharing" target="_blank">[US & CA] Certification Knowledge Database</a></p>
+							<p><a href="https://docs.google.com/a/drs.network/spreadsheets/d/1uNT4oRBsPJfVvjTh130bACpLLhQlDspzLgygrte6gps/edit?usp=sharing" target="_blank">[UK & EU] Certification Knowledge Database</a></p>
+							<p><a href="https://docs.google.com/a/drs.network/spreadsheets/d/1PkxXZVVY_CFegoo1b4y7E7a8-1XF4GwmoOONuqtsHao/edit?usp=sharing" target="_blank">[Amazon] Certification Knowledge Database</a></p>						    
+  						</div>
+				</div>							
+			</div>			
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateCertificationsAvailabilityMain" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;" placeholder="Due date for 1-3a Check compliance and certifications availability (main PS)"> <br><br>
+				<input type="text" class="form-control" style="width:50%;display:inline" placeholder="Comments for Check compliance and certifications availability (main PS)">	<br><br>
+				<input type="text" class="form-control" style="width:25%;display:inline" placeholder="Is 2nd PS Check required? *">	<br><br>
+			</div>			
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Check compliance and certifications availability (main PS) *</b></span><br>
+				<input type="checkbox" name="complianceFiles" value="yes">Collect compliance files <br>
+				<input type="checkbox" name="certificationInfo" value="yes">Check certification info on product sample Collect compliance files <br>
+				<input type="checkbox" name="filesInGoogleDrive" value="yes">Save files in Google Drive <br>
+				<input type="checkbox" name="productInfoLS" value="yes">Provide product info and files to LS for approval (batteries, hazardous material, etc) <br>
+				<input type="checkbox" name="certificationKnowledgeDatabase" value="yes">Check [Certification Knowledge Database] and Google for compliance requirement <br>
+				<input type="checkbox" name="requiredInCountry" value="yes">Check all required country/region and notify supplier of requirements to move ahead <br>
+				<input type="checkbox" name="notifySuppier" value="yes">Notify suppier that they should provide all needed files before sending out the shipment <br>
+				<input type="checkbox" name="shipAlone" value="yes">Decide with LS whether to ship alone (high or low risk?) and notify supplier <br>
+				<input type="checkbox" name="exportingAffidavit" value="yes">Get supplier sign 出口切結書 if needed (for cosmetics only) <br>
+				<input type="checkbox" name="exportName" value="yes">Add export name on DRS.network	
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+  					<div class="panel-heading">1-3b. Check compliance and certifications (support PS)</div>
+  						<div class="panel-body">  							
+  													    
+  						</div>
+				</div>							
+			</div>			
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateCertificationsAvailabilitySupport" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;" placeholder="Due date for 1-3b Check compliance and certifiactions (support PS)"> <br><br>
+				<input type="text" class="form-control" style="width:50%;display:inline" placeholder="Comments for Check compliance and certifications (support PS)">	<br><br>
+			</div>			
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Check compliance and certifications (support PS) *</b></span><br>
+				<input type="checkbox" name="supportPSCertificationKnowledgeDatabase" value="yes">Check [Certification Knowledge Database] &amp; Google for compliance requirement <br>
+				<input type="checkbox" name="PSNote" value="yes">Check main PS's notes <br>
+				<input type="checkbox" name="tellOwnerPS" value="yes">Tell owner PS if there is any finding	
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12 text-right">
+				<input class="btn btn-primary" type="submit" value="Save" />
+			</div>
+		</div>
+		</form>	
+	</div>
+</div>

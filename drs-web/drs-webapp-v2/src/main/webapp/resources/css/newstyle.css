@@ -1,0 +1,639 @@
+@charset "utf-8";
+/* CSS Document */
+
+	
+.bnext{
+	width:10px;
+	height:10px;
+	margin:0px 10px;
+	display:inline;}	
+	
+.productname{
+	margin:15px auto 0 10px;
+	font-size:14px;
+	font-weight:bold;
+	color:#334f61;
+	position:relative;
+	float:left;}	
+	
+.change_product {
+	position:relative;
+	float:right;
+  /* margin:10px 0 0 0; */
+}	
+
+.rowframe{
+	border:1px solid #C4E661;
+	box-shadow:2px 2px 5px #cfcfcf;
+	padding:10px 15px;}
+	
+.footer{
+	background:#f8f7f7;
+	margin-top:20px;
+	border-top:1px solid #eeeded;}	
+	
+
+.step{
+	width:auto;
+	text-align:center;
+	color:#333333;
+	margin:20px auto;
+	font-size:15px;
+	width:690px;}
+
+/*重疊*/	
+.step_conn{
+	width:23px;
+	height:42px;
+	position:relative;
+	float:left;}
+	
+.green_body{
+	width:135px;
+	height:42px;
+	background:url(../images/green_body.png) repeat-x;
+	padding:10px 0 0 0;
+	position:relative;
+	float:left;}	
+		
+.blue_body{
+	width:135px;
+	height:42px;
+	background:url(../images/blue_body.png) repeat-x;
+	padding:10px 0 0 0;
+	position:relative;
+	float:left;}		
+	
+.green_head{
+	background:url(../images/green_head.png) no-repeat;
+	position:relative;
+	float:left;}	
+	
+.blue_head{
+	background:url(../images/blue_head.png) no-repeat;
+	position:relative;
+	float:left;}	
+	
+.green_blue{
+	background:url(../images/green_blue.png) no-repeat;}	
+	
+.blue_green{
+	background:url(../images/blue_green.png) no-repeat;}		
+	
+.blue_blue{
+	background:url(../images/blue_blue.png) no-repeat;}		
+	
+.green_tail{
+	background:url(../images/green_tail.png) no-repeat;
+	position:relative;
+	float:left;}	
+	
+.blue_tail{
+	background:url(../images/blue_tail.png) no-repeat;
+	position:relative;
+	float:left;}		
+
+
+/*分開*/	
+.step_green{
+	width:178px;
+	height:42px;
+	background:url(../images/step_green.png) no-repeat;
+	position:relative;
+	float:left;
+	padding:10px 0 0 0;
+	text-align:center;}	
+	
+.step_blue{
+	width:178px;
+	height:42px;
+	background:url(../images/step_blue.png) no-repeat;
+	position:relative;
+	float:left;
+	padding:10px 0 0 0;
+	text-align:center;}	
+		
+.step_inter{
+	width:23px;
+	height:42px;
+	position:relative;
+	float:left;
+	left:-12px;
+	z-index:99;}	
+
+.newbreadcrumb{
+	margin-top:10px;
+	text-align:right;
+	height:29px;
+	padding:5px;
+	color:#c4c4c4;
+	background:#f0f5f9;
+	width:95%;
+	margin:15px auto 0 auto;
+	/*background: -webkit-linear-gradient(#ddeaf2,#e5eff5,#f0f5f9);
+	background: -o-linear-gradient(#ddeaf2,#e5eff5,#f0f5f9);
+	background: -moz-linear-gradient(#ddeaf2,#e5eff5,#f0f5f9);
+	background: linear-gradient(#ddeaf2,#e5eff5,#f0f5f9);*/
+	border-radius:5px;
+	border:1px solid #d0e7fa;}	
+	
+.nationflag{
+	margin-top:10px;
+	text-align:right;
+	height:29px;
+	padding:8px;
+	color:#c4c4c4;
+	background:#fff;}	
+		
+.subtab{
+	margin:3px;
+	padding:6px 10px;
+	display:inline;
+	min-width:70px;
+	color:#333;
+	border:1px solid #e0e0e0;
+	border-radius:5px;}	
+	
+.subtab:hover{
+	background:#e0e0e0;
+	border-radius:5px;
+	color:#fff;}	
+	
+.subtab-active{
+	background:#e0e0e0;
+	color:#fff;
+	border-radius:5px;}	
+	
+.flag-icon{
+	margin-right:5px;}
+	
+.nav-tabs > li.active > a{
+	color:#334f61;}	
+	
+.step a {
+	font-size: 16px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#334F61;
+}
+	
+.width-600 {
+	width:600px !important;
+}
+
+
+.checkbox > label, .radio > label {
+	/*font-family: Courier New;*/
+}
+
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.multiselect.dropdown-toggle.btn.btn-default {
+	
+	text-align:middle;
+}
+
+/* -----------------------------------------------------------------------------
+  SLIDE AND PUSH MENUS COMPONENT
+  
+----------------------------------------------------------------------------- */
+/**
+ * Menu overview.
+ */
+.c-menu {
+  position: fixed;
+  z-index: 20000;
+  background-color: #7f7f7f;
+ /* background-color: #67b5d1;*/
+  -webkit-transition: -webkit-transform 0.3s;
+          transition: transform 0.3s;
+}
+
+.c-menu__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Left and right menus
+ *
+ * Slide and push menus coming in from the left and right inherit a lot of
+ * common styles. We'll start each of them off by doing up the common styles
+ * for each version, followed by individual styles.
+ *
+ * The various versions are governed by modifier classes.
+ */
+/**
+ * Common modifiers for left/right menus.
+ */
+.c-menu--slide-left,
+.c-menu--slide-right,
+.c-menu--push-left,
+.c-menu--push-right {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
+@media all and (min-width: 320px) {
+  .c-menu--slide-left,
+  .c-menu--slide-right,
+  .c-menu--push-left,
+  .c-menu--push-right {
+    width: 800px;
+  }
+}
+
+.c-menu--slide-left .c-menu__item,
+.c-menu--slide-right .c-menu__item,
+.c-menu--push-left .c-menu__item,
+.c-menu--push-right .c-menu__item {
+  display: block;
+  text-align: center;
+  border-top: solid 1px #7f7f7f;
+  border-bottom: solid 1px #7f7f7f;
+  /*
+  border-top: solid 1px #b5dbe9;
+  border-bottom: solid 1px #3184a1;
+  */
+}
+.c-menu--slide-left .c-menu__item:first-child,
+.c-menu--slide-right .c-menu__item:first-child,
+.c-menu--push-left .c-menu__item:first-child,
+.c-menu--push-right .c-menu__item:first-child {
+  border-top: none;
+}
+.c-menu--slide-left .c-menu__item:last-child,
+.c-menu--slide-right .c-menu__item:last-child,
+.c-menu--push-left .c-menu__item:last-child,
+.c-menu--push-right .c-menu__item:last-child {
+  border-bottom: none;
+}
+
+.c-menu--slide-left .c-menu__link,
+.c-menu--slide-right .c-menu__link,
+.c-menu--push-left .c-menu__link,
+.c-menu--push-right .c-menu__link {
+  display: block;
+  padding: 12px 24px;
+  color: #fff;
+}
+
+.c-menu--slide-left .c-menu__close,
+.c-menu--slide-right .c-menu__close,
+.c-menu--push-left .c-menu__close,
+.c-menu--push-right .c-menu__close {
+  display: block;
+  padding: 12px 24px;
+  width: 100%;
+}
+
+/**
+ * Slide/Push Menu Left.
+ */
+.c-menu--slide-left,
+.c-menu--push-left {
+  top: 0;
+  left: 0;
+  -webkit-transform: translateX(-100%);
+      -ms-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+@media all and (min-width: 320px) {
+  .c-menu--slide-left,
+  .c-menu--push-left {
+    -webkit-transform: translateX(-800px);
+        -ms-transform: translateX(-800px);
+            transform: translateX(-800px);
+  }
+}
+
+.c-menu--slide-left.is-active,
+.c-menu--push-left.is-active {
+  -webkit-transform: translateX(0);
+      -ms-transform: translateX(0);
+          transform: translateX(0);
+}
+
+/**
+ * Slide/Push Menu Right.
+ */
+.c-menu--slide-right,
+.c-menu--push-right {
+  top: 0;
+  right: 0;
+  -webkit-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+          transform: translateX(100%);
+}
+@media all and (min-width: 320px) {
+  .c-menu--slide-right,
+  .c-menu--push-right {
+    -webkit-transform: translateX(800px);
+        -ms-transform: translateX(800px);
+            transform: translateX(800px);
+  }
+}
+
+.c-menu--slide-right.is-active,
+.c-menu--push-right.is-active {
+  -webkit-transform: translateX(0);
+      -ms-transform: translateX(0);
+          transform: translateX(0);
+}
+
+/**
+ * Top and bottom menus
+ *
+ * Slide and push menus coming in from the top and bottom inherit a lot of
+ * common styles. We'll start each of them off by doing up the common styles
+ * for each version, followed by individual styles.
+ *
+ * The various versions are governed by modifier classes.
+/**
+ * Common modifiers for top/bottom menus
+ */
+.c-menu--slide-top,
+.c-menu--slide-bottom,
+.c-menu--push-top,
+.c-menu--push-bottom {
+  vertical-align: middle;
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  overflow-x: scroll;
+}
+
+.c-menu--slide-top .c-menu__items,
+.c-menu--slide-bottom .c-menu__items,
+.c-menu--push-top .c-menu__items,
+.c-menu--push-bottom .c-menu__items {
+  display: inline-block;
+  text-align: center;
+}
+
+.c-menu--slide-top .c-menu__item,
+.c-menu--slide-bottom .c-menu__item,
+.c-menu--push-top .c-menu__item,
+.c-menu--push-bottom .c-menu__item {
+  display: inline-block;
+  line-height: 60px;
+}
+
+.c-menu--slide-top .c-menu__link,
+.c-menu--slide-bottom .c-menu__link,
+.c-menu--push-top .c-menu__link,
+.c-menu--push-bottom .c-menu__link {
+  display: block;
+  padding: 0 4px;
+  color: #fff;
+}
+
+.c-menu--slide-top .c-menu__close,
+.c-menu--slide-bottom .c-menu__close,
+.c-menu--push-top .c-menu__close,
+.c-menu--push-bottom .c-menu__close {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 0 24px;
+  height: 60px;
+  line-height: 60px;
+}
+
+/**
+ * Slide/Push Menu Top.
+ */
+.c-menu--slide-top,
+.c-menu--push-top {
+  top: 0;
+  left: 0;
+  -webkit-transform: translateY(-60px);
+      -ms-transform: translateY(-60px);
+          transform: translateY(-60px);
+}
+
+.c-menu--slide-top.is-active,
+.c-menu--push-top.is-active {
+  -webkit-transform: translateY(0);
+      -ms-transform: translateY(0);
+          transform: translateY(0);
+}
+
+/**
+ * Slide/Push Menu Bottom.
+ */
+.c-menu--slide-bottom,
+.c-menu--push-bottom {
+  bottom: 0;
+  left: 0;
+  -webkit-transform: translateY(60px);
+      -ms-transform: translateY(60px);
+          transform: translateY(60px);
+}
+
+.c-menu--slide-bottom.is-active,
+.c-menu--push-bottom.is-active {
+  -webkit-transform: translateY(0);
+      -ms-transform: translateY(0);
+          transform: translateY(0);
+}
+
+/**
+ * Wrapper states.
+ *
+ * Various wrapper states occur depending on if a menu is pushing into view, in
+ * which case, the wrapper has to be pushed by the respective distance.
+ */
+.o-wrapper.has-push-left {
+  -webkit-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+          transform: translateX(100%);
+}
+@media all and (min-width: 320px) {
+  .o-wrapper.has-push-left {
+    -webkit-transform: translateX(300px);
+        -ms-transform: translateX(300px);
+            transform: translateX(300px);
+  }
+}
+
+.o-wrapper.has-push-right {
+  -webkit-transform: translateX(-100%);
+      -ms-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+@media all and (min-width: 320px) {
+  .o-wrapper.has-push-right {
+    -webkit-transform: translateX(-800px);
+        -ms-transform: translateX(-800px);
+            transform: translateX(-800px);
+  }
+}
+
+.o-wrapper.has-push-top {
+  -webkit-transform: translateY(60px);
+      -ms-transform: translateY(60px);
+          transform: translateY(60px);
+}
+
+.o-wrapper.has-push-bottom {
+  -webkit-transform: translateY(-60px);
+      -ms-transform: translateY(-60px);
+          transform: translateY(-60px);
+}
+
+/**
+ * Body states.
+ *
+ * When a menu is active, we want to hide the overflows on the body to prevent
+ * awkward document scrolling.
+ */
+body.has-active-menu {
+  overflow: hidden;
+}
+
+/**
+ * Close button resets.
+ */
+.c-menu__close {
+  color: #fff;
+  background-color: #334f61;
+  font-size: 14px;
+  border: none;
+  box-shadow: none;
+  border-radius: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.c-menu__close:focus {
+  outline: none;
+}
+
+/* -----------------------------------------------------------------------------
+  MASK COMPONENT
+  
+----------------------------------------------------------------------------- */
+.c-mask {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  background-color: #000;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s, width 0s 0.3s, height 0s 0.3s;
+          transition: opacity 0.3s, width 0s 0.3s, height 0s 0.3s;
+}
+
+.c-mask.is-active {
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+  -webkit-transition: opacity 0.3s;
+          transition: opacity 0.3s;
+}
+
+/*-------new process step------------------*/
+
+#process-step ul{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#process-step{
+  overflow: hidden;
+  width: 100%;
+}
+
+#process-step li{
+  float: left;
+  margin: 0 .5em 0 1em;
+  list-style: none;
+}
+
+#process-step a{
+  background: #ddd;
+  padding: .7em 3em;
+  float: left;
+  text-decoration: none;
+  color: #000;
+  position: relative;
+}
+
+#process-step a:hover{
+  background: #c4e661;
+}
+
+#process-step a::before{
+  content: "";
+  position: absolute;
+  top: 50%; 
+  margin-top: -1.5em;   
+  border-width: 1.5em 0 1.5em 1em;
+  border-style: solid;
+  border-color: #ddd #ddd #ddd transparent;
+  left: -1em;
+}
+
+#process-step a:hover::before{
+  border-color: #c4e661 #c4e661 #c4e661 transparent;
+}
+
+#process-step a::after{
+  content: "";
+  position: absolute;
+  top: 50%; 
+  margin-top: -1.5em;   
+  border-top: 1.5em solid transparent;
+  border-bottom: 1.5em solid transparent;
+  border-left: 1em solid #ddd;
+  right: -1em;
+}
+
+#process-step a:hover::after{
+  border-left-color: #c4e661;
+}
+
+#process-step .current,
+#process-step .current:hover{
+  font-weight: bold;
+  background: none;
+}
+
+#process-step .current::after,
+#process-step .current::before{
+  content: normal;
+}
+
+#process-step .current a{
+  background: #c4e661;
+}
+
+#process-step  .current a::before{
+  border-color: #c4e661 #c4e661 #c4e661 transparent;
+}
+
+#process-step .current a::after{
+  border-left-color: #c4e661;
+}

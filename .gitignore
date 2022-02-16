@@ -1,0 +1,102 @@
+logs
+target
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+/.imp
+*.iml
+/.recommenders
+# Directories #
+/build/
+/bin/
+target/
+
+# OS Files #
+.DS_Store
+ 
+*.class
+ 
+# Package Files #
+*.jar
+*.war
+*.ear
+*.db
+ 
+######################
+# Windows
+######################
+ 
+# Windows image file caches
+Thumbs.db 
+ 
+# Folder config file
+Desktop.ini
+ 
+######################
+# OSX
+######################
+ 
+.DS_Store
+.svn
+ 
+# Thumbnails
+._*
+ 
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+ 
+ 
+######################
+# Eclipse
+######################
+
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+/src/main/resources/rebel.xml
+# External tool builders
+.externalToolBuilders/
+ 
+# Locally stored "Eclipse launch configurations"
+*.launch
+ 
+# CDT-specific
+.cproject
+ 
+# PDT-specific
+.buildpath
+sso/
+Servers/
+
+# celog
+celog~*.log
+
+# Temp File
+RemoteSystemsTempFiles/**
+
+# Other document
+Untitled*
+*~
+*.zip
+cpiep_XML/**
+
+refSp/*.*~
+
+# mws-api
+mws-api/MWSFulfillmentInventoryJavaClientLibrary-2010-10-01/MWSFulfillmentInventoryJavaClientLibrary-2010-10-01/
+mws-api/MWSOrdersJavaClientLibrary-2013-09-01/MWSOrdersJavaClientLibrary-2013-09-01/

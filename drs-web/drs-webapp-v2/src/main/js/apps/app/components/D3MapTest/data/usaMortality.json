@@ -1,0 +1,154 @@
+[{	
+	"state": "United State",
+	"mortality": "6"
+},{
+	"state": "Alabama",
+	"mortality": "8.6"
+},{
+	"state": "Alaska",
+	"mortality": "5.8"
+},{
+	"state": "Arizona",
+	"mortality": "5.3"
+},{
+	"state": "Arkansas",
+	"mortality": "7.9"
+},{
+	"state": "California",
+	"mortality": "4.8" 
+},{
+	"state": "Colorado",
+	"mortality": "5.1"
+},{
+	"state": "Connecticut",
+	"mortality": "4.8"
+},{
+	"state": "Delaware",
+	"mortality": "6.4"
+},{
+	"state": "Florida",
+	"mortality": "6.1"
+},{
+	"state": "Georgia",
+	"mortality": "7"
+},{
+	"state": "Hawaii",
+	"mortality": "6.4"
+},{
+	"state": "Idaho",
+	"mortality": "5.6"
+},{
+	"state": "Illinois",
+	"mortality": "6"
+},{
+	"state": "Indiana",
+	"mortality": "7.2"
+},{
+	"state": "lowa",
+	"mortality": "4.3"
+},{
+	"state": "Kansas",
+	"mortality": "6.5"
+},{
+	"state": "Kentucky",
+	"mortality": "6.4" 
+},{
+	"state": "Louisiana",
+	"mortality": "8.7"
+},{
+	"state": "Maine",
+	"mortality": "7.1" 
+},{
+	"state": "Maryland",
+	"mortality": "6.6"
+},{
+	"state": "Massachusetts",
+	"mortality": "4.2"
+},{
+	"state": "Michigan",
+	"mortality": "7.1"
+},{
+	"state": "Minnesota",
+	"mortality": "5.1"
+},{
+	"state": "Mississippi",
+	"mortality": "9.6"
+},{
+	"state": "Missouri",
+	"mortality": "6.5"
+},{
+	"state": "Montana",
+	"mortality": "5.6"
+},{
+	"state": "Nebraska",
+	"mortality": "5.2"
+},{
+	"state": "Nevada",
+	"mortality": "5.3"
+},{
+	"state": "New Hampshire",
+	"mortality": "5.6"
+},{
+	"state": "New Jersey",
+	"mortality": "4.5"
+},{
+	"state": "New Mexico",
+	"mortality": "5.3"
+},{
+	"state": "New York",
+	"mortality": "4.9"
+},{
+	"state": "North Carolina",
+	"mortality": "7"
+},{
+	"state": "North Dakota",
+	"mortality": "6"
+},{
+	"state": "Ohio",
+	"mortality": "7.3"
+},{
+	"state": "Oklahoma",
+	"mortality": "6.7"
+},{
+	"state": "Oregon",
+	"mortality": "4.9"
+},{
+	"state": "Pennsylvania",
+	"mortality": "6.7"
+},{
+	"state": "Rhode Island",
+	"mortality": "6.5"
+},
+{	"state": "South Carolina",
+	"mortality": "6.9"
+},{
+	"state": "South Dakota",
+	"mortality": "6.5"
+},{
+	"state": "Tennessee",
+	"mortality": "6.8"
+},{
+	"state": "Texas",
+	"mortality": "5.8" 
+},{
+	"state": "Utah",
+	"mortality": "5.2"
+},{
+	"state": "Vermont",
+	"mortality": "4.4"
+},{
+	"state": "Virginia",
+	"mortality": "6.2"
+},{
+	"state": "Washington",
+	"mortality": "4.5"
+},{
+	"state": "West Virigina",
+	"mortality": "7.6"
+},{
+	"state": "Wisconsin",
+	"mortality": "6.3" 
+},{
+	"state": "Wyoming",
+	"mortality": "4.8" 
+}]

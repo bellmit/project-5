@@ -1,0 +1,51 @@
+package com.kindminds.drs.core.biz.accounting;
+
+import com.kindminds.drs.core.biz.accounting.journalentry.JournalEntriesRawDataImpl;
+import com.kindminds.drs.core.biz.accounting.journalentry.JournalEntryImpl;
+import com.kindminds.drs.util.DateHelper;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "file:src/test/resources/TestContextLocal.xml" })
+public class TestJournalEntriesRawData {
+
+	@Test
+	public void test(){
+		JournalEntriesRawDataImpl entriesRawData = new JournalEntriesRawDataImpl();
+
+		entriesRawData.generateEntriesRawData();
+
+	}
+
+	@Test
+	public void testJournalEntryPreviousBalance() {
+		JournalEntry journalEntry = new JournalEntryImpl(DateHelper.toDate("20200314 UTC", "yyyyMMdd Z"), "20200301-20200315","K633","STM-K633-7");
+
+		System.out.println(journalEntry.toString());
+		JournalEntryItem item = journalEntry.generatePreviousBalanceItem();
+
+		System.out.println(item.toString());
+	}
+
+	@Test
+	public void testJournalEntryIVSPaymentRefund() {
+
+		JournalEntry journalEntry = new JournalEntryImpl(DateHelper.toDate("20200314 UTC", "yyyyMMdd Z"),
+				"20200301-20200315","K640","STM-K612-40");
+
+		System.out.println(journalEntry.toString());
+		List<JournalEntryItem> itemList = journalEntry.generateIvsPaymentRefundItems();
+
+		for (JournalEntryItem item : itemList) {
+
+			System.out.println(item.toString());
+		}
+	}
+
+
+}

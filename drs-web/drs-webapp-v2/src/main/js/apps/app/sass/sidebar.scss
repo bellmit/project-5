@@ -1,0 +1,85 @@
+$contentSize: 15px;
+$sidebar: width 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+$longShadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+$mainTitle: #171725;
+
+button.sidebar-collapse-btn {
+    position: relative;
+    float: right;
+    top: 40px;
+    left: 14px;
+    border-radius: 50%;
+    border: 1px solid #dedede;
+    background-color: #f5f6fa;
+    width: 26px;
+    height: 26px;
+    text-align: center;
+    box-shadow: $longShadow;
+    cursor: pointer;
+}
+button.sidebar-collapse-btn:hover {
+    background-color: #1976f5;
+    color: #fff;
+}
+.sidebar-wrapper {
+    width: 212px;
+    height: 100%;
+    background-color: #fff;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    z-index: 300;
+    transform: translateX(0);
+    transition: 0.5s;
+    border-right: 1px solid #dedede;
+}
+.transform {
+    transform: translateX(-90%)!important;
+}
+.sidebar-close {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0ms linear 200ms, visibility 0ms linear;
+}
+.sidebar-open {
+    visibility: visible;
+    -webkit-transition: none;
+    transition: none;
+    opacity: 1;
+}
+.sidebar-nav {
+    padding: 6% 0 6% 6%;
+    overflow: hidden auto;
+    height: 100%;
+    transition: $sidebar;
+    z-index: 300;
+    transform: translateX(0);
+}
+.sidebar-item {
+    padding: 6% 10%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: #fff;
+}
+.sidebar-item:hover {
+    background-color: rgba(10,47,79, .06);
+}
+.sidebar-item span {
+    font-size: $contentSize;
+    font-family: 'Poppins', sans-serif;
+    color: $mainTitle;
+    font-weight: 400;
+    margin-left: 16px;
+}
+.sidebar-item-icon-wrapper {
+    margin-right: 22px;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
+.sidebar-item-title span {
+    font-weight: 500;
+    margin-left: 0px !important;
+}

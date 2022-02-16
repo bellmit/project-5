@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	
+<title th:text="#{ccc.title}+' - DRS'"></title>
+
+<script type='text/javascript' th:src="@{/resources/js/jquery.floatThead.js}"></script>
+<script language="javascript" type="text/javascript">
+	$(document).ready(function() {
+		$('#customer-care-case').floatThead({
+			scrollingTop : $("#s5_menu_wrap").height(),
+			zIndex : 100
+		});
+		$('#customer-care-case').on("floatThead", function(e, isFloated, $floatContainer) {
+			if (isFloated) {
+				$floatContainer.addClass("table-floated");
+			} else {
+				$floatContainer.removeClass("table-floated");
+			}
+		});
+
+
+	var t = '[[${type}]]';
+	var searchWords = '[[${searchWords}]]';
+	var totalPages = parseInt('[[${totalPages}]]');
+	var currentPageIndex = parseInt('[[${currentPageIndex}]]');
+	
+	
+	if (t == 'search'){
+		if(currentPageIndex == 1){
+			$('.nextUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+(currentPageIndex+1));
+			$('.lastUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+totalPages);
+			
+		}else if(currentPageIndex == totalPages){
+			$('.firstUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page=1");
+			$('.prevUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+(currentPageIndex-1));
+			
+		}else{
+			$('.firstUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page=1");
+			$('.lastUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+totalPages);
+			$('.prevUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+(currentPageIndex-1));
+			$('.nextUrl').attr("href","/CustomerCareCases/search?searchWords="+searchWords+"&page="+(currentPageIndex+1));
+		
+		}	
+	}else{
+		if(currentPageIndex == 1){
+			$('.nextUrl').attr("href","/CustomerCareCases?page="+(currentPageIndex+1));
+			$('.lastUrl').attr("href","/CustomerCareCases?page="+totalPages);
+
+		}else if(currentPageIndex == totalPages){
+			$('.firstUrl').attr("href","/CustomerCareCases?page=1");
+			$('.prevUrl').attr("href","/CustomerCareCases?page="+(currentPageIndex-1));
+
+		}else{
+			$('.firstUrl').attr("href","/CustomerCareCases?page=1");
+			$('.lastUrl').attr("href","/CustomerCareCases?page="+totalPages);
+			$('.prevUrl').attr("href","/CustomerCareCases?page="+(currentPageIndex-1));
+			$('.nextUrl').attr("href","/CustomerCareCases?page="+(currentPageIndex+1));
+		
+		}	
+	}; 
+
+	});
+</script>
+<style>
+#searchDescription {
+	 color: #46a046;
+	 padding-top: 10px;
+	 font-size: 14px;
+}
+</style>
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width">
+	<div class="text-center text-success">
+		<h1 th:text="${message}"></h1>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="page-heading">
+					<a th:text="#{ccc.title}"></a> 
+				</div>
+			</div>
+			<div class="col-md-6 text-right">
+				<div class="page-heading">
+					<div sec:authorize="${hasAnyRole(@authProperties['CUSTOMER_CARE_CASE_CREATE'])}">
+						<a class="btn btn-primary" href="/CustomerCareCases/create" >
+							<i class="fas fa-plus"></i> 
+							[[#{ccc.create}]]
+						</a> 
+					</div>	
+				</div>
+			</div>			
+		</div>		
+		<form id="customerCaseSearch" th:action="@{/CustomerCareCases/search}" name="customerCaseSearch" class="form-horizontal text-left">
+			<div class="row">
+
+
+				<div class="col-md-12 form-inline">
+					<input id="searchWords" name="searchWords"
+							class="form-control mr-2"
+							th:value="${searchWords}"/>
+					<button class="btn btn-primary"
+							type="submit" ><i class="fas fa-search"></i> [[#{ccc.search}]]</button>   
+				</div>
+
+			</div>
+
+			<div class="row">
+				<div class="col-md-11" id="searchDescription">
+					<b><a th:text="#{ccc.searchDescription}"></a> </b>
+					<br><br>
+				</div>
+			</div>
+		</form>
+		<div style="padding-bottom: 10px"></div>
+		<div class="row">
+			<div class="col-md-12">
+			
+					<div th:if="${totalPages > 1}">
+						<center>
+							<nav>
+								<ul class="pagination pagination-sm justify-content-center"> 
+									
+										<div th:if="${currentPageIndex != 1}" style="display: flex;">
+											<li class="page-item"><a class="page-link firstUrl" >&lt;&lt;</a></li>
+											<li class="page-item"><a class="page-link prevUrl" >&lt;</a></li>
+										</div>
+									<th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+						
+									
+										<div th:if="${type == 'search' }">
+											<div th:if="${i == currentPageIndex}">
+												<li class="page-item active"><a  class="page-link" th:text="${i}" th:href="@{/CustomerCareCases/search?searchWords={searchWords}&page={i}
+													(searchWords=${searchWords},i=${i})}" ></a></li>
+												
+											</div>
+											<div th:unless="${i == currentPageIndex}">
+												<li class="page-item"><a  class="page-link"  th:text="${i}" th:href="@{/CustomerCareCases/search?searchWords={searchWords}&page={i}
+													(searchWords=${searchWords},i=${i})}"></a>
+												</li>
+												
+											</div>
+										</div>
+										<div th:unless="${type == 'search' }">
+											<div th:if="${i == currentPageIndex}">
+												<li class="page-item active"><a  class="page-link" th:text="${i}" th:href="@{/CustomerCareCases?page={i}(i=${i})}" ></a></li>
+												
+											</div>
+											<div th:unless="${i == currentPageIndex}">
+												<li class="page-item"><a  class="page-link"  th:text="${i}" th:href="@{/CustomerCareCases?page={i}(i=${i})}"></a>
+												</li>
+												
+											</div>
+										</div>	
+										
+									</th:block>
+									
+										<div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+											<li class="page-item"><a class="page-link nextUrl" >&gt;</a></li>
+											<li class="page-item"><a class="page-link lastUrl" >&gt;&gt;</a></li>
+										</div>
+								</ul>
+							</nav>
+						</center>
+					</div>
+			
+				<table id="customer-care-case" class="table table-hover table-floated">
+					<thead>
+						<tr>
+							<th><a th:text="#{ccc.id}"></a> </th>
+							<th><a th:text="#{ccc.customerName}"></a></th>
+							<th><a th:text="#{ccc.caseType}"></a></th>
+							<th><a th:text="#{ccc.issue}"></a></th>
+							<th><a th:text="#{ccc.relatedProduct}"></a></th>
+							<th><a th:text="#{common.marketplace}"></a></th>
+							<th><a th:text="#{ccc.status}"></a></th>
+							<th><a th:text="#{ccc.customerContactTime}"></a></th>
+							<th><a th:text="#{ccc.latestActivity}"></a></th>
+						</tr>
+					</thead>
+					<tbody>
+					<th:block th:each="customerCareCase , customerCareCaseStatus : ${CustomerCareCaseList}" >
+			
+							<div th:if="${customerCareCase.status == 'processing'}">
+								<tr class="clickableRow" style="font-weight: bold;" th:onclick="'document.location.href=\''+@{/CustomerCareCases/{caseId}
+								(caseId=${customerCareCase.caseId})}+'\''">
+								</div>
+							<div th:unless="${customerCareCase.status == 'processing'}">
+								<tr class="clickableRow" th:onclick="'document.location.href=\''+@{/CustomerCareCases/{caseId}
+								(caseId=${customerCareCase.caseId})}+'\''">
+								</div>
+
+							<td><a th:text="${customerCareCase.caseId}"></a></td>
+							<td><a th:text="${customerCareCase.customerName}"></a></td>
+							<td><a th:text="#{'ccc.'+${customerCareCase.caseType}}"></a> </td>
+							<td>
+
+								<th:block th:each="relatedIssueIds ,status : ${customerCareCase.relatedIssueIds}" >
+
+									
+									<a th:text="${issueNameMap[__${relatedIssueIds}__]}"></a>
+									<div th:if="${status.count != customerCareCase.relatedIssueIds.size()}">,</div>
+								</th:block>
+							</td>
+							<td>
+							
+			
+								<div th:if="${customerCareCase.relatedProductSkuCodeList } == null ">
+									
+									<th:block th:each="ProductBase : ${customerCareCase.relatedProductBaseCodeList}">
+										
+										<a th:text="${ProductBase}+' '+${relatedProduct[__${customerCareCaseStatus.count-1}__]['__${ProductBase}__']}"></a><br>
+									</th:block>
+								</div>
+								<div th:if="${customerCareCase.relatedProductBaseCodeList} == null">
+									
+									<th:block th:each="sku : ${customerCareCase.relatedProductSkuCodeList}" >
+										<a th:text="${sku}+' '+${relatedProduct[__(${customerCareCaseStatus.count-1})__]['__${sku}__']}"></a><br>
+									</th:block>
+								</div>
+							</td>
+							<td><a th:text="${customerCareCase.marketplace.name}"></a></td>
+							<td><a th:utext="#{'ccc.'+${customerCareCase.status}}"></a></td>
+							<td><a th:text="${customerCareCase.dateCreated}"></a></td>
+							<td >
+								
+									<span th:if="${customerCareCase.latestActivityDays} ge 3">
+										<a th:text="${customerCareCase.latestActivityDays}+' '+#{ccc.days}"></a>
+									</span>
+									<span th:if="${customerCareCase.latestActivityDays} ge 1 and ${customerCareCase.latestActivityDays} lt 3">
+										<a th:text="${customerCareCase.latestActivityDays}"></a>
+											
+											<span th:if="${customerCareCase.latestActivityDays} ge 2"><a th:text="#{ccc.days}"></a> </span>
+											<span th:if="${customerCareCase.latestActivityDays} == 1"><a th:text="#{ccc.day}"></a> </span>
+										
+										<a th:if="${customerCareCase.latestActivityHours} gt 0" th:text="${customerCareCase.latestActivityHours}"></a>
+										<th:block>
+											<span th:if="${customerCareCase.latestActivityHours} ge 2"><a th:text="#{ccc.hours}"></a> </span>
+											<span th:if="${customerCareCase.latestActivityHours} == 1"><a th:text="#{ccc.hour}"></a> </span>
+										</th:block>
+									</span>
+									<span th:if="${customerCareCase.latestActivityDays} == 0">
+										<span th:if="${customerCareCase.latestActivityHours} ge 1">
+											<a th:text="${customerCareCase.latestActivityHours}"></a>
+											<th:block>
+												<span th:if="${customerCareCase.latestActivityHours} ge 2"><a th:text="#{ccc.hours}"></a> </span>
+												<span th:if="${customerCareCase.latestActivityHours} == 1"><a th:text="#{ccc.hour}"></a> </span>
+											</th:block>
+										</span>
+										<a th:text="${customerCareCase.latestActivityMinutes}"></a>
+										<th:block>
+											<span th:if="${customerCareCase.latestActivityMinutes} ge 2"><a th:text="#{ccc.minutes}"></a> </span>
+											<span th:if="${customerCareCase.latestActivityMinutes} le 2"><a th:text="#{ccc.minute}" ></a> </span>
+										</th:block>
+									</span>
+				
+								<a th:text="#{ccc.ago}"></a>
+							 
+							</td>
+					</th:block>
+					</tbody>
+				</table>
+				<div th:if="${totalPages > 1}">		
+																							
+											<center>
+												<nav>
+													<ul class="pagination pagination-sm justify-content-center"> 
+														
+															<div th:if="${currentPageIndex != 1}" style="display: flex;">
+																<li class="page-item"><a class="page-link firstUrl" >&lt;&lt;</a></li>
+																<li class="page-item"><a class="page-link prevUrl" >&lt;</a></li>
+															</div>
+														<th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+															
+															<div th:if="${type == 'search' }">
+																<div th:if="${i == currentPageIndex}">
+																	<li class="page-item active"><a  class="page-link" th:text="${i}" th:href="@{/CustomerCareCases/search?searchWords={searchWords}&page={i}
+																		(searchWords=${searchWords},i=${i})}" ></a></li>
+																	
+																</div>
+																<div th:unless="${i == currentPageIndex}">
+																	<li class="page-item"><a  class="page-link "  th:text="${i}" th:href="@{/CustomerCareCases/search?searchWords={searchWords}&page={i}
+																		(searchWords=${searchWords},i=${i})}"></a>
+																	</li>
+																	
+																</div>
+															</div>
+															<div th:unless="${type == 'search' }">
+																<div th:if="${i == currentPageIndex}">
+																	<li class="page-item active"><a  class="page-link " th:text="${i}" th:href="@{/CustomerCareCases?page={i}(i=${i})}" ></a></li>
+																	
+																</div>
+																<div th:unless="${i == currentPageIndex}">
+																	<li class="page-item"><a  class="page-link "  th:text="${i}" th:href="@{/CustomerCareCases?page={i}(i=${i})}"></a>
+																	</li>
+																	
+																</div>
+															</div>
+															
+														</th:block>
+														
+															<div th:if="${currentPageIndex != totalPages}" style="display: flex;">
+																<li class="page-item"><a class="page-link nextUrl" >&gt;</a></li>
+																<li class="page-item"><a class="page-link lastUrl" >&gt;&gt;</a></li>
+															</div>
+													</ul>
+												</nav>
+											</center>
+										</div>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

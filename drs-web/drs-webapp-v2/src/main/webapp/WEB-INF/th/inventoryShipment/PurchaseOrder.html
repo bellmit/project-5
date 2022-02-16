@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<head>
+	<title	th:text="#{inventoryShipment.po.title}+' '+${poNumber}">
+	</title>
+<style type="text/css">
+body {
+	font-size: 12px;
+}
+.text-left {
+	text-align: left;
+}
+</style>	
+</head>
+
+<div class="container">
+	<div class="row" style="font-size: 14px">
+		<table style="width: 100%">
+			<tbody>
+				<tr>						
+					<td valign="middle">
+						<div style="padding-left:20%; padding-right:20%">						
+							<div class="text-center">善恩創新股份有限公司</div>
+							<div class="text-center">KindMinds Innovations, Inc.</div>
+							<div class="text-center">通訊地址: 11158 台北市士林區德行西路45號6樓</div>
+							<div class="text-center">Tel: 02-28378995 Fax: 02-28376257 統一編號: 80698253</div>													
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>	
+	<div class="row">
+		<div class="text-center">
+				<u style="font-size: 30px"> [[#{inventoryShipment.po.title}]] </u>
+		</div>
+	</div>
+	<div class="row">
+		<table style="width: 100%">
+			<tr>
+				<td>
+					<a th:text="#{inventoryShipment.po.supplier}"></a>:		
+				</td>
+				<td>
+					[[${orderInfo.nameLocal}]]		
+				</td>
+				<td>
+					<a th:text="#{inventoryShipment.po.POnumber}"></a>:	
+				</td>
+				<td>
+					[[${poNumber}]]	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<a th:text="#{inventoryShipment.po.contact}"></a>:	
+				</td>
+				<td>
+						
+				</td>
+				<td>
+					<a th:text="#{inventoryShipment.po.purchaseDate}"></a>:	
+				</td>
+				<td>
+					[[${orderInfo.printingDate}]]	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<a th:text="#{inventoryShipment.po.phoneNumber}"></a>:	
+				</td>
+				<td>
+					[[${orderInfo.phoneNumber}]]	
+				</td>
+				<td>
+					<a th:text="#{inventoryShipment.po.deliveryDate}"></a>:	
+				</td>
+				<td>
+					[[${orderInfo.fcaDeliveryDate}]]
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<a th:text="#{inventoryShipment.po.address}"></a>:	
+				</td>
+				<td>
+					[[${orderInfo.address}]]
+				</td>
+				<td>
+					<a th:text="#{inventoryShipment.po.deliveryLocation}"></a>:	
+				</td>
+				<td>
+					[[${orderInfo.fcaShipmentLocation}]]
+				</td>
+			</tr>				
+		</table>							
+	</div>
+	<div class="row">
+		<table class="table-condensed table-fixed-header" style="width: 100%">
+			<thead class="header">
+				<tr>
+					<th colspan="5">
+						<hr style="border-color: black; margin: 0 0 0 0;">							
+					</th>
+				</tr>
+				<tr>
+					<th class="text-left" style="width: 38%"><b>[[#{inventoryShipment.po.sku}]]</b></th>
+					<th class="text-left" style="width: 38%"><b>[[#{inventoryShipment.po.productName}]]</b></th>
+					<th class="text-left" style="width: 8%"><b>[[#{inventoryShipment.po.quantity}]]</b></th>
+					<th class="text-left" style="width: 8%"><b>[[#{inventoryShipment.po.unitAmount}]]</b></th>
+					<th class="text-left" style="width: 8%"><b>[[#{inventoryShipment.po.amount}]]</b></th>						
+				</tr>
+				<tr>
+					<th colspan="5">
+						<hr style="border-color: black; margin: 0 0 0 0;">
+					</th>								
+				</tr>
+			</thead>			
+			<tbody>
+				<th:block th:each="orderSku : ${orderSkuList}" >	
+					<tr>
+						<td class="text-left">[[${orderSku.skuCode}]]</td>
+						<td class="text-left">[[${orderSku.skuName}]]</td>
+						<td class="text-left">[[${orderSku.numberUnits}]]</td>
+						<td class="text-left">[[${orderSku.unitPrice}]]</td>
+						<td class="text-left">[[${orderSku.subTotal}]]</td>
+					</tr>			
+				</th:block>
+				<tr>
+					<td colspan="5">
+						<hr style="border-color: black; margin: 0 0 0 0;">
+					</td>
+				</tr>
+				<tr>
+					<td style="width: 38%"></td>						
+					<td style="width: 38%"><b>[[#{inventoryShipment.po.totalwithoutTax}]]</b></td>
+					<td stlye="width: 8%"></td>
+					<td stlye="width: 8%"></td>
+					<td style="width: 8%">[[${orderInfo.subTotal}]]</td>
+				</tr>
+				<tr>
+					<td style="width: 38%"></td>					
+					<td style="width: 38%"><b><a th:text="#{inventoryShipment.po.tax}"></a> (<a th:text="${orderInfo.salesTaxRate}"></a>%)</b></td>
+					<td stlye="width: 8%"></td>
+					<td stlye="width: 8%"></td>
+					<td stlye="width: 8%">[[${orderInfo.amountTax}]]</td>
+				</tr>
+				<tr>
+					<td style="width: 38%"></td>						
+					<td style="width: 38%"><b><a th:text="#{inventoryShipment.po.totalwithTax}"></a></b></td>
+					<td stlye="width: 8%"></td>
+					<td stlye="width: 8%"></td>
+					<td stlye="width: 8%">[[${orderInfo.amountTotal}]]</td>
+				</tr>
+				<tr>
+					<td colspan="5">
+						<b>[[#{inventoryShipment.po.ps}]]</b>&nbsp;&nbsp;&nbsp;&nbsp;<a th:text="#{inventoryShipment.po.psContent}"></a>
+					</td>											
+				</tr>				
+			</tbody>
+		</table>
+	</div>
+</div>
+
+</html>

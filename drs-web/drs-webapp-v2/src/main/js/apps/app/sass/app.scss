@@ -1,0 +1,221 @@
+$fontFamily: 'Roboto','Poppins',"-apple-system", "Noto Sans TC","Segoe UI", "Segoe UI Semibold", 
+"微軟正黑體","Microsoft JhengHei", "Lucida Grande", 
+Helvetica, Arial, Verdana, BlinkMacSystemFont,"PingFang SC",
+Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",  "sans-serif";
+// $mainCTA: #0A2F4F;
+$mainCTA: #0052cc;
+$subCTA: #1976F5;
+$normalColor: #053763;
+// $infographic1: #235883;
+// $infographic2: #79DCFB;
+// $infographic3: #2BC0E5;
+// $infographic4: #BDF241;
+// $infographic5: #BBBCBD;
+$notificationRed: #F0142F;
+$noticificationGreen: #21D59B;
+$mainTitle: #171725;
+$darkBlack: #131523;
+$decorateBlue: #0058FF;
+$trueBlack: #000100;
+$darkBlueGray: #2D343F;
+$mediumBlueGray: #5A607F;
+$lightBlueGray: #7E84A3;
+// $standardfontSize: 14px;
+
+$shortShadow: 0 1px 2px 0 rgba(9,30,66,.25);
+$longShadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+
+$sidebar: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+$hover: background-color 140ms ease-in-out;
+
+// initial setting start
+html, body, nav, p, span, ul, ol, li, label, input, img {
+	margin: 0;
+	padding: 0;
+	border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+* {
+	box-sizing: border-box;
+	outline: none;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+nav {
+	display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1;
+    background-color: #f8f8f8;
+    font-family:$fontFamily;
+}
+
+header {
+    width: 100%;
+    z-index: 400;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: block;
+    box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+}
+
+h1, h2, h3, h4, h5, h6, p, button {
+	margin: 0;
+	padding: 0;
+}
+
+button {
+	font-size: 14px;
+    font-weight: 400;
+	text-align: center;
+	text-decoration: none;
+    border: none;
+    background: none;
+    display: inline-block;
+    cursor: pointer;
+	transition: background 250ms ease-in-out, transform 150ms ease;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+button:focus {
+    outline: none;
+}
+
+a, a:hover, a:focus {
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+    cursor: pointer;
+}
+
+img {
+	max-width: 100%;
+    max-height: 100%;
+	height: auto;
+	display: block;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+input {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+textarea {
+    font-family: $fontFamily;
+}
+.base-input {
+    border: 1px solid #D7DBEC;
+    border-radius: 4px !important;
+    height: 37px !important;
+    padding-left: 10px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    // customized
+    border: 1px solid #D7DBEC;
+    border-radius: 0 4px 4px 0 !important;
+    height: 37px !important;
+    width: 130px !important;
+    cursor: pointer;
+    padding-left: 10px;
+    box-shadow: $longShadow !important;
+    // background: none !important;
+}
+select:focus {
+    outline: none;
+    border-color: #D7DBEC !important;
+    box-shadow: $shortShadow !important;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+// initial setting end
+
+.template {
+    width: 100%;
+}
+
+.icon-wrapper {
+    margin: 0 8px;
+}
+.icon {
+    width: 18px;
+}
+
+textarea {
+    resize: none;
+    border: 1px solid #d7dbec;
+    border-radius: 4px;
+    padding: 8px 12px;
+    line-height: 1.45em;
+}
+
+// ------------- 
+.hidden {
+    display: none !important;
+}
+
+.app-main-pannel {
+    position: relative;
+    float: right;
+    width: calc(100% - 212px);
+    transition: $sidebar;
+}
+.app-main-pannel.sidebar-close-width {
+    width: calc(100% - 18px) !important;
+}
+.app-sub-pannel {
+    width: 91%;
+    margin-left: 4%;
+}
+.pannel-header {
+    margin: 30px 0 12px 0;
+    padding: 0 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.pannel-header h1 {
+    font-size: 24px;
+    font-weight: 500;
+    color: $mainTitle;
+}

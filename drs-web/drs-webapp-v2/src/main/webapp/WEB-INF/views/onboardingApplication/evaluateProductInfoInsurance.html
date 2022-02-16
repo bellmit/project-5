@@ -1,0 +1,74 @@
+<head>
+	<title>
+		evaluateProductInfo - Check Insurance
+	</title>
+</head>
+
+<script>
+jQuery(window).on("load", function(e) {	
+	
+	$('#dueDateInsurance,#dueDateSubmitApplication').attr('readonly', true);
+	
+	jQuery("#dueDateInsurance,#dueDateSubmitApplication").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});
+</script>
+
+<div class="max-width">
+	<div class="container-fluid">		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					1-4a Check for Insurance
+				</div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateInsurance" class="form-control" style="width:25%;display:inline;cursor:default;background-color: white;margin-right:20px" placeholder="Due date for 1-4a Check for Insurance">
+				<input type="text" class="form-control" style="width:25%;display:inline;" placeholder="Comments for Check for Insurance">			
+			</div>
+		</div>
+		
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Check compliance and certifications (support PS) *</b></span><br>
+				<input type="checkbox" name="requestInsurance" value="yes"> 詢問供應商是否已對產品保險及投保地區，建議供應商投保<br>
+				<input type="checkbox" name="insuranceProve" value="yes"> 有保險: 提供保單證明<br>
+				<input type="checkbox" name="noInsuranceRecall" value="yes"> 無保險: 收回 投保表格 &amp; 認證及品管檔案<br>
+				<input type="checkbox" name="noInsuranceHighRisk" value="yes"> 無保險: 確認是否屬於高風險產品<br>
+				<input type="checkbox" name="noInsuranceFillSheet" value="yes"> 無保險: 填 Insurance application status sheet<br>
+				<input type="checkbox" name="checkSample" value="yes"> 檢查樣品警告標語 （無論有無保險） 											
+			</div>			
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					1-4b. Submit application for insurance
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<input type="text" id="dueDateSubmitApplication" class="form-control" style="width:25%;display:inline;cursor:default;background-color: white;margin-right:20px" placeholder="Due date for 1-4b Submit application for insurance *">
+				<input type="text" class="form-control" style="width:25%;display:inline;" placeholder="Comments for Submit application for insurance">			
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Check for insurance *</b></span><br>
+				<input type="checkbox" name="fillInsuranceApplicationStatusSheet" value="yes"> Fill in column E to G for Insurance application status sheet.<br>
+				<input type="checkbox" name="pdfFile" value="yes"> Save pdf file of approved application in 富邦產品責任險投保資料  											
+			</div>			
+		</div>
+	</div>	
+</div>

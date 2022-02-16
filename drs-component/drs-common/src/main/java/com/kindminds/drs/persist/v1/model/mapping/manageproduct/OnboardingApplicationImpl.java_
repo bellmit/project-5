@@ -1,0 +1,92 @@
+package com.kindminds.drs.persist.v1.model.mapping.manageproduct;
+
+import com.kindminds.drs.domain.product.onboarding.OnboardingApplicationStatusType;
+
+import com.kindminds.drs.data.dto.manageproduct.OnboardingApplication;
+import com.kindminds.drs.data.dto.manageproduct.OnboardingApplicationDetail;
+
+import java.util.List;
+
+public class OnboardingApplicationImpl implements OnboardingApplication {
+
+    private String productBaseCode;
+    private String supplierKcode;
+    private OnboardingApplicationDetail productInfoSource;
+    private OnboardingApplicationDetail productMarketingMaterialSource;
+    private List<OnboardingApplicationDetail> productInfoMarketSide;
+    private List<OnboardingApplicationDetail> productMarketingMaterialMarketSide;
+    private String serialNumber;
+    private OnboardingApplicationStatusType status;
+
+    @Override
+    public String getProductBaseCode() {
+        return this.productBaseCode;
+    }
+
+    @Override
+    public String getSupplierKcode() {
+        return this.supplierKcode;
+    }
+
+    @Override
+    public OnboardingApplicationDetail getProductInfoSource() {
+        return this.productInfoSource;
+    }
+
+    @Override
+    public OnboardingApplicationDetail getProductMarketingMaterialSource() {
+        return this.productMarketingMaterialSource;
+    }
+
+    @Override
+    public List<OnboardingApplicationDetail> getProductInfoMarketSide() {
+        return this.productInfoMarketSide;
+    }
+
+    @Override
+    public List<OnboardingApplicationDetail> getProductMarketingMaterialMarketSide() {
+        return this.productMarketingMaterialMarketSide;
+    }
+
+    @Override
+    public OnboardingApplicationStatusType getStatus() {
+        return this.status;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return this.serialNumber;
+    }
+
+    public void setProductBaseCode(String productBaseCode) {
+        this.productBaseCode = productBaseCode;
+    }
+
+    public void setSupplierKcode(String supplierKcode) {
+        this.supplierKcode = supplierKcode;
+    }
+
+    public void setProductInfoSource(OnboardingApplicationDetail productInfoSource) {
+        this.productInfoSource = productInfoSource;
+    }
+
+    public void setProductMarketingMaterialSource(OnboardingApplicationDetail productMarketingMaterialSource) {
+        this.productMarketingMaterialSource = productMarketingMaterialSource;
+    }
+
+    public void setProductInfoMarketSide(List<OnboardingApplicationDetail> productInfoMarketSide) {
+        this.productInfoMarketSide = productInfoMarketSide;
+    }
+
+    public void setProductMarketingMaterialMarketSide(List<OnboardingApplicationDetail> productMarketingMaterialMarketSide) {
+        this.productMarketingMaterialMarketSide = productMarketingMaterialMarketSide;
+    }
+
+    public void setStatus(int status) {
+        this.status = OnboardingApplicationStatusType.fromKey(status);
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+}

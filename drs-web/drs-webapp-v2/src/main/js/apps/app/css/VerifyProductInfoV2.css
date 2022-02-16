@@ -1,0 +1,79 @@
+/* .card {
+    border-radius: 12px;
+    box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    border: 0 none;
+}
+
+.card-body {
+    padding: 15px 15px 10px 15px;
+}
+
+.card-header {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.card-title {
+    background-color: transparent;
+}
+
+h6 {
+    font-size: 1em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #535353;
+}
+
+.card-category {
+    text-transform: capitalize;
+    font-weight: 400;
+    color: #9A9A9A;
+}
+
+a {
+    color: #51cbce;
+}
+
+.btn {
+    font-weight: 600;
+    font-size: 0.8571em;
+    line-height: 1.35em;
+    text-transform: uppercase;
+    border: none;
+    border-width: 2px;
+    margin: 10px 1px;
+    background-color: #666158 !important;
+    color: #fff !important;
+    border-radius: 3px;
+    padding: 11px 22px;
+    transition: all 150ms linear;
+}
+
+.btn:hover {
+    background-color: #403D39 !important;
+    color: #fff !important;
+    box-shadow: none;
+    text-decoration: none;
+    opacity: 1;
+    outline: 0;
+}
+
+.btn-success {
+    background-color: #6bd098 !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
+.btn-success:hover {
+    background-color: #44c47d !important;
+}
+
+.nc-icon {
+    display: inline-block;
+    font-size: normal normal normal 14px/1 'nucleo-icons';
+    speak: none;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+} */

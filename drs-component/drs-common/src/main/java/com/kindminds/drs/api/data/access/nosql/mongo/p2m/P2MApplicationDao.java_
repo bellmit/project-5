@@ -1,0 +1,17 @@
+package com.kindminds.drs.api.data.access.nosql.mongo.p2m;
+
+import org.bson.BsonValue;
+
+public interface P2MApplicationDao {
+
+    String intoMongodb(String json);
+
+    void intoMongodbException(String json);
+
+    void save(String json, String status);
+
+    String findById(String id);
+
+    String findList();
+
+}

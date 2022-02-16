@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	   xmlns:jee="http://www.springframework.org/schema/jee"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0">
+
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="dataSource"/>
+		</property>
+	</bean>
+
+	<!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> -->
+	<bean id="dataSource"	class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+<!--		<property name="driverClassName" value="org.postgresql.Driver" />-->
+<!--		<property name="url" value="jdbc:postgresql://drs.crghoygbfshk.ap-northeast-1.rds.amazonaws.com:5432/drs?assumeMinServerVersion=9.0" />-->
+<!--		<property name="username" value="drs" />-->
+		<property name="driverClass" value="org.postgresql.Driver" />
+		<property name="jdbcUrl" value="jdbc:postgresql://drs.crghoygbfshk.ap-northeast-1.rds.amazonaws.com:5432/drs?assumeMinServerVersion=9.0" />
+		<property name="user" value="drs" />
+		<property name="password" value="phi42PrlGo6p" />
+	</bean>
+
+	<bean id="dataSourceOdoo"
+		  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://localhost:5432/odoo?assumeMinServerVersion=9.0" />
+		<property name="username" value="odoo" />
+		<property name="password" value="MiB9lcro3Om" />
+	</bean>
+
+
+
+	<!--
+	<bean id="transactionManagerCas" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryCas" />
+	</bean>
+
+	<bean id="casDataSource"
+		  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://drs.crghoygbfshk.ap-northeast-1.rds.amazonaws.com:5432/cas" />
+		<property name="username" value="postgres" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="entityManagerFactoryCas" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="casApplication" />
+		<property name="dataSource" ref="casDataSource" />
+	</bean>
+	-->
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

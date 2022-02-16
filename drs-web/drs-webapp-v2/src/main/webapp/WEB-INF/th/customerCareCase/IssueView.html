@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+<title th:text="#{issue.title}+' - DRS'"></title>
+
+<style type="text/css">
+
+html {
+	font-size:14px !important;
+}
+
+</style>
+
+<link th:href="@{/resources/css/bootstrap3-glyphicons.css}" type="text/css" rel="stylesheet">
+<link th:href="@{/resources/css/bootstrap3-wysihtml5.css}" type="text/css" rel="stylesheet">
+<script type='text/javascript' th:src="@{/resources/js/bootstrap3-wysihtml5.all.js}"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+
+<script>
+
+	function deleteConfirm(issueId) {
+		$("#dialog-confirm").html('[[#{issue.deleteIssueWarning}]]');
+		$("#dialog-confirm").dialog({
+			open : function() {$('.ui-dialog-buttonset button[name="no"]').focus();},
+			resizable : false,
+			modal : true,
+			title : "Confirmation",
+			height : 250,
+			width : 400,
+			buttons : [
+			{
+				text : '[[#{issue.yes}]]',
+				name : "yes",
+				click : function() {
+					$(this).dialog('close');
+					location.href = "/Issues/"+ issueId + "/delete";
+				}
+			}, {
+				text : '[[#{issue.no}]]',
+				name : "no",
+				click : function() {
+					$(this).dialog('close');
+				}
+			} ]
+		});
+	}	
+	
+	angular.module('issueView', []).controller('issueViewCtrl', function($scope) {
+	   
+	});	
+</script>
+
+</head>
+<body>
+	<section layout:fragment="custom-content">
+
+<div class="max-width" ng-app="issueView" ng-controller="issueViewCtrl">
+	<div class="text-center" style="color: #FF0000">
+		<h1>[[${message}]]</h1>
+	</div>
+	<div class="container-fluid">			
+	
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					<a th:text="#{issue.title}"></a>
+				</div>
+			</div>
+		</div>	
+		
+		<div class="row">
+			<div class="col-md-6">
+				<table class="table no-head">
+					<tr> 
+						<td class="text-right">
+							<b><a th:text="#{issue.issueCategory}"></a></b>
+						</td>
+						<td><a th:text="#{'issue.'+${categoryIdToNameMap[issue.categoryId]}}"></a></td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{issue.issueType}"></a></b>
+						</td>
+						<td>[[${typeIdToNameMap[issue.typeId]}]]</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{issue.issueName}"></a></b>
+						</td>
+						<td>
+							<th:block th:each="localeCodeToName : ${issue.localeCodeToNameMap}">									
+								<a th:text="${localeCodeToName.key.fullName}+' '+${localeCodeToName.value}"></a><br>
+							</th:block>								
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right">
+							<b><a th:text="#{issue.status}"></a></b>
+						</td>
+						<td><a th:text="#{'issue.'+${issue.status}}"></a></td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-md-6">
+					<table class="table no-head">
+						<div sec:authorize="${hasAnyRole(@authProperties['ISSUES_MAINTAIN'])}">
+						<tr>
+							<td class="text-right">
+								<b>[[#{issue.supplier}]]</b>
+							</td>
+							<td>
+							
+								<div th:if="${issue.supplierKcode != null}">   
+									<a th:href="@{/Companies/{supplierKcode}(supplierKcode=${issue.supplierKcode})}" target="_blank"
+										th:text="${issue.supplierKcode}+' '+${supplierKcodeToShortEnUsNameMap[issue.supplierKcode]}"></a>
+								</div>
+								<div th:unless="${issue.supplierKcode != null}">
+									[[#{issue.anyForSupplier}]]
+								</div>
+							
+							</td>
+						</tr>
+						</div>
+						<tr>
+							<td class="text-right">
+								<b>[[#{issue.relatedProducts}]]</b>
+							</td>
+							<td>							
+							<div th:if="${issue.relatedProductSkuCodeList == null}">   								
+								<th:block th:each="ProductBase : ${issue.relatedProductBaseCodeList} ">
+                                	<a th:href="@{/BaseProduct/{ProductBase}(ProductBase=${ProductBase})}" target="_blank"
+									th:text="${ProductBase}+' '+${productBaseCodeToSupplierNameMap['__${ProductBase}__']}"></a><br>    
+								</th:block>																	    								
+							</div>
+							<div th:if="${issue.relatedProductBaseCodeList == null}">
+    							<th:block th:each="sku : ${issue.relatedProductSkuCodeList}">
+                                    <a th:href="@{/SKUs/{sku}(sku=${sku})}" target="_blank"
+									 th:text="${sku}+' '+${productSkuCodeToSupplierNameMap['__${sku}__']}"></a><br>    
+								</th:block>									
+							</div>														
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b>[[#{issue.templateOccurrences}]]</b>
+							</td>
+							<td>
+							<a th:href="@{/CustomerCareCases/search?searchWords=issueId:{id}(id=${issue.id})}" 
+							th:text="${issue.templateOccurrences}"></a>
+							
+							</td>
+						</tr>
+						<tr>
+							<td class="text-right">
+								<b>[[#{issue.created}]]</b>
+							</td>
+							<td>[[${issue.createdDate}]] UTC</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-right">
+					<span sec:authorize="${hasAnyRole(@authProperties['ISSUES_MAINTAIN'])}">  
+			   		<a th:href="@{/Issues/{id}/edit(id=${issue.id})}">
+			    		<input class="btn btn-default" type="button" th:value="#{issue.edit}" />
+			    	</a>
+					</span>
+				<span sec:authorize="${hasAnyRole(@authProperties['ISSUES_MAINTAIN'])}">
+					<span th:if="${issue.comments == null and  issue.templates == null}">
+						<input class="btn btn-link" type="button" th:value="#{issue.delete}" th:onclick="|deleteConfirm('${issue.id}')|" />				
+						<div id="dialog-confirm"></div>
+					</span>
+				</span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="page-heading">
+						<a th:text="#{template.responseTemplates}"></a>
+					</div>
+				</div>
+				<div class="col-md-6 text-right">
+					<div class="page-heading">
+						<div sec:authorize="${hasAnyRole(@authProperties['TEMPLATE_MAINTAIN'])}"> 
+							<a class="btn btn-primary" th:href="@{/Issues/{id}/createResponseTemplate(id=${issue.id})}"> 
+							 	<i class="fas fa-plus"></i> [[#{template.createResponseTemplate}]]
+							</a>	
+						</div>
+					</div>
+				</div>						
+			</div>						
+			<div class="row">
+				<div class="col-md-12">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th><a th:text="#{template.applicableLanguages}"></a></th>
+								<th><a th:text="#{template.applicableCase}"></a></th>
+								<th><a th:text="#{template.applicableMarket}"></a></th>
+								<th><a th:text="#{template.applicableMarketplaces}"></a></th>						
+						</tr>
+				    	</thead>
+				   	 	<tbody>				
+						<th:block th:each="template , templateStatus : ${issue.templates}" >
+							<tr class="clickableRow" th:onclick="'document.location.href=\''+@{/Template/{id}(id=${template.id})}+'\''">
+								<td>
+									<th:block th:each="applicableLanguages , applicableLanguagesStatus: ${template.applicableLanguages}">
+										[[${applicableLanguages.fullName}]]
+										<span th:if="${applicableLanguagesStatus.count != template.applicableLanguages.size()}">,</span>
+									</th:block>
+								</td>
+								<td>
+									<th:block th:each="applicableCaseTypes ,applicableCaseTypesStatus : ${template.applicableCaseTypes}">
+										<a th:text="#{'ccc.'+${applicableCaseTypes}}"></a>
+										<span th:if="${applicableCaseTypesStatus.count != template.applicableCaseTypes.size()}">,</span>
+									</th:block>
+								</td>
+								<td>
+									<th:block th:each="applicableMarketRegions,applicableMarketRegionsStatus : ${template.applicableMarketRegions}" >
+										<a th:text="#{${applicableMarketRegions}}"></a>
+										<span th:if="${applicableMarketRegionsStatus.count != template.applicableMarketRegions.size()}">,</span>
+									</th:block>
+								</td>
+								<td>
+									<th:block th:each="applicableMarketplaces,applicableMarketplacesStatus : ${template.applicableMarketplaceList}">
+										[[${applicableMarketplaces.name}]]
+										<span th:if="${applicableMarketplacesStatus.count != template.applicableMarketplaceList.size()}">,</span>
+									</th:block>
+								</td>
+							</tr>
+						</th:block>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div style="padding-bottom: 20px"></div>
+			<hr>
+			<div sec:authorize="${hasAnyRole(@authProperties['ISSUES_POST_COMMENT'])}"> 
+			
+			<script>
+				$(document).ready(function(){
+				var iId='[[${issue.id}]]' 
+				$('#Comment').attr("action","/Issues/postComment?issueId="+iId);
+			});	
+			</script>	 
+			
+			<form id="Comment" name="Comment" class="form-horizontal text-left" modelAttribute="Comment" method="POST">
+				<div id="contentsRow" class="row">
+					<div class="col-md-12">
+						<textarea id="contents" class="form-control" name="contents" placeholder="Leave a comment" ng-model="contents" ></textarea>					
+					</div>					
+				</div>
+				<div style="padding-bottom: 10px"></div>			
+				<div class="row text-right">					
+					<div class="col-md-12">
+						<span sec:authorize="${hasAnyRole(@authProperties['ISSUES_POST_COMMENT_RESPONSE'])}">
+						<a th:text="#{issue.PENDING_SUPPLIER_ACTION}"></a> 
+						<a th:text="#{issue.yes}"></a> <input type="radio" name="pendingSupplierAction" value="true" /> 
+						<a th:text="#{issue.no}"></a> <input type="radio" name="pendingSupplierAction" value="false" checked="TRUE"/> 				
+						</span>
+						<input class="btn btn-success" type="submit" th:value="#{issue.reply}" onclick="this.form.submit()"/>
+					</div>
+				</div>			
+			</form>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="page-heading">
+						<a th:text="#{issue.discussion}"></a>
+					</div>
+				</div>
+			</div>
+			<th:block th:each="comment,commentStatus : ${issue.comments}" >
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<span class="text-muted text-right">[[${comment.createBy}]] [[${comment.dateCreate}]]</span>
+							</div>
+							<div class="panel-body">					  			
+					 	 		<p><a th:utext="${comment.contents}"></a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</th:block>			
+	</div>
+</div>
+<script type="text/javascript">
+$('#contents').wysihtml5({
+	"events": {
+    	"load": function() {
+        	$("#contentsRow .wysihtml5-sandbox").addClass("inspectlet-disable-iframe-inject");        	               
+        }
+    },toolbar: {		   
+    	 "html": true, //Button which allows you to edit the generated HTML. Default false   		     		   
+		 "link": false, //Button to insert a link. Default true
+		 "image": false, //Button to insert an image. Default true,
+		 "blockquote": false, //Blockquote
+		 "fa": true,
+	}
+});	
+</script>
+	</section>
+	</body>
+	</html>

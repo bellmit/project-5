@@ -1,0 +1,54 @@
+package com.kindminds.drs.api.v1.model.amazon;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public interface AmazonInventoryHealthReportLineItem {
+	Date getSnapshotDate();
+	String getSku();
+	String getFnsku();
+	String getAsin();
+	String getProductName();
+	String getCondition();
+	Integer getSalesRank();
+	String getProductGroup();
+	Integer getTotalQuantity();
+	Integer getSellableQuantity();
+	Integer getUnsellableQuantity();
+	Integer getInvAge0To90Days();
+	Integer getInvAge91To180Days();
+	Integer getInvAge181To270Days();
+	Integer getInvAge271To365Days();
+	Integer getInvAge365PlusDays();
+	Integer getUnitsShippedLast24Hrs();
+	Integer getUnitsShippedLast7Days();
+	Integer getUnitsShippedLast30Days();
+	Integer getUnitsShippedLast90Days();
+	Integer getUnitsShippedLast180Days();
+	Integer getUnitsShippedLast365Days();
+	BigDecimal getWeeksOfCoverT7();
+	BigDecimal getWeeksOfCoverT30();
+	BigDecimal getWeeksOfCoverT90();
+	BigDecimal getWeeksOfCoverT180();
+	BigDecimal getWeeksOfCoverT365();
+	Integer getNumAfnNewSellers();
+	Integer getNumAfnUsedSellers();
+	String getCurrency();
+	BigDecimal getYourPrice();
+	BigDecimal getSalesPrice();
+	BigDecimal getLowestAfnNewPrice();
+	BigDecimal getLowestAfnUsedPrice();
+	BigDecimal getLowestMfnNewPrice();
+	BigDecimal getLowestMfnUsedPrice();
+	Integer getQtyToBeChargedLtsf12Mo();
+	Integer getQtyInLongTermStorageProgram();
+	Integer getQtyWithRemovalsInProgress();
+	BigDecimal getProjectedLtsf12Mo();
+	BigDecimal getPerUnitVolume();
+	String getIsHazmat();
+	Integer getInBoundQuantity();
+	String getAsinLimit();
+	Integer getInboundRecommendQuantity();
+	Integer getQtyToBeChargedLtsf6Mo();
+	BigDecimal getProjectedLtsf6Mo();
+}

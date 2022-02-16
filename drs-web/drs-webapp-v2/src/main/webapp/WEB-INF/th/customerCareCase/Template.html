@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{th/layout.html}"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>	
+</title>
+<script type='text/javascript' th:src="@{/resources/js/Countable.js}"></script>	
+<link th:href="@{/resources/css/bootstrap3-wysihtml5.css}" type="text/css" rel="stylesheet">	
+<script type='text/javascript' th:src="@{/resources/js/bootstrap3-wysihtml5.all.js}"></script>	
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+<script>
+	angular.module('template', []).controller('templateCtrl',function($scope) {
+						
+		$scope.checkedAllApplicableCaseTypes = function() {				
+			$(':checkbox.applicableCaseTypes').prop('checked', true);   			
+		};
+			
+		$scope.checkedAllApplicableMarketRegions = function() {			
+			 $(':checkbox.applicableMarketRegions').prop('checked', true);   			
+		};
+		
+		$scope.checkedAllApplicableMarketplaces = function() {			
+			$(':checkbox.applicableMarketplaces').prop('checked', true);   	  			
+		};
+		
+	});	
+</script>		
+</head>
+<body>
+	<section layout:fragment="custom-content">
+<div class="max-width" ng-app="template" ng-controller="templateCtrl">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					
+						<div th:if="${type eq 'Create'}">
+							[[#{template.createResponseTemplate}]]
+							<script>
+							$(document).ready(function(){
+							$('#templateForm').attr("action","/Issues/saveResponseTemplate")
+							document.title='[[#{template.createResponseTemplate}]]'+': '+'[[${Template.issueName}]]'+' - DRS'	
+							});
+							</script>
+						</div>
+						<div th:unless="${type eq 'Create'}">
+							[[#{template.editResponse}]]
+							<script>
+							$(document).ready(function(){
+							$('#templateForm').attr("action","/Issues/updateResponseTemplate")	
+							document.title='[[#{template.editResponse}]]'+': '+'[[${Template.issueName}]]'+' - DRS'
+							});
+							</script>
+							
+						</div>
+					
+				</div>
+			</div>
+		</div>
+		<form id=templateForm  name="Template"
+			class="form-horizontal text-left" modelAttribute="Template" method="POST">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="form-group row">
+						<div class="col-12">
+							<label><a th:text="#{template.issueName}"></a></label>
+						</div>
+						<div class="col-12">
+							<b>[[${Template.issueName}]]</b>
+							<input type="hidden" name="id" th:value="${Template.id}" />
+							<input type="hidden" name="issueId" th:value="${Template.issueId}" />
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<div class="col-12">
+
+							<label><a th:text="#{template.applicableLanguages}"></a></label>
+						</div>
+
+						<div class="col-12">
+							<th:block th:each="localeCode : ${localeCodeList}">
+
+								<div class="form-check form-check-inline">
+									<input type="checkbox" class="form-check-input" 
+										th:field="*{Template.applicableLanguages}" th:value="${localeCode.name()}" />
+									<label class="form-check-label">[[${localeCode.fullName}]]</label>
+								</div>
+							</th:block>
+
+						</div>
+
+					</div>
+					<div class="form-group row">
+						<div class="col-12">
+							<label><a th:text="#{template.applicableCase}"></a></label>
+						</div>
+						<div class="col-12">
+							<input class="btn btn-default" type="button"
+								th:value="#{template.selectAll}"
+								ng-click="checkedAllApplicableCaseTypes()" />
+							
+							<th:block th:each="caseType : ${caseTypeList}">
+
+								<div class="form-check form-check-inline">
+									<input type="checkbox" class="form-check-input applicableCaseTypes" 
+										th:field="*{Template.applicableCaseTypes}" th:value="${caseType}" />
+									<label class="form-check-label"><a th:text="#{'ccc.'+${caseType}}"></a></label>
+								</div>
+
+							</th:block>
+						</div>
+					</div>
+					<div class="form-group row">
+						<div class="col-12">
+
+							<label><a th:text="#{template.applicableMarket}"></a></label>
+						</div>
+
+						<div class="col-12">
+							<input class="btn btn-default" type="button"
+								th:value="#{template.selectAll}"
+								ng-click="checkedAllApplicableMarketRegions()" />
+							<th:block th:each="marketRegion : ${marketRegionList}">
+
+								<div class="form-check form-check-inline">
+									<input type="checkbox" class="form-check-input applicableMarketRegions" 
+										th:field="*{Template.applicableMarketRegions}" th:value="${marketRegion}" />
+									<label class="form-check-label"><a th:text="#{${marketRegion}}"></a></label>
+								</div>
+
+							</th:block>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<div class="col-12">
+							<label><a th:text="#{template.applicableMarketplaces}"></a></label>
+						</div>
+						<div class="col-12">
+							<input class="btn btn-default" type="button"
+								th:value="#{template.selectAll}"
+								ng-click="checkedAllApplicableMarketplaces()" />
+							<th:block th:each="marketplace : ${marketplaceList}">
+								<div class="form-check form-check-inline">
+									<input type="checkbox" class="form-check-input applicableMarketplaces" 
+										th:field="*{Template.applicableMarketplaceList}" th:value="${marketplace.name()}" />
+									<label class="form-check-label">[[${marketplace.name}]]</label>
+								</div>
+							</th:block>
+						</div>
+					</div>
+
+
+
+					<div id="contentsRow">
+						<textarea id="contents" class="form-control" th:field="*{Template.contents}" 
+							rows="8" ></textarea>
+						<div>
+							<div class=" mt-2">
+								<input class="btn btn-primary float-right ml-2" type="submit"
+									th:value="#{template.submit}" onclick="this.form.submit()" />
+								
+									
+										<a
+											th:href="@{/Issues/{Id}(Id=${Template.issueId})}">
+											<input class="btn btn-link float-right" type="button"
+											th:value="#{template.cancel}" />
+										</a>
+									
+								
+							</div>
+						</div>
+					</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$('#contents').wysihtml5({
+	"events": {
+    	"load": function() {
+        	$("#contentsRow .wysihtml5-sandbox").addClass("inspectlet-disable-iframe-inject");        	               
+		}
+    },toolbar: {		   
+   		"html": true, //Button which allows you to edit the generated HTML. Default false   		     		   
+		"link": false, //Button to insert a link. Default true
+		"image": false, //Button to insert an image. Default true,
+		"blockquote": false, //Blockquote 
+		"fa": true,
+		
+	}
+});		
+</script>
+</section>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{th/layout.html}">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Layout Dialect Example</title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">    
+<script th:src="@{resources/js/ng-file-upload/ng-file-upload.min.js}" type='text/javascript'></script>
+<script th:src="@{resources/js/ng-file-upload/ng-file-upload-shim.min.js}" type='text/javascript'></script>
+<script>
+$(function(){
+    var testp= 'EEEEE';
+    console.log(testp);
+    
+    $('#ha').text('STM-K488-138')
+    var l =document.getElementById('ha').text
+    document.getElementById('ree').setAttribute("href","/statements/"+l)
+
+});   
+
+    
+
+     var aname ='aa'
+     function showName(name) {
+    alert("Here's the name: " + name);
+}
+var apptest = angular.module('Aapp',['ngFileUpload']);
+apptest.controller('Acontroller',function($scope){
+//var app = angular.module('fileUpload', ['ngFileUpload']);
+});
+apptest.controller('MyCtrl', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
+    $scope.uploadFiles = function(files, errFiles) {
+        $scope.files = files;
+        $scope.errFiles = errFiles;
+        angular.forEach(files, function(file) {
+            file.upload = Upload.upload({
+                url: 'https://angular-file-upload-cors-srv.appspot.com/upload',
+                data: {file: file}
+            });
+
+            file.upload.then(function (response) {
+                $timeout(function () {
+                    file.result = response.data;
+                });
+            }, function (response) {
+                if (response.status > 0)
+                    $scope.errorMsg = response.status + ': ' + response.data;
+            }, function (evt) {
+                file.progress = Math.min(100, parseInt(100.0 * 
+                                         evt.loaded / evt.total));
+            });
+        });
+    }
+    $scope.$watch('files', function () {
+        $scope.upload($scope.files);
+    });
+    $scope.$watch('file', function () {
+        if ($scope.file != null) {
+            $scope.files = [$scope.file]; 
+        }
+    });
+
+    $scope.upload = function (files) {
+        if (files && files.length) {
+            for (var i = 0; i < files.length; i++) {
+              var file = files[i];
+              if (!file.$error) {
+                Upload.upload({
+                    url: 'https://angular-file-upload-cors-srv.appspot.com/upload',
+                    data: {
+                      username: $scope.username,
+                      file: file  
+                    }
+                }).then(function (resp) {
+                    $timeout(function() {
+                        $scope.log = 'file: ' +
+                        resp.config.data.file.name +
+                        ', Response: ' + JSON.stringify(resp.data) +
+                        '\n' + $scope.log;
+                    });
+                }, null, function (evt) {
+                    
+                });
+              }
+            }
+        }
+    };
+}]);
+
+
+
+
+</script>
+
+<style>
+.thumb {
+    width: 24px;
+    height: 24px;
+    float: none;
+    position: relative;
+    top: 7px;
+}
+
+form .progress {
+    line-height: 15px;
+}
+
+
+.progress {
+    display: inline-block;
+    width: 100px;
+    border: 3px groove #CCC;
+}
+
+.progress div {
+    font-size: smaller;
+    background: orange;
+    width: 0;
+}
+
+.button {
+    -moz-appearance: button;
+    /* Firefox */
+    -webkit-appearance: button;
+    /* Safari and Chrome */
+    padding: 10px;
+    margin: 10px;
+    width: 70px;
+}
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 200px;
+    height: 65px;
+    text-align: center;
+    padding-top: 25px;
+    margin: 10px;
+}
+.dragover {
+    border: 5px dashed blue;
+}
+</style>
+</head>
+<body>
+<section layout:fragment="custom-content">
+
+    <div id="sse" ng-app="Aapp" ng-controller="Acontroller">
+
+    <p>This is a custom content that you can provide dd d raaaaa</p>
+
+
+
+    <div th:text="${#authentication.name}">
+    </div>
+    <a hidden id="ha" name="ha"></a>
+    <a id="ree" >DDDDDDD</a>
+    <p th:text="#{header.ProductsInformationMaintenance}">Title</p>
+    <a th:text="#{header.ProductsInformationMaintenance}"></a>
+    <button type="button" th:onclick="showName(aname);">Show Name</button>
+
+    <a th:text="#{marketingReport.skuAdvertisingPerformanceReport}"></a>
+    <div th:with="vv=${aa}">
+
+        <div sec:authorize="${hasAnyRole(@authProperties['PRODUCTS_NAVIGATION'])}">
+
+            This will only be displayed if authenticated user has a role computed by the controller.
+        </div>
+
+
+    </div>
+
+    <input type="text" readonly="true" th:value="${testValue}" />
+
+
+    <div class="container">
+     <div class="row">
+
+     <div class="col border border-success">
+         1   
+     </div>
+     <div class="col order-3 border border-success">
+        2   
+    </div> 
+    <div class="col order-1 border border-success">
+        3   
+    </div> 
+    </div>
+     
+     
+     
+     <div class="row">
+         
+        <div class="col-md-2 border border-success">
+           1   
+        </div>
+        <div class="col-md-2  border border-success">
+           2   
+       </div>
+       <!-- <div class="col-6 col-sm-3 border border-success">
+        3  
+    </div> -->
+        </div>
+    </div>
+
+<div ng-controller="MyCtrl">
+    
+    <h4>Upload on file select</h4>
+    <button ngf-select="uploadFiles($files, $invalidFiles)" multiple
+            accept="image/*" ngf-max-height="1000" ngf-max-size="1MB">
+        Select Files</button>
+    <br><br>
+    Files:
+    <ul>
+      <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$errorParam}}
+        
+      </li>
+      <li ng-repeat="f in errFiles" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}
+      </li> 
+    </ul>
+    {{errorMsg}}
+
+    Drop File:
+    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+        ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+        accept="image/*,application/pdf" 
+        ngf-pattern="'image/*,application/pdf'">
+        <a class="tee" ng-if="files == null">Drop here or click to upload</a>
+        <span ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</span></div>
+    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+    Files:
+    
+    <ul>
+        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+    </ul>
+
+</div>  
+   
+
+
+</div>
+
+</section>
+
+</body>
+</html>

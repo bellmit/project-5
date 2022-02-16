@@ -1,0 +1,96 @@
+<head>
+	<title>
+		Evaluate Sample (PS)
+	</title>
+</head>
+
+<script>
+jQuery(window).on("load", function(e) {	
+	
+	$('#dueDateForSampleEvaluation').attr('readonly', true);
+	jQuery("#dueDateForSampleEvaluation").datepicker({
+		beforeShow : function() {
+			setTimeout(function() {
+				$('.ui-datepicker').css('z-index', 200);
+			}, 0);
+		},
+		dateFormat : 'yy-mm-dd'
+	});	
+});	
+</script>
+
+<div class="max-width">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-heading">
+					Evaluate Sample (PS)
+				</div>
+			</div>
+		</div>
+		<form name="evaluateSample" action="">
+		<div class="row">			
+			<div class="col-md-12">				
+				<div class="panel panel-default">
+  					<div class="panel-heading">Packing Requirements</div>
+  						<div class="panel-body">
+  							<p>FBA US: <a href="https://sellercentral.amazon.com/gp/help/help.html?itemID=201100890&ref=ag_help_cont_201030350&language=en_CA" target="_blank">Inventory Requirements</a></p> 											    
+  						</div>
+				</div>		
+			</div>
+		</div>		
+		<div style="padding-top:20px"></div>
+		<div class="row">			
+			<div class="col-md-12">				
+				<div class="panel panel-default">
+  					<div class="panel-heading">If import to UK</div>
+  						<div class="panel-body">
+  							<p>
+  							Check plug has either (i) a UK 3-pin plug, or (ii) a non-UK plug that has been permanently fitted with a UK safety approved conversion plug which cannot be removed without use of a tool. 
+  							(Note that it is not lawful to just supply a loose adapter (such as a travel adapter) which can be removed by hand.)  							
+  							</p>				    
+  						</div>
+				</div>		
+			</div>
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">			
+			<div class="col-md-6">
+				<span><b>Due date for Sample evaluation (PS)</b></span><br>
+				<input type="text" id="dueDateForSampleEvaluation" class="form-control" style="width:50%;display:inline;cursor:default;background-color: white;">							
+			</div>
+			<div class="col-md-6">
+				<span><b>Comments from Sample evaluation (PS)</b></span><br>
+				<input type="text" class="form-control" style="width:50%;display:inline;">
+			</div>			
+		</div>	
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<span><b>Checklist - Sample evaluation (PS) *</b></span><br>
+				<input type="checkbox" name="receiveSample" value="yes"> Receive sample<br>
+				<input type="checkbox" name="updatePackage info" value="yes"> Update package info to DRS.network. Check product info on Brand website<br>
+				<input type="checkbox" name="checkComplexity" value="yes"> Check complexity of product (possible compatibility issues that can lead to lots of customer care communication. 
+				
+				<span class="help-block">Remind supplier of regional differences (ex. K526 Pawbo local network, K5-2C oral irrigator)</span><br>
+				
+				<input type="checkbox" name="checkOverallProductQuality" value="yes"> Check overall product quality (appearance, quality and crucial function)<br>
+				<input type="checkbox" name="checkPackaging" value="yes"> Check packaging (appropriate language, compliance labels, barcode space)<br>
+				<input type="checkbox" name="checkUserManual" value="yes"> Check user manual, online manual, system, APP<br>
+				<input type="checkbox" name="checkForWarrantyContent" value="yes"> Check for warranty content. Share articles with supplier [Most EU countries provide for a minimum period of 2 years from the date the customer received the product]<br>
+				<input type="checkbox" name="sharePackingInstruction" value="yes"> Share packing instruction with supplier (產品及外箱包裝說明, 加拿大包裝語言)<br>
+				<input type="checkbox" name="identifyProblems" value="yes"> Identify problems with supplier<br>
+				<input type="checkbox" name="confirmTTSCareCard" value="yes"> Confirm whether to provide TTS care card (not suitable for commingled products)			
+				</div>			
+		</div>
+		<div style="padding-top:20px"></div>
+		<div class="row">
+			<div class="col-md-12 text-right">
+				<input class="btn btn-default" type="submit" value="Save" />	
+				<input class="btn btn-primary" type="submit" value="Submit" />
+			</div>
+		</div>
+		</form>	
+ 	</div>
+</div> 	
+ 	

@@ -1,0 +1,941 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="basic.definition" template="/WEB-INF/views/common/layoutV3.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/common/headerV6.jsp" />
+		<!--<put-attribute name="header" value="/WEB-INF/views/common/headerV3.jsp" />-->
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />		
+	</definition>
+
+	<definition name="basic.definitionV4" template="/WEB-INF/views/common/layoutV4.jsp">
+		<put-attribute name="sidebar" value="/WEB-INF/views/common/sidebar.jsp" />
+		<put-attribute name="navbar" value="/WEB-INF/views/common/navbar.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/common/footerV2.jsp" />
+	</definition>
+
+	<definition name="noHeaderAndFooter.definition" template="/WEB-INF/views/common/layoutWithoutHeaderAndFooter.jsp">		
+		<put-attribute name="body" value="" />				
+	</definition>
+	
+	<definition name="home" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/home.jsp" />
+	</definition>
+
+
+	<definition name="indexV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/indexV4.jsp" />
+	</definition>
+
+    
+    <!--SS2SP Statement -->	
+	<definition name="SS2SP_ListStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ListStatements.jsp" />
+	</definition>
+
+	<definition name="SS2SP_ListStatementsV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ListStatementsV4.jsp" />
+	</definition>
+
+	<definition name="SS2SP_StatementView_V1" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_StatementView_V1.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_StatementView_V2" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_StatementView_V2.jsp" />
+	</definition>
+
+	<definition name="SS2SP_StatementView_V4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_StatementView_V4.jsp" />
+	</definition>
+
+	<definition name="SS2SP_PaymentAndRefundForPoInPeriod" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_PaymentAndRefundForPoInPeriod.jsp" />
+	</definition>
+
+
+	<definition name="SS2SP_PaymentAndRefundForPoInPeriodV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_PaymentAndRefundForPoInPeriodV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_SellBackReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SellBackReport.jsp" />
+	</definition>
+
+	<definition name="SS2SP_SellBackReportV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SellBackReportV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_ServiceExpense" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ServiceExpense.jsp" />
+	</definition>
+
+
+	<definition name="SS2SP_ServiceExpenseV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ServiceExpenseV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_AdvertisingCost" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_AdvertisingCost.jsp" />
+	</definition>
+
+	<definition name="SS2SP_AdvertisingCostV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_AdvertisingCostV4.jsp" />
+	</definition>
+
+	<definition name="SS2SP_OtherRefundAndAllowance" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_OtherRefundAndAllowance.jsp" />
+	</definition>
+
+	<definition name="SS2SP_OtherRefundAndAllowanceV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_OtherRefundAndAllowanceV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_MarketingActivityExpense" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_MarketingActivityExpense.jsp" />
+	</definition>
+
+	<definition name="SS2SP_MarketingActivityExpenseV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_MarketingActivityExpenseV4.jsp" />
+	</definition>
+
+	<definition name="SS2SP_ProfitShareList_V1V2" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ProfitShareList_V1V2.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_ProfitShareList_V3" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ProfitShareList_V3.jsp" />
+	</definition>
+
+	<definition name="SS2SP_ProfitShareList_V4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_ProfitShareList_V4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_SettleableItemBrowser" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SettleableItemBrowser.jsp" />
+	</definition>
+
+	<definition name="SS2SP_SettleableItemBrowserV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SettleableItemBrowserV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_Remittance" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_Remittance.jsp" />
+	</definition>
+
+
+	<definition name="SS2SP_RemittanceV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_RemittanceV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_CustomerCareCaseItems" extends="basic.definition">
+	<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_CustomerCareCaseItems.jsp" />
+</definition>
+
+	<definition name="SS2SP_CustomerCareCaseItemsV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_CustomerCareCaseItemsV4.jsp" />
+	</definition>
+	
+	<definition name="SS2SP_SkuCountryProfitShare" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SkuCountryProfitShare.jsp" />
+	</definition>
+
+	<definition name="SS2SP_SkuCountryProfitShareV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SkuCountryProfitShareV4.jsp" />
+	</definition>
+
+	<definition name="SS2SP_PaymentAndRefundForPoInPeriodItemToExport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_PaymentAndRefundForPoInPeriodItemToExport.jsp" />
+	</definition>
+
+
+	<definition name="SS2SP_PaymentAndRefundForPoInPeriodItemToExportV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_PaymentAndRefundForPoInPeriodItemToExportV4.jsp" />
+	</definition>
+
+	
+	<definition name="SS2SP_SkuCountryProfitShareToExport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SkuCountryProfitShareToExport.jsp" />
+	</definition>
+
+	<definition name="SS2SP_SkuCountryProfitShareToExportV4" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/SS2SP_statement/SS2SP_SkuCountryProfitShareToExportV4.jsp" />
+	</definition>
+		
+	<!--SS2SP Draft Statement -->
+	<definition name="Ss2spDraftStatementList" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/Ss2spDraftStatement/Ss2spDraftStatementList.jsp" />
+	</definition>
+	
+	<definition name="Ss2spDraftStatementView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/Ss2spDraftStatement/Ss2spDraftStatementView.jsp" />
+	</definition>
+	
+	<definition name="Ss2spDraftProfitShare" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/Ss2spDraftStatement/Ss2spDraftProfitShare.jsp" />
+	</definition>
+	
+	<definition name="draftStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/Ss2spDraftStatement/draftStatements.jsp" />
+	</definition>
+					
+	<!--MS2SS Statement -->	
+	<definition name="MS2SS_ListStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/MS2SS_ListStatements.jsp" />
+	</definition>
+	
+	<definition name="MS2SS_StatementView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/MS2SS_StatementView.jsp" />
+	</definition>
+	
+	<definition name="Ms2ssSettleableItemBrowser" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/Ms2ssSettleableItemBrowser.jsp" />
+	</definition>
+	
+	<definition name="MS2SS_PaymentAndRefundForPoInPeriod" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/MS2SS_PaymentAndRefundForPoInPeriod.jsp" />
+	</definition>
+	
+	<definition name="Ms2ssPurchaseAllowanceReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/Ms2ssPurchaseAllowanceReport.jsp" />
+	</definition>
+	
+	<definition name="MS2SS_ProductInventoryReturn" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/MS2SS_ProductInventoryReturn.jsp" />
+	</definition>
+	
+	<definition name="MS2SS_Remittance" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/MS2SS_Remittance.jsp" />
+	</definition>
+			
+	<definition name="debitCreditNote" extends="noHeaderAndFooter.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_statement/debitCreditNote.jsp" />
+	</definition>
+				
+	<!--MS2SS Draft Statement -->
+	<definition name="MS2SS_ListDraftStatement" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_draftStatement/MS2SS_ListDraftStatement.jsp" />
+	</definition>
+	<definition name="Ms2ssDraftStatement" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_draftStatement/MS2SS_DraftStatementView.jsp" />
+	</definition>
+	<definition name="Ms2ssDraftPaymentAndRefund" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_draftStatement/Ms2ssDraftPaymentAndRefund.jsp" />
+	</definition>
+	<definition name="Ms2ssDraftPurchaseAlwnc" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/MS2SS_draftStatement/Ms2ssDraftPurchaseAlwnc.jsp" />
+	</definition>
+					    
+    <!-- Remittance -->
+    <definition name="ListOfRemittances" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/remittance/ListOfRemittances.jsp" />
+	</definition>
+                
+    <definition name="Remittance" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/remittance/Remittance.jsp" />
+    </definition>
+    
+    <definition name="RemittanceView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/remittance/RemittanceView.jsp" />
+    </definition>
+        
+    <!-- Company -->
+    <definition name="ListOfCompanies" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/company/ListOfCompanies.jsp" />
+    </definition>
+    
+    <definition name="Company" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/company/Company.jsp" />
+    </definition>
+
+<!--	<definition name="Company" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/company/Company.jsp" />-->
+<!--	</definition>-->
+
+   <definition name="CompanyView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/company/CompanyView.jsp" />
+    </definition>
+	<!--
+	<definition name="CompanyView" extends="basic.definitionV4">
+		<put-attribute name="body" value="/WEB-INF/views/company/CompanyView.jsp" />
+	</definition>
+	-->
+    
+    <definition name="CompanyEditByOne" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/company/CompanyEditByOne.jsp" />
+    </definition>
+        
+    <definition name="CompanyViewByOne" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/company/CompanyViewByOne.jsp" />
+    </definition>    
+                
+    <!-- product -->
+<!--    <definition name="ListOfProducts" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/ListOfProducts.jsp" />-->
+<!--    </definition>-->
+
+	<definition name="ListOfProducts" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/ListOfProducts.jsp" />
+	</definition>
+
+    <definition name="ProcessAdSpend_temp" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/ProcessAdSpend.jsp" />
+    </definition>
+
+<!--    <definition name="BaseProduct" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/BaseProduct.jsp" />-->
+<!--    </definition>-->
+
+	<definition name="BaseProduct" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/BaseProduct.jsp" />
+	</definition>
+
+<!--    <definition name="BaseProductView" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/BaseProductView.jsp" />-->
+<!--    </definition>-->
+
+	<definition name="BaseProductView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/BaseProductView.jsp" />
+	</definition>
+
+<!--    <definition name="SKU" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/SKU.jsp" />-->
+<!--    </definition>-->
+	<definition name="SKU" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/SKU.jsp" />
+	</definition>
+    
+<!--    <definition name="SKUView" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/SKUView.jsp" />-->
+<!--    </definition>-->
+	<definition name="SKUView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/SKUView.jsp" />
+	</definition>
+    
+<!--    <definition name="ProductSkuRegionInfo" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/ProductSkuRegionInfo.jsp" />-->
+<!--    </definition>-->
+	<definition name="ProductSkuRegionInfo" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/ProductSkuRegionInfo.jsp" />
+	</definition>
+    
+<!--    <definition name="ProductSkuRegionInfoView" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/product/ProductSkuRegionInfoView.jsp" />-->
+<!--    </definition>-->
+	<definition name="ProductSkuRegionInfoView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/product/ProductSkuRegionInfoView.jsp" />
+	</definition>
+    
+    
+    <!-- ProductVersions -->
+    <definition name="ListOfProductInfoSourceVersions" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ListOfNewDevelopingProducts.jsp" />
+    </definition>
+
+<!--	<definition name="ListOfProductInfoSourceVersionsV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ListOfNewDevelopingProductsV4.jsp" />-->
+<!--	</definition>-->
+                    
+    <definition name="ProductInfoSourceVersion" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoSourceVersion.jsp" />
+    </definition>
+
+<!--	<definition name="ProductInfoSourceVersion" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoSourceVersion_origin.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="ProductInfoSourceVersionView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoSourceVersionView.jsp" />
+    </definition>
+    
+<!--    <definition name="ProductInfoMarketSideVersion" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoMarketSideVersion.jsp" />-->
+<!--    </definition>-->
+
+	<definition name="ProductInfoMarketSideVersion" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoMarketSideVersion.jsp" />
+	</definition>
+    
+    <definition name="ProductInfoMarketSideVersionView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoMarketSideVersionView.jsp" />
+    </definition>
+    
+    
+<!--    <definition name="ProductMarketingMaterialView" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterialView.jsp" />-->
+<!--    </definition>-->
+
+	<definition name="ProductMarketingMaterialView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterialView.jsp" />
+	</definition>
+    
+    
+     <!-- OnboardingApplication -->
+    <definition name="OnboardingApplicationList" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/onboardingApplication/OnboardingApplicationList.jsp" />
+    </definition>
+    
+    <definition name="OnboardingApplication" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/onboardingApplication/OnboardingApplication.jsp" />
+    </definition>
+    
+    
+     <!-- ******************* index page-->
+     <definition name="ProductMarketingMaterialIndex" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterialIndex.jsp" />
+     </definition>
+	<!--	for test -->
+<!--	<definition name="ProductMarketingMaterialIndex" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterialIndex_origin.jsp" />-->
+<!--	</definition>-->
+    
+     <definition name="ProductMarketingMaterialIndex_new" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterialIndex_new.jsp" />
+    </definition>
+    
+    
+    
+    <!-- ******************* edit page-->
+
+	<definition name="ProductMarketingMaterial" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterial.jsp" />
+	</definition>
+
+<!--	<definition name="ProductMarketingMaterial" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterial.jsp" />-->
+<!--	</definition>-->
+<!--    -->
+    <definition name="ProductMarketingMaterial_new" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductMarketingMaterial_new.jsp" />
+    </definition>
+
+	<definition name="ConfirmMarketingMaterialView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ConfirmMarketingMaterialView.jsp" />
+	</definition>
+    
+<!--    <definition name="ConfirmMarketingMaterialView" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/productVersion/ConfirmMarketingMaterialView.jsp" />-->
+<!--    </definition>-->
+    
+    
+    
+  
+    <!-- testing -->
+    <definition name="TestingView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/TestingView.jsp" />
+    </definition>
+    
+    <definition name="ProductInfoSKU" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productVersion/ProductInfoSKU.jsp" />
+    </definition>
+                                                         
+    <!-- InventoryShipment -->   
+<!--    <definition name="InventoryShipment" extends="basic.definition">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryShipment.jsp_" />-->
+<!--    </definition>-->
+
+<!--	<definition name="InventoryShipmentV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryShipmentV4.jsp" />-->
+<!--	</definition>-->
+         
+    <definition name="InventoryShipmentView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryShipmentView.jsp" />
+    </definition>
+
+
+<!--	<definition name="InventoryShipmentViewV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryShipmentViewV4.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="InventoryPaymentReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryPaymentReport.jsp" />
+    </definition>
+
+<!--	<definition name="InventoryPaymentReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/InventoryPaymentReportV4.jsp" />-->
+<!--	</definition>-->
+
+    <definition name="PurchaseOrder" extends="noHeaderAndFooter.definition">
+		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/PurchaseOrder.jsp" />
+	</definition>
+
+    <definition name="ListOfInventoryShipments" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/ListOfInventoryShipments.jsp" />
+    </definition>
+
+<!--	<definition name="ListOfInventoryShipmentsV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/inventoryShipment/ListOfInventoryShipmentsV4.jsp" />-->
+<!--	</definition>-->
+
+	<definition name="accessDeny" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/accessDeny.jsp" />
+	</definition>
+	
+	<definition name="error" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/error.jsp" />
+	</definition>
+
+	<!-- UnifiedShipment -->   
+    <definition name="UnifiedShipment" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/uns/UnifiedShipment.jsp" />
+    </definition>
+         
+    <definition name="UnifiedShipmentView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/uns/UnifiedShipmentView.jsp" />
+    </definition>
+       
+    <definition name="ListOfUnifiedShipments" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/uns/ListOfUnifiedShipments.jsp" />
+    </definition>
+     
+    <!-- CustomerCareCase -->    
+    <definition name="ListOfCustomerCareCases" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfCustomerCareCases.jsp" />
+    </definition>
+
+<!--	<definition name="ListOfCustomerCareCasesV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfCustomerCareCasesV4.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="CustomerCareCase" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCase.jsp" />
+    </definition>
+
+<!--	<definition name="CustomerCareCaseV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCaseV4.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="CustomerCareCaseView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCaseView.jsp" />
+    </definition>
+
+<!--	<definition name="CustomerCareCaseViewV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCaseViewV4.jsp" />-->
+<!--	</definition>-->
+<!--        -->
+   	<definition name="CustomerCareCaseMessageWorkDetails" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCaseMessageWorkDetails.jsp" />
+    </definition>
+
+<!--	<definition name="CustomerCareCaseMessageWorkDetailsV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/CustomerCareCaseMessageWorkDetailsV4.jsp" />-->
+<!--	</definition>-->
+   
+    <definition name="ListOfIssues" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfIssues.jsp" />
+    </definition>
+
+<!--	<definition name="ListOfIssuesV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfIssuesV4.jsp" />-->
+<!--	</definition>-->
+       
+    <definition name="Issue" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/Issue.jsp" />
+    </definition>
+
+<!--	<definition name="IssueV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/IssueV4.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="IssueView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/IssueView.jsp" />
+    </definition>
+
+<!--	<definition name="IssueViewV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/IssueViewV4.jsp" />-->
+<!--	</definition>-->
+   
+    <definition name="ListOfIssueType" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfIssueTypes.jsp" />
+    </definition>
+
+<!--	<definition name="ListOfIssueTypeV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/ListOfIssueTypesV4.jsp" />-->
+<!--	</definition>-->
+
+
+	<definition name="IssueType" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/IssueType.jsp" />
+    </definition>
+            
+    <definition name="Template" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/Template.jsp" />
+    </definition>
+
+<!--	<definition name="TemplateV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/TemplateV4.jsp" />-->
+<!--	</definition>-->
+    
+    <definition name="TemplateView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/TemplateView.jsp" />
+    </definition>
+
+	<definition name="TemplateViewV4" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerCareCase/TemplateViewV4.jsp" />
+	</definition>
+    
+    <!-- SupplementalLink -->        
+    <definition name="ListOfSupplementalLinks" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/supplementalLink/ListOfSupplementalLinks.jsp" />
+    </definition>
+    
+    <definition name="SupplementalLink" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/supplementalLink/SupplementalLink.jsp" />
+    </definition>
+                                                   
+	<definition name="accessDeny" extends="noHeaderAndFooter.definition">
+		<put-attribute name="body" value="/WEB-INF/views/accessDeny.jsp" />
+	</definition>
+						
+	<definition name="login" template="/WEB-INF/views/login.jsp"></definition>
+	
+	<!-- AmazonReport -->  
+	<definition name="amazonSettlementReports" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/amazonSettlementReports.jsp" />
+	</definition>
+	
+	<!-- AmazonReturnReport -->  
+	<definition name="ListOfAmazonReturnReports" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReturnReport/ListOfAmazonReturnReports.jsp" />
+	</definition>
+	
+	<!-- MarketSideTransaction  -->  
+	<definition name="MarketSideTransactionsList" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketSideTransaction/MarketSideTransactionsList.jsp" />
+	</definition>
+			
+	<!-- CustomerOrder --> 
+	<definition name="ListOfCustomerOrders" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerOrder/ListOfCustomerOrders.jsp" />
+	</definition>
+
+<!--	<definition name="ListOfCustomerOrdersV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/customerOrder/ListOfCustomerOrdersV4.jsp" />-->
+<!--	</definition>-->
+	
+	<definition name="ListOfCustomerOrdersToExport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/customerOrder/ListOfCustomerOrdersToExport.jsp" />
+	</definition>
+	
+	<!-- ImportDutyTransaction -->
+	<definition name="ListOfImportDutyTransactions" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/importDutyTransaction/ListOfImportDutyTransactions.jsp" />
+	</definition>
+	
+	<definition name="ImportDutyTransaction" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/importDutyTransaction/ImportDutyTransaction.jsp" />
+	</definition>
+	
+	<definition name="ImportDutyTransactionView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/importDutyTransaction/ImportDutyTransactionView.jsp" />
+	</definition>
+
+	<!-- CampaignPerformance -->
+	<definition name="SkuAdvertisingPerformanceReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SkuAdvertisingPerformanceReport.jsp" />
+	</definition>
+
+<!--	<definition name="SkuAdvertisingPerformanceReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SkuAdvertisingPerformanceReportV4.jsp" />-->
+<!--	</definition>-->
+
+	<definition name="hbaseCp" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/cp.jsp" />
+	</definition>
+
+	<definition name="hbaseSt" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/st.jsp" />
+	</definition>
+	
+	<definition name="AmazonCampaignPerformanceReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonCampaignPerformanceReport.jsp" />
+	</definition>
+
+	<definition name="HsaCampaignReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonHsaCampaignReport.jsp" />
+	</definition>
+
+	<definition name="HsaKeywordReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonHsaKeywordReport.jsp" />
+	</definition>
+	
+	<!-- Shopify -->
+	<definition name="ListOfShopifyReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/shopifyReport/ListOfShopifyReport.jsp" />
+	</definition>
+	
+	<!--  RetainmentRate -->
+	<definition name="RetainmentRateList" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/retainmentRate/RetainmentRateList.jsp" />
+	</definition>
+	
+	<!--  Settlement -->
+	<definition name="Settlement" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/settlement/Settlement.jsp" />
+	</definition>
+	
+	<!-- ProfitCostShareStatements -->
+	<definition name="ProfitCostShareStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/profitCostShareStatements/ProfitCostShareStatements.jsp" />
+	</definition>
+	
+	<definition name="EditProfitCostShareStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/profitCostShareStatements/EditProfitCostShareStatements.jsp" />
+	</definition>
+	
+	<definition name="BulkEditProfitCostShareStatements" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/profitCostShareStatements/BulkEditProfitCostShareStatements.jsp" />
+	</definition>
+	
+	<!--  MarketingReports -->
+	<definition name="MarketingReports" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/MarketingReports.jsp" />
+	</definition>
+	
+	<definition name="SkuAdvertisingEvaluationReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SkuAdvertisingEvaluationReport.jsp" />
+	</definition>
+
+<!--	<definition name="SkuAdvertisingEvaluationReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SkuAdvertisingEvaluationReportV4.jsp" />-->
+<!--	</definition>-->
+
+
+	<definition name="AmazonSponsoredBrandsCampaign" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonSponsoredBrandsCampaign.jsp" />
+	</definition>
+
+	<definition name="AmazonSponsoredBrandsCampaignReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonSponsoredBrandsCampaignReport.jsp" />
+	</definition>
+
+<!--	<definition name="AmazonSponsoredBrandsCampaignReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonSponsoredBrandsCampaignReportV4.jsp" />-->
+<!--	</definition>-->
+		
+	<!--  SearchTermReportImport -->
+	<definition name="AmazonSearchTermReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonSearchTermReport.jsp" />
+	</definition>
+	
+	<definition name="SearchTermReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SearchTermReport.jsp" />
+	</definition>
+
+<!--	<definition name="SearchTermReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/marketingReport/SearchTermReportV4.jsp" />-->
+<!--	</definition>-->
+
+
+	<definition name="AmazonDetailPageSalesTrafficByChildItemReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/AmazonDetailPageSalesTrafficByChildItemReport.jsp" />
+	</definition>
+	
+	<definition name="CustomerSatisfaction" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/marketingReport/customerSatisfaction.jsp" />
+	</definition>
+
+<!--	<definition name="CustomerSatisfactionV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/marketingReport/customerSatisfactionV4.jsp" />-->
+<!--	</definition>-->
+<!--				-->
+	<!--  InternationalTransaction -->
+	<definition name="listOfInternationalTransactions" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/internationalTransaction/listOfInternationalTransactions.jsp" />
+	</definition>
+				
+	<definition name="internationalTransaction" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/internationalTransaction/internationalTransaction.jsp" />
+	</definition>
+			
+	<definition name="internationalTransactionView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/internationalTransaction/internationalTransactionView.jsp" />
+	</definition>
+	
+	<!-- AmazonInventoryHealthReport -->					
+	<definition name="amazonInventoryHealthReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/amazonInventoryHealthReport.jsp" />
+	</definition>
+
+	<definition name="inventoryHealthReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/inventoryHealthReport.jsp" />
+	</definition>
+
+<!--	<definition name="inventoryHealthReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/amazonReport/inventoryHealthReportV4.jsp" />-->
+<!--	</definition>-->
+
+
+	<!-- ReplenishmentInformation -->
+	<definition name="replenishmentInformation" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/replenishment/replenishmentInformation.jsp" />
+	</definition>
+
+	<!-- Replenishment Prediction -->
+	<definition name="ReplenishmentPrediction" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/replenishmentReport/ReplenishmentPrediction.jsp" />
+	</definition>
+
+	<!--<definition name="ReplenishmentPrediction" extends="basic.definitionV4">-->
+		<!--<put-attribute name="body" value="/WEB-INF/views/replenishmentReport/ReplenishmentPredictionV4.jsp" />-->
+	<!--</definition>-->
+	
+	<!-- AmazonDailyPageSalesTrafficReport -->
+	<definition name="amazonDailyPageSalesTrafficReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/amazonDailyPageSalesTrafficReport.jsp" />
+	</definition>
+		
+	<!-- DomesticTransaction -->
+	<definition name="listOfDomesticTransactions" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/domesticTransaction/listOfDomesticTransactions.jsp" />
+	</definition>
+				
+	<definition name="domesticTransaction" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/domesticTransaction/domesticTransaction.jsp" />
+	</definition>
+			
+	<definition name="domesticTransactionView" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/domesticTransaction/domesticTransactionView.jsp" />
+	</definition>
+	
+	<!-- AmazonInventoryAvailability -->
+	<definition name="amazonInventoryAvailability" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/amazonInventoryAvailability.jsp" />
+	</definition>
+		
+	<!-- SalesAndPageTrafficReport -->
+	<definition name="salesAndPageTrafficReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/salesAndPageTrafficReport/salesAndPageTrafficReport.jsp" />
+	</definition>
+	
+	<definition name="salesAndPageTrafficToExport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/salesAndPageTrafficReport/salesAndPageTrafficToExport.jsp" />
+	</definition>
+
+<!--	<definition name="salesAndPageTrafficReportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/salesAndPageTrafficReport/salesAndPageTrafficReportV4.jsp" />-->
+<!--	</definition>-->
+
+<!--	<definition name="salesAndPageTrafficToExportV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/salesAndPageTrafficReport/salesAndPageTrafficToExportV4.jsp" />-->
+<!--	</definition>-->
+	
+	<!-- StorageFee  -->
+	<definition name="storageFee" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/storageFee/storageFee.jsp" />
+	</definition>
+
+<!--	<definition name="storageFeeV4" extends="basic.definitionV4">-->
+<!--		<put-attribute name="body" value="/WEB-INF/views/storageFee/storageFeeV4.jsp" />-->
+<!--	</definition>-->
+	
+	<definition name="storageFeeReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/storageFee/storageFeeReport.jsp" />
+	</definition>
+	
+	<definition name="calculateMonthlyStorageFee" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/storageFee/calculateMonthlyStorageFee.jsp" />
+	</definition>
+		
+	<!-- Product SKU Asin -->	
+	<definition name="SkuAsin" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/productSkuAsin/SkuAsin.jsp" />
+	</definition>
+	
+	<!-- Import Amazon Report -->	
+	<definition name="importAmazonReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/importAmazonReport.jsp" />
+	</definition>
+	
+	<definition name="importAmazonDateRangeReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/amazonReport/amazonDateRangeReport.jsp" />
+	</definition>
+	
+	<!-- Email Reminder -->
+	<definition name="emailReminder" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/emailReminder/emailReminder.jsp" />
+	</definition>
+
+	<!-- Process Coupon Redemption Fee -->
+	<definition name="ListOfCouponRedemptionTransactions" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/couponRedemption/ListOfCouponRedemptionTransactions.jsp" />
+	</definition>
+
+	<!-- Process Settlement -->
+	<definition name="ProcessAdSpend" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/processAdSpend/processAdSpend.jsp" />
+	</definition>
+
+	<definition name="ViewCampaignDetail" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/processAdSpend/viewCampaignDetail.jsp" />
+	</definition>
+
+	<definition name="ViewHSAReport" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/processAdSpend/viewHSAReport.jsp" />
+	</definition>
+
+	<definition name="salesDashboard" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/sales.jsp" />
+	</definition>
+
+	<definition name="salesboard" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/salesBoard.jsp" />
+	</definition>
+
+	<definition name="araging" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/arAging.jsp" />
+	</definition>
+
+	<definition name="biwinv" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/biweeklyInv.jsp" />
+	</definition>
+
+	<definition name="sks" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/supplierKeyStats.jsp" />
+	</definition>
+
+
+	<definition name="campaignDashboard" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/campaignPerformance.jsp" />
+	</definition>
+
+	<definition name="constructionSchedule" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/constructionSchedule.jsp" />
+	</definition>
+
+	<definition name="ccIssues" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/ccIssues.jsp" />
+	</definition>
+
+	<definition name="return" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/return.jsp" />
+	</definition>
+
+	<definition name="review" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/review.jsp" />
+	</definition>
+
+
+	<definition name="amzfbainv" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/amzFBAInv.jsp" />
+	</definition>
+
+	<definition name="amzsettlement" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/amzSettlement.jsp" />
+	</definition>
+
+	<definition name="acctinvoice" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/invoice.jsp" />
+	</definition>
+
+	<definition name="marketingSalesDashboard" extends="basic.definition">
+		<put-attribute name="body" value="/WEB-INF/views/dashboard/marketingSalesDashboard.jsp" />
+	</definition>
+
+
+
+
+</tiles-definitions>

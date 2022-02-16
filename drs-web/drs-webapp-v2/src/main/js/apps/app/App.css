@@ -1,0 +1,115 @@
+/* original version */
+
+/* #bodyContentContainer{
+  width: 100%;
+  padding-top: 2rem;
+  padding-right: 2.5rem;
+  padding-left: 2.5rem;
+  padding-bottom: 15rem;
+  font-size: 14px;
+  line-height:1.7;
+} */
+
+/* ul{
+	padding-left: 2rem;
+} */
+
+/*===============================================*/
+/* 
+.page-title{
+	font-size: 1.7rem;
+}
+
+.thirty-percent-width{
+  width: 30%
+}
+
+.fifty-percent-width{
+  width: 50%
+}
+
+.eighty-percent-width{
+  width: 80%
+}
+
+.block-title{
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.question-block{
+  margin-top: 1.6rem;
+  margin-bottom: 2.2rem;
+} */
+
+/* .card-title{
+  font-weight: bold;
+} */
+
+/* .supporting-text{
+  font-size: .9rem;
+}
+
+.radio-button{
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.form-check-input2{
+  width: 1.05rem;
+  height: 1.05rem;
+} */
+/* add css 2020/01/13*/
+/* add css 2020/02/11 */
+
+/* .card {
+  padding: 3rem;
+  background-color: #fff
+}
+
+.card-header {
+  padding: 0 !important;
+  border: none !important;
+  margin-left: 12px;
+}
+
+.card-title {
+  color: #2c2c2c;
+}
+
+h4 {
+  margin-top: 10px;
+}
+
+h6 {
+  color: #535353;
+}
+
+hr { 
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+} */
+
+/* body {
+  font-family: "Open Sans", "apple system", Helvetica, Arial, sans-serif, 微軟正黑體, Lato;
+  background-color: #f4f3ef;
+} */
+
+/* button {
+  letter-spacing: 0.5px;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
+} */
+
+.app {
+  width: 100%;
+}
